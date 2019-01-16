@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>886</width>
-    <height>579</height>
+    <width>1008</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>GIMR Video</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
        <widget class="QLabel" name="video1">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -27,7 +27,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0">
        <widget class="QLabel" name="video2">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -46,7 +46,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>886</width>
+     <width>1008</width>
      <height>21</height>
     </rect>
    </property>
@@ -54,23 +54,7 @@
     <property name="title">
      <string>Connections</string>
     </property>
-    <widget class="QMenu" name="menuCamera_1">
-     <property name="title">
-      <string>Camera 1</string>
-     </property>
-     <addaction name="actionConnection"/>
-    </widget>
-    <widget class="QMenu" name="menuCamera_2">
-     <property name="title">
-      <string>Camera 2</string>
-     </property>
-     <addaction name="actionConnection_2"/>
-    </widget>
     <addaction name="actionStart_Video"/>
-    <addaction name="actionStop_Pause"/>
-    <addaction name="separator"/>
-    <addaction name="menuCamera_1"/>
-    <addaction name="menuCamera_2"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -78,8 +62,15 @@
     </property>
     <addaction name="actionSettings"/>
    </widget>
+   <widget class="QMenu" name="menuVideo">
+    <property name="title">
+     <string>Video</string>
+    </property>
+    <addaction name="actionSwitch"/>
+   </widget>
    <addaction name="menuRun"/>
    <addaction name="menuTools"/>
+   <addaction name="menuVideo"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionStart_Video">
@@ -105,6 +96,11 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionSwitch">
+   <property name="text">
+    <string>Switch</string>
    </property>
   </action>
  </widget>
