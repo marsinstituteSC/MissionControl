@@ -9,4 +9,3 @@ Mission Control Center Application for MISC's Mars Rover, Viking III
 * pip install opencv-contrib-python (for camera streaming)
 * pip install roslibpy (uncertain if we need this yet)
 * pip install pygame (for gamepad)
-* pip install termcolor (for colorizing debug messages @ terminal)
