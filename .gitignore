@@ -35,6 +35,10 @@ ServiceFabricBackup/
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
+bin
+obj
+packages
+
 # Visual C++ cache files
 ipch/
 *.aps
