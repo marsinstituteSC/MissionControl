@@ -1,8 +1,4 @@
-"""Module for the creation of a window to show streamed video"""
-
-# Normal package imports
-import sys
-sys.path.append("..")
+""" Module for the creation of a window to show streamed video """
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
@@ -15,10 +11,10 @@ from PyQt5.uic import loadUi
 import cv2
 
 # Package imports
-from settings.settings import openSettings
+from settings import settings as cfg
 
-VIDEO_LINK1 = "src/videos/demo.mp4"
-VIDEO_LINK2 = "src/videos/demo2.mp4"
+VIDEO_LINK1 = "videos/demo.mp4"
+VIDEO_LINK2 = "videos/demo2.mp4"
 
 class Thread(QThread):
     """Thread class to run the fetching and coverting of the video in its own thread"""
@@ -31,7 +27,8 @@ class Thread(QThread):
         """Captures the video, converts them to a QImage and then passes them to the pyqt signal for the label"""
 
         # OpenCv capture methods
-        # TODO Change the link to be a http link for the stream, let user change the video capture target
+        # TODO Change the link to be a http link for the stream, let user
+        # change the video capture target
         cap1 = cv2.VideoCapture(VIDEO_LINK1)
         cap2 = cv2.VideoCapture(VIDEO_LINK2)
         
@@ -53,12 +50,11 @@ class Thread(QThread):
                 p2 = convert_to_qt_format2.scaled(640, 480, Qt.KeepAspectRatio)
                 self.changePixmap2.emit(p2)
 
-
 class VideoWindow(QMainWindow):
     """Window class for video display"""
     def __init__(self):
         super(VideoWindow, self).__init__()
-        loadUi("src/designer/video.ui", self)
+        loadUi("designer/video.ui", self)
         self.video_thread = None
 
         # Toolbar button to run the video
@@ -85,11 +81,9 @@ class VideoWindow(QMainWindow):
         self.video_thread.start()
 
     def settings(self):
-        self.test = openSettings()
+        self.test = cfg.openSettings()
 
-
-if __name__ == "__main__":
-    APP = QApplication(sys.argv)
-    WINDOW = VideoWindow()
-    WINDOW.show()
-    sys.exit(APP.exec_())
+def LoadCameraWindow():
+    wndw = VideoWindow()
+    wndw.show()
+    return wndw

@@ -23,12 +23,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="main.py" />
+    <Compile Include="package\camera\window_video.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="package\camera\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="package\communications\udp_listener.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="package\communications\udp_writer.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="package\communications\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="package\controller\gamepad.py" />
     <Compile Include="package\controller\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -36,6 +46,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="package\mainwindow\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="package\settings\settings.py" />
+    <Compile Include="package\settings\__init__.py" />
+    <Compile Include="package\utils\warning.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="package\utils\__init__.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -48,6 +66,8 @@
     <Folder Include="package\communications\" />
     <Folder Include="package\controller\" />
     <Folder Include="package\mainwindow\" />
+    <Folder Include="package\settings\" />
+    <Folder Include="package\utils\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />
   <ProjectExtensions>

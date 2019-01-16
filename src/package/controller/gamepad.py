@@ -1,12 +1,25 @@
-"""Reading the input from a game controller"""
+""" Reading the input from a game controller """
+
 from pygame import joystick, time, event, init, JOYBUTTONDOWN, JOYAXISMOTION, JOYHATMOTION, JOYBUTTONUP
+from PyQt5.QtCore import QThread
 
-# A lot of help from https://github.com/joncoop/pygame-xbox360controller/blob/master/xbox360_controller.py for class structure, methods and better deadzone calculations
+from utils import warning
 
-class Gamepad():
+# A lot of help from
+# https://github.com/joncoop/pygame-xbox360controller/blob/master/xbox360_controller.py
+# for class structure, methods and better deadzone calculations
+
+class Gamepad(QThread):
     """Class for gamepad"""
     # Init does not initialize the gamepad
     def __init__(self, deadzone=0.1):
+        QThread.__init__(self)
+
+        # Initializes pygame and creates a instance of a clock to control the
+        # tick rate.
+        init()
+        self.CLOCK = time.Clock()
+
         # Gamepad mapping for Windows
         self.gamepad_mapping = {
             "A" : 0,
@@ -29,13 +42,20 @@ class Gamepad():
         self.deadzone = deadzone
         self.joystick_id = None
         joystick.init()
+        self.initialize(0)
+
+    def __del__(self):
+        self.wait()    
 
     # Initializes the joystick
     def initialize(self, id_joystick):
         """Initializes the selected joystick"""
-        self.joystick_id = id_joystick
-        self.joystick = joystick.Joystick(id_joystick)
-        self.joystick.init()
+        try:
+            self.joystick_id = id_joystick
+            self.joystick = joystick.Joystick(id_joystick)
+            self.joystick.init()
+        except:
+            print("Invalid joystick num/ID,", id_joystick, "!")
 
     def get_all_gamepads(self):
         """
@@ -133,30 +153,34 @@ class Gamepad():
 
         return (left, up, right, down)
 
-# NOTE create a local variable to hold the gamepad value for the functions we will use.
-if __name__ == "__main__":
-    # Initializes pygame and creates a instance of a clock to control the tick rate.
-    init()
-    CLOCK = time.Clock()
+    # NOTE create a local variable to hold the gamepad value for the functions
+    # we
+    # will use.
+    # Initializes pygame and creates a instance of a clock to control the tick
+    # rate.
+    def run(self):
+        while True:
+	        # Go through the event list and find button, axis and hat events
+            for EVENT in event.get():
+		        # If a press event has happened, check the corresponding button and
+		        # check if it is already pressed in before this event.
+		        # TODO: Call the corresponding method for the key.
+                if EVENT.type == JOYBUTTONDOWN or EVENT.type == JOYBUTTONUP:
+                    for btn, value in self.get_buttons().items():
+                        print(btn, value)
 
-    xbox = Gamepad()
-    xbox.initialize(0)
-    while True:
-        # Go through the event list and find button, axis and hat events
-        for EVENT in event.get():
-            # If a press event has happened, check the corresponding button and check if it is already pressed in before this event.
-            # TODO: Call the corresponding method for the key.
-            if EVENT.type == JOYBUTTONDOWN or EVENT.type == JOYBUTTONUP:
-                for btn, value in xbox.get_buttons().items():
-                    print(btn, value)
+                if EVENT.type == JOYAXISMOTION:
+                    print(self.get_left_stick())
+                    print(self.get_right_stick())
+                    print(self.get_bumpers())
 
-            if EVENT.type == JOYAXISMOTION:
-                print(xbox.get_left_stick())
-                print(xbox.get_right_stick())
-                print(xbox.get_bumpers())
+                if EVENT.type == JOYHATMOTION:
+                    print(self.get_dpad())
 
-            if EVENT.type == JOYHATMOTION:
-                print(xbox.get_dpad())
+            # Limit the clock rate to 30 ticks per second
+            self.CLOCK.tick(30)
 
-        # Limit the clock rate to 30 ticks per second
-        CLOCK.tick(30)
+def LoadGamepad():
+    pad = Gamepad()
+    pad.start()
+    return pad
