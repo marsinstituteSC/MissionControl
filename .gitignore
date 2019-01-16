@@ -152,6 +152,7 @@ dmypy.json
 vs/*
 
 # VS Code
+.vscode/
 .vscode/*
 vscode/*
 !.vscode/settings.json
