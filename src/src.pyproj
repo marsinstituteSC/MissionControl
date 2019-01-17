@@ -29,10 +29,7 @@
     <Compile Include="package\camera\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="package\communications\udp_listener.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="package\communications\udp_writer.py">
+    <Compile Include="package\communications\udp_conn.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="package\communications\__init__.py">

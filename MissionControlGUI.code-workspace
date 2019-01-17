@@ -4,5 +4,7 @@
 			"path": "src"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"python.pythonPath": "D:\\PythonAnaconda\\python.exe"
+	}
 }

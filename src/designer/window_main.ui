@@ -33,10 +33,23 @@
      <number>5</number>
     </property>
     <property name="value" stdset="0">
-     <double>21.500000000000000</double>
+     <double>22.000000000000000</double>
     </property>
     <property name="intValue" stdset="0">
      <number>22</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnMessage">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>170</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Send Now</string>
     </property>
    </widget>
   </widget>

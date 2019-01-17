@@ -15,7 +15,7 @@ from utils import warning
 class OptionWindow(QDialog):
     """Window class for settings"""
     def __init__(self):
-        super(OptionWindow, self).__init__()
+        super().__init__()
         loadUi("designer/settings.ui", self)
 
         # Button connections

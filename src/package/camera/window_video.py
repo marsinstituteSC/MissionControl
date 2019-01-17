@@ -53,7 +53,7 @@ class Thread(QThread):
 class VideoWindow(QMainWindow):
     """Window class for video display"""
     def __init__(self):
-        super(VideoWindow, self).__init__()
+        super().__init__()
         loadUi("designer/video.ui", self)
         self.video_thread = None
 

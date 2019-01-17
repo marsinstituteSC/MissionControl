@@ -4,14 +4,12 @@ import sys
 import PyQt5.QtWidgets
 
 from camera import window_video as wv
-from communications import udp_listener
-from communications import udp_writer
+from communications import udp_conn
 from controller import gamepad as gp
 from mainwindow import window_main as wm
 
 if __name__ == "__main__":    
-    listener = udp_listener.LoadUdpListener()
-    writer = udp_writer.LoadUdpWriter()
+    conn = udp_conn.ConnectToRoverServer()
     xbox = gp.LoadGamepad()
     app = PyQt5.QtWidgets.QApplication(sys.argv)    
     mainwnd = wm.LoadMainWindow()  
