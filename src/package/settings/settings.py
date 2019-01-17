@@ -1,7 +1,7 @@
 """ Module for the creation of a window to show preferences """
 
 # Normal package imports
-import sys
+import sys, os
 from configparser import ConfigParser
 
 # PyQT5 imports, ignore pylint errors
@@ -11,6 +11,19 @@ from PyQt5.uic import loadUi
 
 # Package imports
 from utils import warning
+from camera import window_video as vid
+
+# Default settings
+DEFAULT_SECTIONS = ("main", "video")
+DEFAULT_MAIN_SETTINGS = {}
+DEFAULT_VIDEO_SETTINGS = {
+    "url1" : "videos/demo.mp4",
+    "url2" : "videos/demo2.mp4",
+    "port1" : "",
+    "port2" : "",
+    "color1" : "False",
+    "color2" : "False"
+}
 
 class OptionWindow(QDialog):
     """Window class for settings"""
@@ -70,6 +83,29 @@ class OptionWindow(QDialog):
                 config.write(configfile)
         except:
             warning.ShowWarning(self, "Fatal Error", "Unable to read & write settings.ini")
+
+        # Runs functions to update variables for the other windows, currently only video
+        vid.readFromSettings()
+
+def checkSettings():
+    """
+    Checks if settings.ini has been created
+    if it is missing create one with default values
+    """
+    if not os.path.exists("settings.ini"):
+        try:
+            config = ConfigParser()
+            config.read("settings.ini")
+            for section in DEFAULT_SECTIONS:
+                config.add_section(str(section))
+            
+            for key, value in DEFAULT_VIDEO_SETTINGS.items():
+                config.set(str("video"), str(key), str(value))
+            
+            with open("settings.ini", "w") as configfile:
+                config.write(configfile)
+        except:
+            print("ERROR WITH CREATING A NEW SETTINGS FILE")
 
 def openSettings():
     settings = OptionWindow()

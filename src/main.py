@@ -7,8 +7,10 @@ from camera import window_video as wv
 from communications import udp_conn
 from controller import gamepad as gp
 from mainwindow import window_main as wm
+from settings import settings
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
+    settings.checkSettings()
     conn = udp_conn.ConnectToRoverServer()
     xbox = gp.LoadGamepad()
     app = PyQt5.QtWidgets.QApplication(sys.argv)    

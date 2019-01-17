@@ -15,32 +15,45 @@ import cv2
 
 # Package imports
 from settings import settings as cfg
+from utils import warning
 
+# Global variables for video settings
 VIDEO1_LINK = None
 VIDEO2_LINK = None
 VIDEO1_COLOR = None
 VIDEO2_COLOR = None
+SETTINGS_CHANGE = False
 
 def readFromSettings():
     """
     Reads from the settings.ini file and sets the global values
+    Video link needs to be the full link in order to connect to the video source
+        - ports needs to be added at the end
+        - potential authentications needs to be added to the link, not implemented yet
     """
     global VIDEO1_LINK
     global VIDEO2_LINK
     global VIDEO1_COLOR
     global VIDEO2_COLOR
-    config = ConfigParser()
-    config.read("settings.ini")
-    VIDEO1_LINK = config.get("video", "url1")
-    VIDEO2_LINK = config.get("video", "url2")
-    port1 = config.get("video", "port1")
-    port2 = config.get("video", "port2")
-    if port1:
-        VIDEO1_LINK = VIDEO1_LINK + ":" + port1
-    if port2:
-        VIDEO2_LINK = VIDEO2_LINK + ":" + port2
-    VIDEO1_COLOR = config.get("video", "color1")
-    VIDEO2_COLOR = config.get("video", "color2")
+    global SETTINGS_CHANGE
+    # Opens the settings.ini and reads from it
+    try:
+        config = ConfigParser()
+        config.read("settings.ini")
+        VIDEO1_LINK = config.get("video", "url1")
+        VIDEO2_LINK = config.get("video", "url2")
+        port1 = config.get("video", "port1")
+        port2 = config.get("video", "port2")
+        if port1:
+            VIDEO1_LINK = VIDEO1_LINK + ":" + port1
+        if port2:
+            VIDEO2_LINK = VIDEO2_LINK + ":" + port2
+        VIDEO1_COLOR = config.get("video", "color1")
+        VIDEO2_COLOR = config.get("video", "color2")
+        SETTINGS_CHANGE = True
+    except:
+        # temp error message
+        print("Error occured")
 
 class Thread(QThread):
     """Thread class to run the fetching and coverting of the video in its own thread"""
@@ -65,6 +78,11 @@ class Thread(QThread):
         """Captures the video, converts them to a QImage and then passes them to the pyqt signal for the label"""
         self.play_video()
         while self.running:
+            global SETTINGS_CHANGE
+            if SETTINGS_CHANGE:
+                self.play_video()
+                SETTINGS_CHANGE = False
+
             # OpenCv method to read the values from the video
             ret1, frame1 = self.cap1.read()
             ret2, frame2 = self.cap2.read()
@@ -96,11 +114,11 @@ class Thread(QThread):
 
     def play_video(self):
         if self.switch == 1:
-            self.cap1 = cv2.VideoCapture(VIDEO2_LINK)
-            self.cap2 = cv2.VideoCapture(VIDEO1_LINK)
+            self.cap1.open(VIDEO2_LINK)
+            self.cap2.open(VIDEO1_LINK)
         else:
-            self.cap1 = cv2.VideoCapture(VIDEO1_LINK)
-            self.cap2 = cv2.VideoCapture(VIDEO2_LINK)
+            self.cap1.open(VIDEO1_LINK)
+            self.cap2.open(VIDEO2_LINK)
     
     def switch_video(self):
         if self.switch == 0:
@@ -114,7 +132,11 @@ class VideoWindow(QMainWindow):
     def __init__(self):
         super(VideoWindow, self).__init__()
         loadUi("designer/video.ui", self)
+
+        # Set up thread
         self.video_thread = Thread(self)
+        self.video_thread.changePixmap1.connect(self.set_image1)
+        self.video_thread.changePixmap2.connect(self.set_image2)
 
         # Toolbar button to run the video, and run the video at start
         self.actionStart_Video.triggered.connect(self.runVideo)
@@ -139,8 +161,6 @@ class VideoWindow(QMainWindow):
     def runVideo(self):
         self.video_thread.stop()
         self.video_thread.running = True
-        self.video_thread.changePixmap1.connect(self.set_image1)
-        self.video_thread.changePixmap2.connect(self.set_image2)
         self.video_thread.start()
 
     def settings(self):
