@@ -22,7 +22,7 @@ class UDPRoverServer(PyQt5.QtCore.QThread):
     def connect(self):
         self.serverAddress = PyQt5.QtNetwork.QHostAddress(SERVERHOST)
         self.clientAddress = PyQt5.QtNetwork.QHostAddress(CLIENTHOST)
-        self.socket = PyQt5.QtNetwork.QUdpSocket()
+        self.socket = PyQt5.QtNetwork.QUdpSocket(self)
         self.socket.bind(self.clientAddress, CLIENTPORT)
 
     def writeToRover(self, data):
@@ -52,7 +52,7 @@ class UDPRoverServer(PyQt5.QtCore.QThread):
 
             time.sleep(TICK)
 
-def ConnectToRoverServer():
+def connectToRoverServer():
     global ROVERSERVER
     conn = UDPRoverServer()
     conn.start()

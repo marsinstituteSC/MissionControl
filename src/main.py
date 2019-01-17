@@ -10,10 +10,10 @@ from mainwindow import window_main as wm
 from settings import settings
 
 if __name__ == "__main__":
-    settings.checkSettings()
-    conn = udp_conn.ConnectToRoverServer()
-    xbox = gp.LoadGamepad()
-    app = PyQt5.QtWidgets.QApplication(sys.argv)    
-    mainwnd = wm.LoadMainWindow()  
-    camwnd = wv.LoadCameraWindow()
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
+    settings.loadSettings()
+    conn = udp_conn.connectToRoverServer()
+    xbox = gp.loadGamepad()
+    mainwnd = wm.loadMainWindow()
+    camwnd = wv.loadCameraWindow()
     sys.exit(app.exec_())

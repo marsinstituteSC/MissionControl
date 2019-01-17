@@ -1,7 +1,8 @@
 """ Module for the creation of a window to show preferences """
 
 # Normal package imports
-import sys, os
+import sys
+import os
 from configparser import ConfigParser
 
 # PyQT5 imports, ignore pylint errors
@@ -14,98 +15,101 @@ from utils import warning
 from camera import window_video as vid
 
 # Default settings
+SETTINGS = ConfigParser()
+
 DEFAULT_SECTIONS = ("main", "video")
 DEFAULT_MAIN_SETTINGS = {}
 DEFAULT_VIDEO_SETTINGS = {
-    "url1" : "videos/demo.mp4",
-    "url2" : "videos/demo2.mp4",
-    "port1" : "",
-    "port2" : "",
-    "color1" : "False",
-    "color2" : "False"
+    "url1": "videos/demo.mp4",
+    "url2": "videos/demo2.mp4",
+    "port1": "",
+    "port2": "",
+    "color1": "False",
+    "color2": "False"
 }
+
+def loadSettings():
+    """
+    Loads global settings, creates a new settings.ini file with default
+    values if not found.
+    """
+    global SETTINGS
+    try:
+        if not os.path.exists("settings.ini"):
+            for section in DEFAULT_SECTIONS:
+                SETTINGS.add_section(str(section))
+
+            for key, value in DEFAULT_VIDEO_SETTINGS.items():
+                SETTINGS.set(str("video"), str(key), str(value))
+
+            with open("settings.ini", "w") as configfile:
+                SETTINGS.write(configfile)
+        else:
+            SETTINGS.read("settings.ini")
+
+        vid.readFromSettings(SETTINGS)
+    except:
+        warning.showWarning(
+            "Fatal Error", "Unable to read/create settings.ini", None)
+
+def saveSettings():
+    """
+    Save global settings to settings.ini
+    """
+    global SETTINGS
+    try:
+        with open("settings.ini", "w") as configfile:
+            SETTINGS.write(configfile)
+
+        vid.readFromSettings(SETTINGS)
+    except:
+        warning.showWarning(
+            "Fatal Error", "Unable to write settings.ini", None)
 
 class OptionWindow(QDialog):
     """Window class for settings"""
+
     def __init__(self):
         super().__init__()
         loadUi("designer/settings.ui", self)
 
         # Button connections
-        self.button_cancel.clicked.connect(self.closeSelf)
+        self.button_cancel.clicked.connect(self.close)
         self.button_ok.clicked.connect(self.saveSettings)
-        self.button_ok.clicked.connect(self.closeSelf)
+        self.button_ok.clicked.connect(self.close)
         self.button_apply.clicked.connect(self.saveSettings)
 
-        # Read from settings.ini to polulate the current settings
-        try:
-            config = ConfigParser()
-            config.read("settings.ini")
-            self.video1_ip.setText(config.get("video", "url1"))
-            self.video2_ip.setText(config.get("video", "url2"))
-            self.video1_port.setText(config.get("video", "port1"))
-            self.video2_port.setText(config.get("video", "port2"))
+        # Fetch settings
+        global SETTINGS
 
-            wantColorForVideo1 = (config.get("video", "color1") == "True")
-            wantColorForVideo2 = (config.get("video", "color2") == "True")
+        self.video1_ip.setText(SETTINGS.get("video", "url1"))
+        self.video2_ip.setText(SETTINGS.get("video", "url2"))
+        self.video1_port.setText(SETTINGS.get("video", "port1"))
+        self.video2_port.setText(SETTINGS.get("video", "port2"))
 
-            self.video1_color_on.setChecked(wantColorForVideo1)
-            self.video1_color_off.setChecked(not wantColorForVideo1)
+        wantColorForVideo1 = (SETTINGS.get("video", "color1") == "True")
+        wantColorForVideo2 = (SETTINGS.get("video", "color2") == "True")
 
-            self.video2_color_on.setChecked(wantColorForVideo2)
-            self.video2_color_off.setChecked(not wantColorForVideo2)
-        except:
-            warning.ShowWarning(self, "Fatal Error", "Unable to read settings.ini")
+        self.video1_color_on.setChecked(wantColorForVideo1)
+        self.video1_color_off.setChecked(not wantColorForVideo1)
 
-    def closeSelf(self):
-        """
-        Closes the dialog window without closing the whole program
-        """
-        self.close()
+        self.video2_color_on.setChecked(wantColorForVideo2)
+        self.video2_color_off.setChecked(not wantColorForVideo2)
 
     def saveSettings(self):
         """
         Stores the values into the settings.ini
         Used on apply and OK, for now.
         """
+        global SETTINGS
 
-        # Open settings.ini file and write to it
-        try:
-            config = ConfigParser()
-            config.read("settings.ini")
-            config.set("video", "url1", self.video1_ip.text())
-            config.set("video", "url2", self.video2_ip.text())
-            config.set("video", "port1", self.video1_port.text())
-            config.set("video", "port2", self.video2_port.text())
-            config.set("video", "color1", str(self.video1_color_on.isChecked()))
-            config.set("video", "color2", str(self.video2_color_on.isChecked()))
-            with open("settings.ini", "w") as configfile:
-                config.write(configfile)
-        except:
-            warning.ShowWarning(self, "Fatal Error", "Unable to read & write settings.ini")
-
-        # Runs functions to update variables for the other windows, currently only video
-        vid.readFromSettings()
-
-def checkSettings():
-    """
-    Checks if settings.ini has been created
-    if it is missing create one with default values
-    """
-    if not os.path.exists("settings.ini"):
-        try:
-            config = ConfigParser()
-            config.read("settings.ini")
-            for section in DEFAULT_SECTIONS:
-                config.add_section(str(section))
-            
-            for key, value in DEFAULT_VIDEO_SETTINGS.items():
-                config.set(str("video"), str(key), str(value))
-            
-            with open("settings.ini", "w") as configfile:
-                config.write(configfile)
-        except:
-            print("ERROR WITH CREATING A NEW SETTINGS FILE")
+        SETTINGS.set("video", "url1", self.video1_ip.text())
+        SETTINGS.set("video", "url2", self.video2_ip.text())
+        SETTINGS.set("video", "port1", self.video1_port.text())
+        SETTINGS.set("video", "port2", self.video2_port.text())
+        SETTINGS.set("video", "color1", str(self.video1_color_on.isChecked()))
+        SETTINGS.set("video", "color2", str(self.video2_color_on.isChecked()))        
+        saveSettings()
 
 def openSettings():
     settings = OptionWindow()

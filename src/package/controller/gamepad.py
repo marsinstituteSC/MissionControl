@@ -4,10 +4,43 @@ from pygame import joystick, time, event, init, JOYBUTTONDOWN, JOYAXISMOTION, JO
 from PyQt5.QtCore import QThread
 
 from utils import warning
+import json
 
 # A lot of help from
 # https://github.com/joncoop/pygame-xbox360controller/blob/master/xbox360_controller.py
 # for class structure, methods and better deadzone calculations
+
+ROVER_MAPPING_BUTTONS = {
+    "A": 0,
+    "B": 1,
+    "Y": 2,
+    "X": 3,
+    "LB": 4,
+    "RB": 5,
+    "START": 6
+}
+
+ROVER_MAPPING_AXIS = {
+    "LEFT_STICK_X": 0,
+    "LEFT_STICK_Y": 1,
+    "BUMPERS_LEFT": 2,  # TODO, Names for left and right bumper?!
+    "RIGHT_STICK_X": 3,
+    "RIGHT_STICK_Y": 4,
+    "BUMPERS_RIGHT": 5,  # TODO, Names for left and right bumper?!
+    "ARROW_X": 6,  # TODO, name?
+    "ARROW_Y": 7  # TODO, name?
+}
+
+def getKeyAsJsonFormattedString(typ, key, value):
+    """
+    Use the mapping documented for the rover to create a json object (string) 
+    which can be sent to the rover.
+    """
+    # TODO, are values within range?
+    if typ == "Axis":
+        return json.dumps({"Axis": {ROVER_MAPPING_AXIS.get(key): value}}, separators=(',', ':'))
+    else:
+        return json.dumps({"Buttons": {ROVER_MAPPING_BUTTONS.get(key): value}}, separators=(',', ':'))
 
 class Gamepad(QThread):
     """Class for gamepad"""
@@ -180,7 +213,7 @@ class Gamepad(QThread):
             # Limit the clock rate to 30 ticks per second
             self.CLOCK.tick(30)
 
-def LoadGamepad():
+def loadGamepad():
     pad = Gamepad()
     pad.start()
     return pad

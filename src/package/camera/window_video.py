@@ -24,7 +24,7 @@ VIDEO1_COLOR = None
 VIDEO2_COLOR = None
 SETTINGS_CHANGE = False
 
-def readFromSettings():
+def readFromSettings(config):
     """
     Reads from the settings.ini file and sets the global values
     Video link needs to be the full link in order to connect to the video source
@@ -36,30 +36,23 @@ def readFromSettings():
     global VIDEO1_COLOR
     global VIDEO2_COLOR
     global SETTINGS_CHANGE
-    # Opens the settings.ini and reads from it
-    try:
-        config = ConfigParser()
-        config.read("settings.ini")
-        VIDEO1_LINK = config.get("video", "url1")
-        VIDEO2_LINK = config.get("video", "url2")
-        port1 = config.get("video", "port1")
-        port2 = config.get("video", "port2")
-        if port1:
-            VIDEO1_LINK = VIDEO1_LINK + ":" + port1
-        if port2:
-            VIDEO2_LINK = VIDEO2_LINK + ":" + port2
-        VIDEO1_COLOR = config.get("video", "color1")
-        VIDEO2_COLOR = config.get("video", "color2")
-        SETTINGS_CHANGE = True
-    except:
-        # temp error message
-        print("Error occured")
+    VIDEO1_LINK = config.get("video", "url1")
+    VIDEO2_LINK = config.get("video", "url2")
+    port1 = config.get("video", "port1")
+    port2 = config.get("video", "port2")
+    if port1:
+        VIDEO1_LINK = VIDEO1_LINK + ":" + port1
+    if port2:
+        VIDEO2_LINK = VIDEO2_LINK + ":" + port2
+    VIDEO1_COLOR = config.get("video", "color1")
+    VIDEO2_COLOR = config.get("video", "color2")
+    SETTINGS_CHANGE = True
 
-class Thread(QThread):
+class CameraThread(QThread):
     """Thread class to run the fetching and coverting of the video in its own thread"""
 
     def __init__(self, window):
-        QThread.__init__(self)
+        super().__init__()
         self.running = True
         self.cap1 = cv2.VideoCapture(VIDEO1_LINK)
         self.cap2 = cv2.VideoCapture(VIDEO2_LINK)
@@ -73,6 +66,12 @@ class Thread(QThread):
     # Signals to pass the image to the corresponding slots
     changePixmap1 = pyqtSignal(QImage)
     changePixmap2 = pyqtSignal(QImage)
+
+    def drawImageFrame(self, frame, color, width = 640, height = 480):
+        """Renders a single frame from the video stream"""
+        colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if color else cv2.COLOR_BGR2GRAY)
+        convertToQtFormat = QImage(colorFormat.data, colorFormat.shape[1], colorFormat.shape[0], QImage.Format_RGB888 if color else QImage.Format_Grayscale8)
+        return convertToQtFormat.scaled(width, height, Qt.KeepAspectRatio)
 
     def run(self):
         """Captures the video, converts them to a QImage and then passes them to the pyqt signal for the label"""
@@ -88,53 +87,28 @@ class Thread(QThread):
             ret2, frame2 = self.cap2.read()
 
             # Checks if there were any frames from both video captures
+
             if ret1:
-                if VIDEO1_COLOR == "True":
-                    rgb_image1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGB)
-                    convert_to_qt_format1 = QImage(rgb_image1.data, rgb_image1.shape[1], rgb_image1.shape[0], QImage.Format_RGB888)
-                    p1 = convert_to_qt_format1.scaled(640, 480, Qt.KeepAspectRatio)
-                    self.changePixmap1.emit(p1)
-                else:
-                    grey_image1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-                    convert_to_qt_format1 = QImage(grey_image1.data, grey_image1.shape[1], grey_image1.shape[0], QImage.Format_Grayscale8)
-                    p1 = convert_to_qt_format1.scaled(640, 480, Qt.KeepAspectRatio)
-                    self.changePixmap1.emit(p1)
+                self.changePixmap1.emit(self.drawImageFrame(frame1, VIDEO1_COLOR == "True"))
 
             if ret2:
-                if VIDEO2_COLOR == "True":
-                    rgb_image2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2RGB)
-                    convert_to_qt_format2 = QImage(rgb_image2.data, rgb_image2.shape[1], rgb_image2.shape[0], QImage.Format_RGB888)
-                    p2 = convert_to_qt_format2.scaled(640, 480, Qt.KeepAspectRatio)
-                    self.changePixmap2.emit(p2)
-                else:
-                    grey_image2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
-                    convert_to_qt_format2 = QImage(grey_image2.data, grey_image2.shape[1], grey_image2.shape[0], QImage.Format_Grayscale8)
-                    p2 = convert_to_qt_format2.scaled(640, 480, Qt.KeepAspectRatio)
-                    self.changePixmap2.emit(p2)
+                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True"))            
 
     def play_video(self):
-        if self.switch == 1:
-            self.cap1.open(VIDEO2_LINK)
-            self.cap2.open(VIDEO1_LINK)
-        else:
-            self.cap1.open(VIDEO1_LINK)
-            self.cap2.open(VIDEO2_LINK)
+        self.cap1.open(VIDEO2_LINK if self.switch == 1 else VIDEO1_LINK)
+        self.cap2.open(VIDEO1_LINK if self.switch == 1 else VIDEO2_LINK)
     
     def switch_video(self):
-        if self.switch == 0:
-            self.switch = 1
-        else:
-            self.switch = 0
-
+        self.switch = not self.switch
 
 class VideoWindow(QMainWindow):
     """Window class for video display"""
     def __init__(self):
-        super(VideoWindow, self).__init__()
+        super().__init__()
         loadUi("designer/video.ui", self)
 
         # Set up thread
-        self.video_thread = Thread(self)
+        self.video_thread = CameraThread(self)
         self.video_thread.changePixmap1.connect(self.set_image1)
         self.video_thread.changePixmap2.connect(self.set_image2)
 
@@ -146,7 +120,7 @@ class VideoWindow(QMainWindow):
         self.actionSettings.triggered.connect(self.settings)
 
         # Toolbar button to video
-        self.actionSwitch.triggered.connect(self.switchVideoOutput)
+        self.actionSwitch.triggered.connect(self.video_thread.switch_video)
 
     @pyqtSlot(QImage)
     def set_image1(self, image):
@@ -166,11 +140,7 @@ class VideoWindow(QMainWindow):
     def settings(self):
         self.test = cfg.openSettings()
 
-    def switchVideoOutput(self):
-        self.video_thread.switch_video()
-
-def LoadCameraWindow():
-    readFromSettings()
+def loadCameraWindow():
     wndw = VideoWindow()
     wndw.show()
     return wndw

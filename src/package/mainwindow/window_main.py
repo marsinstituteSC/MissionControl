@@ -17,7 +17,7 @@ class MainWindow(PyQt5.QtWidgets.QMainWindow):
     def sendMessageNow(self): # Test test
         udp_conn.ROVERSERVER.writeToRover("Sending from App!")
         
-def LoadMainWindow():
+def loadMainWindow():
     wndw = MainWindow()    
     wndw.show()
     return wndw
