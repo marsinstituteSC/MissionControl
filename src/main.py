@@ -3,7 +3,6 @@
 import sys
 import PyQt5.QtWidgets
 
-from camera import window_video as wv
 from communications import udp_conn
 from controller import gamepad as gp
 from mainwindow import window_main as wm
@@ -15,5 +14,4 @@ if __name__ == "__main__":
     conn = udp_conn.connectToRoverServer()
     xbox = gp.loadGamepad()
     mainwnd = wm.loadMainWindow()
-    camwnd = wv.loadCameraWindow()
     sys.exit(app.exec_())

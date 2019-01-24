@@ -7,6 +7,8 @@ import random
 from controls import plot
 from controls import logger
 from communications import udp_conn
+from camera import window_video as wv
+from settings import settings as cfg
 
 class MainWindow(PyQt5.QtWidgets.QMainWindow):
     def __init__(self):
@@ -26,13 +28,27 @@ class MainWindow(PyQt5.QtWidgets.QMainWindow):
         log.logData("Anything, especially stuff we normally don't care about", 0)
         log.logData("Something normal happened", 1)
         log.logData("Something might be wrong", 2) 
-        log.logData("Something is definitely wrong", 3) 
+        log.logData("Something is definitely wrong", 3)
+
+        # Creates the video window as a child and links a button to open it later
+        self.video_window = None
+        self.openCameraWindow()
+        self.actionCamera_Window.triggered.connect(self.openCameraWindow)
+
+        # Toolbar button to open settings
+        self.actionSettings.triggered.connect(self.settings)
 
     def setSpeedometerValue(self, value):
         self.speedMeter.display(value)
 
     def sendMessageNow(self):  # Test test
         udp_conn.ROVERSERVER.writeToRover("Sending from App!")
+
+    def settings(self):
+        self.setting = cfg.openSettings()
+    
+    def openCameraWindow(self):
+        self.video_window = wv.loadCameraWindow()
 
 
 def loadMainWindow():

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1008</width>
-    <height>679</height>
+    <height>708</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,9 +52,11 @@
    </property>
    <widget class="QMenu" name="menuRun">
     <property name="title">
-     <string>Connections</string>
+     <string>Camera</string>
     </property>
     <addaction name="actionStart_Video"/>
+    <addaction name="separator"/>
+    <addaction name="actionSwitch"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -62,15 +64,8 @@
     </property>
     <addaction name="actionSettings"/>
    </widget>
-   <widget class="QMenu" name="menuVideo">
-    <property name="title">
-     <string>Video</string>
-    </property>
-    <addaction name="actionSwitch"/>
-   </widget>
    <addaction name="menuRun"/>
    <addaction name="menuTools"/>
-   <addaction name="menuVideo"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionStart_Video">
@@ -96,6 +91,11 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionSwitch2">
+   <property name="text">
+    <string>Switch</string>
    </property>
   </action>
   <action name="actionSwitch">

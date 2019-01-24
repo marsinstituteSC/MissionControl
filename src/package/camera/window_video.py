@@ -138,7 +138,7 @@ class VideoWindow(QMainWindow):
         self.video_thread.start()
 
     def settings(self):
-        self.test = cfg.openSettings()
+        self.setting = cfg.openSettings()
 
 def loadCameraWindow():
     wndw = VideoWindow()

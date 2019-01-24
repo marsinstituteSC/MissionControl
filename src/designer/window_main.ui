@@ -74,8 +74,9 @@
    </widget>
    <widget class="QMenu" name="menuCamera">
     <property name="title">
-     <string>Settings</string>
+     <string>Tools</string>
     </property>
+    <addaction name="actionSettings"/>
    </widget>
    <widget class="QMenu" name="menuCamera_2">
     <property name="title">
@@ -93,6 +94,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionCapture"/>
     <addaction name="menuEffects"/>
+    <addaction name="actionCamera_Window"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -134,6 +136,16 @@
   <action name="actionNightvision">
    <property name="text">
     <string>Nightvision</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionCamera_Window">
+   <property name="text">
+    <string>Camera Window</string>
    </property>
   </action>
  </widget>
