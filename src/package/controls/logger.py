@@ -29,7 +29,7 @@ class LogItem():
 
 class ColorizedLogger(QTableWidget):
 
-    def __init__(self, parent, colorCommon=QColor(0, 0, 0), colorNotification=QColor(0, 255, 0), colorWarning=QColor(253, 106, 2), colorError=QColor(255, 0, 0)):
+    def __init__(self, parent = None, colorCommon=QColor(0, 0, 0), colorNotification=QColor(0, 255, 0), colorWarning=QColor(253, 106, 2), colorError=QColor(255, 0, 0)):
         super().__init__()
         self.setParent(parent)
         self.colorForPriority = [colorCommon, colorNotification, colorWarning, colorError]

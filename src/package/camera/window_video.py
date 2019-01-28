@@ -119,6 +119,8 @@ class CameraThread(QThread):
     
     def switch_video(self):
         self.switch = not self.switch
+        global SETTINGS_CHANGE
+        SETTINGS_CHANGE = True
 
 class VideoWindow(QMainWindow):
     """Window class for video display"""

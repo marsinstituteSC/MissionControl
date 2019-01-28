@@ -16,6 +16,7 @@ from camera import window_video as vid
 
 # Default settings
 SETTINGS = ConfigParser()
+SETTINGSWINDOW = None
 
 DEFAULT_SECTIONS = ("main", "video")
 DEFAULT_MAIN_SETTINGS = {}
@@ -119,7 +120,17 @@ class OptionWindow(QDialog):
         SETTINGS.set("video", "resolution2", self.video2_resolution.currentText())
         saveSettings()
 
+    def closeEvent(self, event):
+        global SETTINGSWINDOW
+        SETTINGSWINDOW = None
+
+
 def openSettings():
-    settings = OptionWindow()
-    settings.show()
-    return settings
+    """Open global settings"""
+    global SETTINGSWINDOW
+    if SETTINGSWINDOW is None:
+        SETTINGSWINDOW = OptionWindow()
+
+    SETTINGSWINDOW.show()
+    SETTINGSWINDOW.activateWindow()
+    return SETTINGSWINDOW
