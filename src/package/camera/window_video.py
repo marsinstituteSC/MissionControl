@@ -22,6 +22,8 @@ VIDEO1_LINK = None
 VIDEO2_LINK = None
 VIDEO1_COLOR = None
 VIDEO2_COLOR = None
+VIDEO1_RESOLUTION = "1080"
+VIDEO2_RESOLUTION = "1080"
 SETTINGS_CHANGE = False
 
 def readFromSettings(config):
@@ -31,11 +33,16 @@ def readFromSettings(config):
         - ports needs to be added at the end
         - potential authentications needs to be added to the link, not implemented yet
     """
+    # Global Variables
     global VIDEO1_LINK
     global VIDEO2_LINK
     global VIDEO1_COLOR
     global VIDEO2_COLOR
     global SETTINGS_CHANGE
+    global VIDEO1_RESOLUTION
+    global VIDEO2_RESOLUTION
+
+    # Video Link Creation
     VIDEO1_LINK = config.get("video", "url1")
     VIDEO2_LINK = config.get("video", "url2")
     port1 = config.get("video", "port1")
@@ -44,8 +51,18 @@ def readFromSettings(config):
         VIDEO1_LINK = VIDEO1_LINK + ":" + port1
     if port2:
         VIDEO2_LINK = VIDEO2_LINK + ":" + port2
+    
+    # Video Color
     VIDEO1_COLOR = config.get("video", "color1")
     VIDEO2_COLOR = config.get("video", "color2")
+    
+    # Video Resolution
+    res1 = config.get("video", "resolution1").split("x")
+    res2 = config.get("video", "resolution1").split("x")
+    VIDEO1_RESOLUTION = res1
+    VIDEO2_RESOLUTION = res2
+
+    # Global setting to force change in video stream.
     SETTINGS_CHANGE = True
 
 class CameraThread(QThread):
@@ -78,6 +95,8 @@ class CameraThread(QThread):
         self.play_video()
         while self.running:
             global SETTINGS_CHANGE
+            global VIDEO1_RESOLUTION
+            global VIDEO2_RESOLUTION
             if SETTINGS_CHANGE:
                 self.play_video()
                 SETTINGS_CHANGE = False
@@ -89,10 +108,10 @@ class CameraThread(QThread):
             # Checks if there were any frames from both video captures
 
             if ret1:
-                self.changePixmap1.emit(self.drawImageFrame(frame1, VIDEO1_COLOR == "True"))
+                self.changePixmap1.emit(self.drawImageFrame(frame1, VIDEO1_COLOR == "True", int(VIDEO1_RESOLUTION[0]), int(VIDEO1_RESOLUTION[1])))
 
             if ret2:
-                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True"))            
+                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True", int(VIDEO2_RESOLUTION[0]), int(VIDEO2_RESOLUTION[1])))            
 
     def play_video(self):
         self.cap1.open(VIDEO2_LINK if self.switch == 1 else VIDEO1_LINK)

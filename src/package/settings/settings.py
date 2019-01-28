@@ -25,7 +25,9 @@ DEFAULT_VIDEO_SETTINGS = {
     "port1": "",
     "port2": "",
     "color1": "False",
-    "color2": "False"
+    "color2": "False",
+    "resolution1" : 0,
+    "resolution2" : 0
 }
 
 def loadSettings():
@@ -82,19 +84,23 @@ class OptionWindow(QDialog):
         # Fetch settings
         global SETTINGS
 
+        # Video source and port
         self.video1_ip.setText(SETTINGS.get("video", "url1"))
         self.video2_ip.setText(SETTINGS.get("video", "url2"))
         self.video1_port.setText(SETTINGS.get("video", "port1"))
         self.video2_port.setText(SETTINGS.get("video", "port2"))
 
+        # Color settings
         wantColorForVideo1 = (SETTINGS.get("video", "color1") == "True")
         wantColorForVideo2 = (SETTINGS.get("video", "color2") == "True")
-
         self.video1_color_on.setChecked(wantColorForVideo1)
         self.video1_color_off.setChecked(not wantColorForVideo1)
-
         self.video2_color_on.setChecked(wantColorForVideo2)
         self.video2_color_off.setChecked(not wantColorForVideo2)
+
+        # Resolution
+        self.video1_resolution.setCurrentIndex(self.video1_resolution.findText(SETTINGS.get("video", "resolution1")))
+        self.video2_resolution.setCurrentIndex(self.video2_resolution.findText(SETTINGS.get("video", "resolution2")))
 
     def saveSettings(self):
         """
@@ -108,7 +114,9 @@ class OptionWindow(QDialog):
         SETTINGS.set("video", "port1", self.video1_port.text())
         SETTINGS.set("video", "port2", self.video2_port.text())
         SETTINGS.set("video", "color1", str(self.video1_color_on.isChecked()))
-        SETTINGS.set("video", "color2", str(self.video2_color_on.isChecked()))        
+        SETTINGS.set("video", "color2", str(self.video2_color_on.isChecked()))
+        SETTINGS.set("video", "resolution1", self.video1_resolution.currentText())
+        SETTINGS.set("video", "resolution2", self.video2_resolution.currentText())
         saveSettings()
 
 def openSettings():
