@@ -6,59 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>250</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QLCDNumber" name="speedMeter">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>160</y>
-      <width>141</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Speed of the rover in m/s&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="smallDecimalPoint">
-     <bool>true</bool>
-    </property>
-    <property name="digitCount">
-     <number>5</number>
-    </property>
-    <property name="value" stdset="0">
-     <double>22.000000000000000</double>
-    </property>
-    <property name="intValue" stdset="0">
-     <number>22</number>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnMessage">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>170</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Send Now</string>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>800</width>
      <height>21</height>
     </rect>
    </property>
