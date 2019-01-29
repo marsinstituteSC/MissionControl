@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1008</width>
-    <height>708</height>
+    <width>962</width>
+    <height>833</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,20 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="video1">
+        <property name="minimumSize">
+         <size>
+          <width>640</width>
+          <height>360</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>1920</width>
+          <height>540</height>
+         </size>
+        </property>
         <property name="frameShape">
-         <enum>QFrame::Box</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="text">
          <string/>
@@ -29,8 +41,20 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="video2">
+        <property name="minimumSize">
+         <size>
+          <width>640</width>
+          <height>360</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>1920</width>
+          <height>540</height>
+         </size>
+        </property>
         <property name="frameShape">
-         <enum>QFrame::Box</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="text">
          <string/>
@@ -46,7 +70,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1008</width>
+     <width>962</width>
      <height>21</height>
     </rect>
    </property>

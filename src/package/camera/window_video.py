@@ -88,7 +88,7 @@ class CameraThread(QThread):
         """Renders a single frame from the video stream"""
         colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if color else cv2.COLOR_BGR2GRAY)
         convertToQtFormat = QImage(colorFormat.data, colorFormat.shape[1], colorFormat.shape[0], QImage.Format_RGB888 if color else QImage.Format_Grayscale8)
-        return convertToQtFormat.scaled(width, height, Qt.KeepAspectRatio)
+        return convertToQtFormat.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
 
     def run(self):
         """Captures the video, converts them to a QImage and then passes them to the pyqt signal for the label"""
