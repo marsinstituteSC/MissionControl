@@ -10,3 +10,4 @@ Mission Control Center Application for MISC's Mars Rover, Viking III
 * pip install roslibpy (uncertain if we need this yet)
 * pip install pygame (for gamepad)
 * pip install matplotlib (for plots/graphs, should already be installed in the Anaconda distribution by default, however other dependencies might be needed https://matplotlib.org/users/installing.html)
+* pip install qdarkstyle (for darkmode)

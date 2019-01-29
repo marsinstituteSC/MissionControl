@@ -8,7 +8,6 @@ from controller import gamepad as gp
 from mainwindow import window_main as wm
 from settings import settings
 
-
 # TODO, taskbar icon not displaying currently? Why?
 def loadAppIcon():
     """Load application default icon, for all windows + taskbar"""
@@ -25,7 +24,7 @@ def loadAppIcon():
 if __name__ == "__main__":
     app = PyQt5.QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(loadAppIcon())
-    settings.loadSettings()
+    settings.loadSettings(app)
     conn = udp_conn.connectToRoverServer()
     xbox = gp.loadGamepad()
     mainwnd = wm.loadMainWindow()
