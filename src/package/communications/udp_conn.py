@@ -5,6 +5,8 @@ import PyQt5.QtNetwork
 import time
 import queue
 
+from utils import event
+
 SERVERHOST = '127.0.0.1' # 192.168.1.3
 SERVERPORT = 5000
 
@@ -13,11 +15,18 @@ CLIENTPORT = 37500
 
 ROVERSERVER = None # Allow other files/pgks to easily access our udp server through this global.
 TICK = (50 / 1000) # How often in msec should we check inc / send outgoing msgs.
-class UDPRoverServer(PyQt5.QtCore.QThread):
+class UDPRoverServer(PyQt5.QtCore.QThread, event.EventListener):
     def __init__(self):
         super().__init__()
         self.messagesToSend = queue.Queue()
         self.connect()
+
+    def __del__(self):
+        pass
+
+    def onEvent(self, e):
+        """Handle settings changed event"""
+        pass
 
     def connect(self):
         self.serverAddress = PyQt5.QtNetwork.QHostAddress(SERVERHOST)

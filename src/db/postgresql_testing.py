@@ -53,6 +53,6 @@ def addNewItemToTemperatureTable(s, idx, msg, val):
 if __name__ == "__main__":
     session = Session()
     printTemperatureTable(session)
-    addNewItemToTemperatureTable(session, 5, "hello world", 45)
+    addNewItemToTemperatureTable(session, 6, "hello world", 45)
     printTemperatureTable(session)
     session.close()
