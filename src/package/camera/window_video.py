@@ -145,13 +145,13 @@ class VideoWindow(QMainWindow):
 
     @pyqtSlot(QImage)
     def set_image1(self, image):
-        self.video1.setPixmap(QPixmap.fromImage(image))
-        self.video1.setScaledContents(True)
+        self.video1.renderPixmap(QPixmap.fromImage(image))
+        #self.video1.setScaledContents(True)
 
     @pyqtSlot(QImage)
     def set_image2(self, image):
-        self.video2.setPixmap(QPixmap.fromImage(image))
-        self.video2.setScaledContents(True)
+        self.video2.renderPixmap(QPixmap.fromImage(image))
+        #self.video2.setScaledContents(True)
 
     def runVideo(self):
         self.video_thread.stop()
