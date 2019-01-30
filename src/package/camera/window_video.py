@@ -38,10 +38,10 @@ def readFromSettings(config):
     global VIDEO2_LINK
     global VIDEO1_COLOR
     global VIDEO2_COLOR
-    global SETTINGS_CHANGE
+    
     global VIDEO1_RESOLUTION
     global VIDEO2_RESOLUTION
-
+    global SETTINGS_CHANGE
     # Video Link Creation
     VIDEO1_LINK = config.get("video", "url1")
     VIDEO2_LINK = config.get("video", "url2")
@@ -95,8 +95,6 @@ class CameraThread(QThread):
         self.play_video()
         while self.running:
             global SETTINGS_CHANGE
-            global VIDEO1_RESOLUTION
-            global VIDEO2_RESOLUTION
             if SETTINGS_CHANGE:
                 self.play_video()
                 SETTINGS_CHANGE = False

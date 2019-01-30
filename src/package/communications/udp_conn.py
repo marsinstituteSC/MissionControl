@@ -7,22 +7,43 @@ import queue
 
 from utils import event
 
-SERVERHOST = '127.0.0.1' # 192.168.1.3
-SERVERPORT = 5000
+SERVERHOST = None # 192.168.1.3
+SERVERPORT = None
 
-CLIENTHOST = '127.0.0.1'
-CLIENTPORT = 37500
+CLIENTHOST = None
+CLIENTPORT = None
 
 ROVERSERVER = None # Allow other files/pgks to easily access our udp server through this global.
 TICK = (50 / 1000) # How often in msec should we check inc / send outgoing msgs.
+SETTINGS_CHANGED = False # Force update for connection
+
+# Reads from the settings.ini and sets the server address and client address
+def readFromSettings(config):
+    global SERVERHOST
+    global SERVERPORT
+    global CLIENTHOST
+    global CLIENTPORT
+    global SETTINGS_CHANGED
+
+    # If any of these are changed, then we need to reconnect to the server, client port is read inside the loop so it is fine
+    if SERVERHOST != config.get("main", "serveraddress") or SERVERPORT != int(config.get("main", "serverport")) or CLIENTHOST != config.get("main", "clientaddress"):
+        SERVERHOST = config.get("main", "serveraddress")
+        SERVERPORT = int(config.get("main", "serverport"))
+        CLIENTHOST = config.get("main", "clientaddress")
+        SETTINGS_CHANGED = True
+    
+    CLIENTPORT = int(config.get("main", "clientport"))
+
+
 class UDPRoverServer(PyQt5.QtCore.QThread, event.EventListener):
     def __init__(self):
         super().__init__()
         self.messagesToSend = queue.Queue()
         self.connect()
 
-    def __del__(self):
-        pass
+    # !!! This has been defined later, is it this one you want or the other one !!!
+    #def __del__(self):
+     #   pass
 
     def onEvent(self, e):
         """Handle settings changed event"""
@@ -47,7 +68,12 @@ class UDPRoverServer(PyQt5.QtCore.QThread, event.EventListener):
         self.wait() 
 
     def run(self):
+        global SETTINGS_CHANGED
         while True:
+            if SETTINGS_CHANGED:
+                self.connect()
+                SETTINGS_CHANGED = False
+            
             if self.socket.hasPendingDatagrams():
                 data, _, _ = self.socket.readDatagram(self.socket.pendingDatagramSize())
                 if data is not None: # TODO Process incoming messages

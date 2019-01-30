@@ -14,7 +14,7 @@ from PyQt5.uic import loadUi
 # Package imports
 from utils import warning
 from camera import window_video as vid
-import main
+from communications import udp_conn as udp
 
 # Default settings
 SETTINGS = ConfigParser()
@@ -41,7 +41,7 @@ DEFAULT_VIDEO_SETTINGS = {
     "resolution2" : 0
 }
 
-# App constant
+# App constant to modify the application
 APP = None
 
 def loadSettings(app):
@@ -68,7 +68,9 @@ def loadSettings(app):
         else:
             SETTINGS.read("settings.ini")
 
+        # Call upon other packages read functions to set their global variables
         appConfig(SETTINGS)
+        udp.readFromSettings(SETTINGS)
         vid.readFromSettings(SETTINGS)
     except:
         warning.showWarning(
@@ -84,6 +86,7 @@ def saveSettings():
             SETTINGS.write(configfile)
 
         appConfig(SETTINGS)
+        udp.readFromSettings(SETTINGS)
         vid.readFromSettings(SETTINGS)
     except:
         warning.showWarning(
@@ -98,7 +101,7 @@ class OptionWindow(QDialog):
 
         # Button connections
         self.button_cancel.clicked.connect(self.close)
-        self.button_ok.clicked.connect(self.saveSettings)
+        #self.button_ok.clicked.connect(self.saveSettings)
         self.button_ok.clicked.connect(self.close)
         self.button_apply.clicked.connect(self.saveSettings)
 
@@ -176,7 +179,8 @@ def openSettings():
     SETTINGSWINDOW.activateWindow()
     return SETTINGSWINDOW
 
-# Configuration for application, specifically for stylesheet
+# Configuration for application, specifically for stylesheet. Dark Mode should overwrite all other settings.
+# TODO: Some texts does not change color in dark mode, specifically the graphs text and logger.
 def appConfig(config):
     darkMode = config.get("main", "stylesheet")
     if darkMode == "True":
