@@ -4,7 +4,6 @@
 import sys
 import os
 from configparser import ConfigParser
-import qdarkstyle
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
@@ -12,9 +11,10 @@ from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QTabWidget
 from PyQt5.uic import loadUi
 
 # Package imports
-from utils import warning
+from utils import warning, event
 from camera import window_video as vid
-from communications import udp_conn as udp
+
+SETTINGSEVENT = event.Event("SettingsChangedEvent")
 
 # Default settings
 SETTINGS = ConfigParser()
@@ -24,10 +24,8 @@ DEFAULT_SECTIONS = ("main", "video")
 DEFAULT_MAIN_SETTINGS = {
     # Empty means no stylesheet, default look
     "stylesheet" : "False",
-    "serverAddress" : "",
-    "serverPort" : "",
-    "clientAddress" : "",
-    "clientPort" : "",
+    "serverAddress" : "127.0.0.1",
+    "serverPort" : "5000",
     "comProtocol" : "UDP"
 }
 DEFAULT_VIDEO_SETTINGS = {
@@ -41,17 +39,12 @@ DEFAULT_VIDEO_SETTINGS = {
     "resolution2" : 0
 }
 
-# App constant to modify the application
-APP = None
-
-def loadSettings(app):
+def loadSettings():
     """
     Loads global settings, creates a new settings.ini file with default
     values if not found.
     """
     global SETTINGS
-    global APP
-    APP = app
     try:
         if not os.path.exists("settings.ini"):
             for section in DEFAULT_SECTIONS:
@@ -67,11 +60,6 @@ def loadSettings(app):
                 SETTINGS.write(configfile)
         else:
             SETTINGS.read("settings.ini")
-
-        # Call upon other packages read functions to set their global variables
-        appConfig(SETTINGS)
-        udp.readFromSettings(SETTINGS)
-        vid.readFromSettings(SETTINGS)
     except:
         warning.showWarning(
             "Fatal Error", "Unable to read/create settings.ini", None)
@@ -81,13 +69,12 @@ def saveSettings():
     Save global settings to settings.ini
     """
     global SETTINGS
+    global SETTINGSEVENT
     try:
         with open("settings.ini", "w") as configfile:
             SETTINGS.write(configfile)
 
-        appConfig(SETTINGS)
-        udp.readFromSettings(SETTINGS)
-        vid.readFromSettings(SETTINGS)
+        SETTINGSEVENT.raiseEvent(SETTINGS)
     except:
         warning.showWarning(
             "Fatal Error", "Unable to write settings.ini", None)
@@ -178,12 +165,3 @@ def openSettings():
     SETTINGSWINDOW.show()
     SETTINGSWINDOW.activateWindow()
     return SETTINGSWINDOW
-
-# Configuration for application, specifically for stylesheet. Dark Mode should overwrite all other settings.
-# TODO: Some texts does not change color in dark mode, specifically the graphs text and logger.
-def appConfig(config):
-    darkMode = config.get("main", "stylesheet")
-    if darkMode == "True":
-        APP.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-    else:
-        APP.setStyleSheet("")

@@ -14,6 +14,7 @@ from PyQt5.uic import loadUi
 import cv2
 
 # Package imports
+from utils import event
 from settings import settings as cfg
 from utils import warning
 
@@ -57,10 +58,8 @@ def readFromSettings(config):
     VIDEO2_COLOR = config.get("video", "color2")
     
     # Video Resolution
-    res1 = config.get("video", "resolution1").split("x")
-    res2 = config.get("video", "resolution1").split("x")
-    VIDEO1_RESOLUTION = res1
-    VIDEO2_RESOLUTION = res2
+    VIDEO1_RESOLUTION = config.get("video", "resolution1").split("x")
+    VIDEO2_RESOLUTION = config.get("video", "resolution1").split("x")
 
     # Global setting to force change in video stream.
     SETTINGS_CHANGE = True
@@ -124,6 +123,8 @@ class VideoWindow(QMainWindow):
     """Window class for video display"""
     def __init__(self):
         super().__init__()
+        cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
+        readFromSettings(cfg.SETTINGS)
         loadUi("designer/video.ui", self)
 
         # Set up thread
@@ -140,6 +141,12 @@ class VideoWindow(QMainWindow):
 
         # Toolbar button to video
         self.actionSwitch.triggered.connect(self.video_thread.switch_video)
+
+    def __del__(self):
+        cfg.SETTINGSEVENT.removeListener(self)
+
+    def onSettingsChanged(self, name, params):
+        readFromSettings(params)
 
     @pyqtSlot(QImage)
     def set_image1(self, image):

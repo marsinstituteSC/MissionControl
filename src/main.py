@@ -2,29 +2,47 @@
 
 import sys
 import PyQt5.QtWidgets
+import qdarkstyle
 
 from communications import udp_conn
 from controller import gamepad as gp
 from mainwindow import window_main as wm
-from settings import settings
+from utils import event
+from settings import settings as cfg
 
-# TODO, taskbar icon not displaying currently? Why?
-def loadAppIcon():
-    """Load application default icon, for all windows + taskbar"""
-    app_icon = PyQt5.QtGui.QIcon()
-    app_icon.addFile('images/logo_16.png', PyQt5.QtCore.QSize(16, 16))
-    app_icon.addFile('images/logo_24.png', PyQt5.QtCore.QSize(24, 24))
-    app_icon.addFile('images/logo_32.png', PyQt5.QtCore.QSize(32, 32))
-    app_icon.addFile('images/logo_48.png', PyQt5.QtCore.QSize(48, 48))
-    app_icon.addFile('images/logo_256.png', PyQt5.QtCore.QSize(256, 256))
-    app_icon.addFile('images/logo.png', PyQt5.QtCore.QSize(512, 512))
-    return app_icon
+class MarsRoverApp(PyQt5.QtWidgets.QApplication):
+    def __init__(self):
+        super().__init__(sys.argv)
+        cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
+        self.setWindowIcon(self.loadAppIcon())
+        self.loadSettings(cfg.SETTINGS)
 
+    def __del__(self):
+        cfg.SETTINGSEVENT.removeListener(self)
+
+    def onSettingsChanged(self, name, params):
+        self.loadSettings(params)
+
+    # Configuration for application, specifically for stylesheet. Dark Mode should overwrite all other settings.
+    # TODO: Some texts does not change color in dark mode, specifically the graphs text and logger.
+    def loadSettings(self, config):
+        darkMode = config.get("main", "stylesheet")
+        self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5()) if darkMode == "True" else self.setStyleSheet("")
+
+    def loadAppIcon(self):
+        """Load application default icon, for all windows + taskbar"""
+        app_icon = PyQt5.QtGui.QIcon()
+        app_icon.addFile('images/logo_16.png', PyQt5.QtCore.QSize(16, 16))
+        app_icon.addFile('images/logo_24.png', PyQt5.QtCore.QSize(24, 24))
+        app_icon.addFile('images/logo_32.png', PyQt5.QtCore.QSize(32, 32))
+        app_icon.addFile('images/logo_48.png', PyQt5.QtCore.QSize(48, 48))
+        app_icon.addFile('images/logo_256.png', PyQt5.QtCore.QSize(256, 256))
+        app_icon.addFile('images/logo.png', PyQt5.QtCore.QSize(512, 512))
+        return app_icon
 
 if __name__ == "__main__":
-    app = PyQt5.QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(loadAppIcon())
-    settings.loadSettings(app)
+    cfg.loadSettings()
+    app = MarsRoverApp()
     conn = udp_conn.connectToRoverServer()
     xbox = gp.loadGamepad()
     mainwnd = wm.loadMainWindow()

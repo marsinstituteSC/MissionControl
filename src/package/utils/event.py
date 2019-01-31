@@ -1,38 +1,32 @@
 """
-Simple event handler class, listeners should inherit EventListener.
+Simple event handler class. Events can be defined globally and can be raised by any func, class, etc...
+When raised, the event will notify all listeners via calling their given function arguments.
 """
-
-
-class EventListener():
-    def onEvent(self, e):
-        pass
 
 
 class Event():
     def __init__(self, name=None):
         self.name = name
-        self.listeners = list()
-
-    def addListener(self, obj):
-        if obj in self.listeners:
-            print("{} is already listening to this event!".format(str(obj)))
-            return
-
-        if not issubclass(type(obj), EventListener):
-            print("Listener has to implement EventListener!")
-            return
-
-        self.listeners.append(obj)
-
-    def removeListener(self, obj):
-        if obj in self.listeners:
-            self.listeners.remove(obj)
-        else:
-            print("{} is not listening to this event!".format(str(obj)))
-
-    def raiseEvent(self):
-        for listener in self.listeners:
-            listener.onEvent(self.name)
+        self.listeners = dict()
 
     def __repr__(self):
-        return self.name
+        if self.name is not None:
+            return self.name
+        else:
+            return "Event()"
+
+    def __del__(self):
+        self.listeners.clear()
+
+    def addListener(self, obj, func):
+        self.listeners[obj] = func
+
+    def removeListener(self, obj):
+        try:
+            self.listeners.pop(obj)
+        except:
+            print("{} is not listening to this event!".format(str(obj)))
+
+    def raiseEvent(self, params=None):
+        for _, v in self.listeners.items():
+            v(self.name, params)
