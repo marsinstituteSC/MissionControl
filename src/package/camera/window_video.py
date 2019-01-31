@@ -2,6 +2,8 @@
 
 # Normal Package Imports
 from configparser import ConfigParser
+import cProfile
+import time
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
@@ -80,18 +82,22 @@ class CameraThread(QThread):
         self.wait()
 
     # Signals to pass the image to the corresponding slots
-    changePixmap1 = pyqtSignal(QImage)
-    changePixmap2 = pyqtSignal(QImage)
+    changePixmap1 = pyqtSignal(QPixmap)
+    changePixmap2 = pyqtSignal(QPixmap)
 
     def drawImageFrame(self, frame, color, width = 640, height = 480):
-        """Renders a single frame from the video stream"""
+        """Renders a single frame from the video stream and returns a pixmap"""
         colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if color else cv2.COLOR_BGR2GRAY)
-        convertToQtFormat = QImage(colorFormat.data, colorFormat.shape[1], colorFormat.shape[0], QImage.Format_RGB888 if color else QImage.Format_Grayscale8)
-        return convertToQtFormat.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        newFrame = cv2.resize(colorFormat, (width, height))
+        convertToQtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if color else QImage.Format_Grayscale8)
+        return QPixmap.fromImage(convertToQtFormat)
+
 
     def run(self):
         """Captures the video, converts them to a QImage and then passes them to the pyqt signal for the label"""
         self.play_video()
+        self.pr = cProfile.Profile()
+        self.pr.enable()
         while self.running:
             global SETTINGS_CHANGE
             if SETTINGS_CHANGE:
@@ -108,8 +114,10 @@ class CameraThread(QThread):
                 self.changePixmap1.emit(self.drawImageFrame(frame1, VIDEO1_COLOR == "True", int(VIDEO1_RESOLUTION[0]), int(VIDEO1_RESOLUTION[1])))
 
             if ret2:
-                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True", int(VIDEO2_RESOLUTION[0]), int(VIDEO2_RESOLUTION[1])))            
-
+                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True", int(VIDEO2_RESOLUTION[0]), int(VIDEO2_RESOLUTION[1])))
+        
+        self.pr.disable()
+        self.pr.print_stats(sort='time')
     def play_video(self):
         self.cap1.open(VIDEO2_LINK if self.switch == 1 else VIDEO1_LINK)
         self.cap2.open(VIDEO1_LINK if self.switch == 1 else VIDEO2_LINK)
@@ -145,14 +153,15 @@ class VideoWindow(QMainWindow):
     def onSettingsChanged(self, name, params):
         readFromSettings(params)
 
-    @pyqtSlot(QImage)
+    @pyqtSlot(QPixmap)
     def set_image1(self, image):
-        self.video1.setPixmap(QPixmap.fromImage(image))
+        self.video1.setPixmap(image)
         self.video1.setScaledContents(True)
 
-    @pyqtSlot(QImage)
+
+    @pyqtSlot(QPixmap)
     def set_image2(self, image):
-        self.video2.setPixmap(QPixmap.fromImage(image))
+        self.video2.setPixmap(image)
         self.video2.setScaledContents(True)
 
     def runVideo(self):
@@ -162,6 +171,10 @@ class VideoWindow(QMainWindow):
 
     def settings(self):
         self.setting = cfg.openSettings()
+
+    def closeEvent(self, event):
+        self.video_thread.stop()
+        event.accept()
 
 def loadCameraWindow():
     wndw = VideoWindow()
