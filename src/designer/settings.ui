@@ -51,7 +51,7 @@
    <item row="0" column="1">
     <widget class="QTabWidget" name="properties_tab">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="main_window_tab">
       <attribute name="title">
@@ -312,17 +312,17 @@
              <widget class="QComboBox" name="video2_resolution">
               <item>
                <property name="text">
+                <string>Source</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string>1920x1080</string>
                </property>
               </item>
               <item>
                <property name="text">
                 <string>1280x720</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>854x480</string>
                </property>
               </item>
               <item>
@@ -417,17 +417,17 @@
              <widget class="QComboBox" name="video1_resolution">
               <item>
                <property name="text">
+                <string>Source</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string>1920x1080</string>
                </property>
               </item>
               <item>
                <property name="text">
                 <string>1280x720</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>854x480</string>
                </property>
               </item>
               <item>

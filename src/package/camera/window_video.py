@@ -60,8 +60,17 @@ def readFromSettings(config):
     VIDEO2_COLOR = config.get("video", "color2")
     
     # Video Resolution
-    VIDEO1_RESOLUTION = config.get("video", "resolution1").split("x")
-    VIDEO2_RESOLUTION = config.get("video", "resolution1").split("x")
+    resolution1 = config.get("video", "resolution1")
+    resolution2 = config.get("video", "resolution2")
+    if resolution1 == "Source":
+        VIDEO1_RESOLUTION = resolution1
+    else:
+        VIDEO1_RESOLUTION = resolution1.split("x")
+    
+    if resolution2 == "Source":
+        VIDEO2_RESOLUTION = resolution2
+    else:
+        VIDEO2_RESOLUTION = resolution2.split("x")
 
     # Global setting to force change in video stream.
     SETTINGS_CHANGE = True
@@ -88,7 +97,10 @@ class CameraThread(QThread):
     def drawImageFrame(self, frame, color, width = 640, height = 480):
         """Renders a single frame from the video stream and returns a pixmap"""
         colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if color else cv2.COLOR_BGR2GRAY)
-        newFrame = cv2.resize(colorFormat, (width, height))
+        if width == 0 and height == 0:
+            newFrame = colorFormat
+        else:
+            newFrame = cv2.resize(colorFormat, (width, height))
         convertToQtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if color else QImage.Format_Grayscale8)
         return QPixmap.fromImage(convertToQtFormat)
 
@@ -109,12 +121,15 @@ class CameraThread(QThread):
             ret2, frame2 = self.cap2.read()
 
             # Checks if there were any frames from both video captures
-
             if ret1:
-                self.changePixmap1.emit(self.drawImageFrame(frame1, VIDEO1_COLOR == "True", int(VIDEO1_RESOLUTION[0]), int(VIDEO1_RESOLUTION[1])))
+                self.changePixmap1.emit(self.drawImageFrame(frame1, VIDEO1_COLOR == "True",
+                int(VIDEO1_RESOLUTION[0]) if VIDEO1_RESOLUTION != "Source" else 0,
+                int(VIDEO1_RESOLUTION[1]) if VIDEO1_RESOLUTION != "Source" else 0 ))
 
             if ret2:
-                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True", int(VIDEO2_RESOLUTION[0]), int(VIDEO2_RESOLUTION[1])))
+                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True",
+                int(VIDEO2_RESOLUTION[0]) if VIDEO2_RESOLUTION != "Source" else 0,
+                int(VIDEO2_RESOLUTION[1]) if VIDEO2_RESOLUTION != "Source" else 0 ))
         
         self.pr.disable()
         self.pr.print_stats(sort='time')
