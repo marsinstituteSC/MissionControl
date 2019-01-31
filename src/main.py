@@ -17,8 +17,11 @@ class MarsRoverApp(PyQt5.QtWidgets.QApplication):
         self.setWindowIcon(self.loadAppIcon())
         self.loadSettings(cfg.SETTINGS)
 
-    def __del__(self):
-        cfg.SETTINGSEVENT.removeListener(self)
+    def exec_(self):
+        v = super().exec_()
+        if v == 0:
+            gp.shutdownGamepad()
+            udp_conn.disconnectFromRoverServer()
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)
@@ -43,7 +46,7 @@ class MarsRoverApp(PyQt5.QtWidgets.QApplication):
 if __name__ == "__main__":
     cfg.loadSettings()
     app = MarsRoverApp()
-    conn = udp_conn.connectToRoverServer()
-    xbox = gp.loadGamepad()
+    udp_conn.connectToRoverServer()
+    gp.loadGamepad()
     mainwnd = wm.loadMainWindow()
     sys.exit(app.exec_())

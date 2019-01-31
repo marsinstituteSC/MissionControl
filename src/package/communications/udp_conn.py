@@ -20,6 +20,7 @@ class UDPRoverServer(PyQt5.QtCore.QThread):
     def __init__(self):
         super().__init__()
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
+        self.shouldDestroy = False
         self.loadSettings(cfg.SETTINGS)
         self.messagesToSend = queue.Queue()        
         self.connect()
@@ -45,17 +46,14 @@ class UDPRoverServer(PyQt5.QtCore.QThread):
         #if self.socket.connected(): # Disconnect socket, unbind properly first.
         #self.socket.disconnectFromHost()
         self.serverAddress = config.get("main", "serveraddress")
-        self.serverPort = int(config.get("main", "serverport"))
-        
+        self.serverPort = int(config.get("main", "serverport"))        
 
-    def __del__(self):
-        global ROVERSERVER
-        cfg.SETTINGSEVENT.removeListener(self)
-        self.wait() 
-        ROVERSERVER = None
+    def destroy(self):
+        self.shouldDestroy = True
+        self.socket.disconnectFromHost()
 
     def run(self):
-        while True:            
+        while self.shouldDestroy == False:
             if self.socket.hasPendingDatagrams():
                 data, _, _ = self.socket.readDatagram(self.socket.pendingDatagramSize())
                 if data is not None: # TODO Process incoming messages
@@ -67,11 +65,19 @@ class UDPRoverServer(PyQt5.QtCore.QThread):
             if d:
                 self.socket.writeDatagram(d.encode(), self.serverAddress, self.serverPort)    
 
-            time.sleep(TICK)
+            time.sleep(TICK)        
 
 def connectToRoverServer():
     global ROVERSERVER
-    conn = UDPRoverServer()
-    conn.start()
-    ROVERSERVER = conn
-    return conn
+    ROVERSERVER = UDPRoverServer()
+    ROVERSERVER.start()
+    return ROVERSERVER
+
+def disconnectFromRoverServer():
+    global ROVERSERVER
+    if ROVERSERVER is None:
+        return
+
+    ROVERSERVER.destroy()
+    ROVERSERVER = None
+    

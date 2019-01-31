@@ -1,6 +1,6 @@
 """ Reading the input from a game controller """
 
-from pygame import joystick, time, event, init, JOYBUTTONDOWN, JOYAXISMOTION, JOYHATMOTION, JOYBUTTONUP
+from pygame import joystick, time, event, init, quit, JOYBUTTONDOWN, JOYAXISMOTION, JOYHATMOTION, JOYBUTTONUP
 from PyQt5.QtCore import QThread
 
 from utils import warning
@@ -9,6 +9,8 @@ import json
 # A lot of help from
 # https://github.com/joncoop/pygame-xbox360controller/blob/master/xbox360_controller.py
 # for class structure, methods and better deadzone calculations
+
+GAMEPAD = None
 
 ROVER_MAPPING_BUTTONS = {
     "A": 0,
@@ -46,12 +48,12 @@ class Gamepad(QThread):
     """Class for gamepad"""
     # Init does not initialize the gamepad
     def __init__(self, deadzone=0.1):
-        QThread.__init__(self)
-
+        super().__init__()
         # Initializes pygame and creates a instance of a clock to control the
         # tick rate.
         init()
         self.CLOCK = time.Clock()
+        self.shouldDestroy = False
 
         # Gamepad mapping for Windows
         self.gamepad_mapping = {
@@ -77,8 +79,8 @@ class Gamepad(QThread):
         joystick.init()
         self.initialize(0)
 
-    def __del__(self):
-        self.wait()    
+    def destroy(self):
+        self.shouldDestroy = True
 
     # Initializes the joystick
     def initialize(self, id_joystick):
@@ -192,7 +194,7 @@ class Gamepad(QThread):
     # Initializes pygame and creates a instance of a clock to control the tick
     # rate.
     def run(self):
-        while True:
+        while self.shouldDestroy == False:
 	        # Go through the event list and find button, axis and hat events
             for EVENT in event.get():
 		        # If a press event has happened, check the corresponding button and
@@ -213,7 +215,18 @@ class Gamepad(QThread):
             # Limit the clock rate to 30 ticks per second
             self.CLOCK.tick(30)
 
+        quit()
+
 def loadGamepad():
-    pad = Gamepad()
-    pad.start()
-    return pad
+    global GAMEPAD
+    GAMEPAD = Gamepad()
+    GAMEPAD.start()
+    return GAMEPAD
+
+def shutdownGamepad():
+    global GAMEPAD
+    if GAMEPAD is None:
+        return
+
+    GAMEPAD.destroy()
+    GAMEPAD = None

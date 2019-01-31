@@ -142,9 +142,6 @@ class VideoWindow(QMainWindow):
         # Toolbar button to video
         self.actionSwitch.triggered.connect(self.video_thread.switch_video)
 
-    def __del__(self):
-        cfg.SETTINGSEVENT.removeListener(self)
-
     def onSettingsChanged(self, name, params):
         readFromSettings(params)
 
