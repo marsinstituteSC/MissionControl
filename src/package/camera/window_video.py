@@ -20,134 +20,112 @@ from utils import event
 from settings import settings as cfg
 from utils import warning
 
-# Global variables for video settings
-VIDEO1_LINK = None
-VIDEO2_LINK = None
-VIDEO1_COLOR = None
-VIDEO2_COLOR = None
-VIDEO1_RESOLUTION = "1080"
-VIDEO2_RESOLUTION = "1080"
-SETTINGS_CHANGE = False
-
-def readFromSettings(config):
-    """
-    Reads from the settings.ini file and sets the global values
-    Video link needs to be the full link in order to connect to the video source
-        - ports needs to be added at the end
-        - potential authentications needs to be added to the link, not implemented yet
-    """
-    # Global Variables
-    global VIDEO1_LINK
-    global VIDEO2_LINK
-    global VIDEO1_COLOR
-    global VIDEO2_COLOR
-    
-    global VIDEO1_RESOLUTION
-    global VIDEO2_RESOLUTION
-    global SETTINGS_CHANGE
-    # Video Link Creation
-    VIDEO1_LINK = config.get("video", "url1")
-    VIDEO2_LINK = config.get("video", "url2")
-    port1 = config.get("video", "port1")
-    port2 = config.get("video", "port2")
-    if port1:
-        VIDEO1_LINK = VIDEO1_LINK + ":" + port1
-    if port2:
-        VIDEO2_LINK = VIDEO2_LINK + ":" + port2
-    
-    # Video Color
-    VIDEO1_COLOR = config.get("video", "color1")
-    VIDEO2_COLOR = config.get("video", "color2")
-    
-    # Video Resolution
-    resolution1 = config.get("video", "resolution1")
-    resolution2 = config.get("video", "resolution2")
-    if resolution1 == "Source":
-        VIDEO1_RESOLUTION = resolution1
-    else:
-        VIDEO1_RESOLUTION = resolution1.split("x")
-    
-    if resolution2 == "Source":
-        VIDEO2_RESOLUTION = resolution2
-    else:
-        VIDEO2_RESOLUTION = resolution2.split("x")
-
-    # Global setting to force change in video stream.
-    SETTINGS_CHANGE = True
-
 class CameraThread(QThread):
     """Thread class to run the fetching and coverting of the video in its own thread"""
 
     def __init__(self, window):
         super().__init__()
+        # Boolean for running the loop to easily break it.
         self.running = True
-        self.cap1 = cv2.VideoCapture(VIDEO1_LINK)
-        self.cap2 = cv2.VideoCapture(VIDEO2_LINK)
-        self.switch = 0
+        
+        # Video variables
+        self.videoLink1 = None
+        self.color1 = None
+        self.resolution1 = None
+        self.videoLink2 = None
+        self.color2 = None
+        self.resolution2 = None
+        
+        # Listener for changes in settings
+        cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
 
+        # Initializes the capture of video
+        self.cap1 = cv2.VideoCapture(self.videoLink1)
+        self.cap2 = cv2.VideoCapture(self.videoLink2)
+
+        self.loadSettings(cfg.SETTINGS)
+    
     def stop(self):
         self.running = False
         self.quit()
         self.wait()
+    
+    def onSettingsChanged(self, name, params):
+        self.loadSettings(params)
 
+    def loadSettings(self, config):
+        # Later we should check for every Video player if we choose to use 2x2 players
+        # Settings for Video 1
+        link1 = config.get("video", "url1") + ":" + config.get("video", "port1") if config.get("video", "port1") else config.get("video", "url1")
+        c1 = config.get("video", "color1")
+        res1 = config.get("video", "resolution1") if config.get("video", "resolution1") == "Source" else config.get("video", "resolution1").split("x")
+        # If any changes has been made for video 1, then restart the stream
+        if self.videoLink1 != link1 or self.color1 != c1 or self.resolution1 != res1:
+            self.videoLink1 = link1
+            self.color1 = c1
+            self.resolution1 = res1
+            
+        # Settings for Video 2
+        link2 = config.get("video", "url2") + ":" + config.get("video", "port2") if config.get("video", "port2") else config.get("video", "url2")
+        c2 = config.get("video", "color2")
+        res2 = config.get("video", "resolution2") if config.get("video", "resolution2") == "Source" else config.get("video", "resolution2").split("x")
+        # If any changes has been made for video 2, then restart the stream
+        if self.videoLink2 != link2 or self.color2 != c2 or self.resolution2 != res2:
+            self.videoLink2 = link2
+            self.color2 = c2
+            self.resolution2 = res2
+    
     # Signals to pass the image to the corresponding slots
     changePixmap1 = pyqtSignal(QPixmap)
     changePixmap2 = pyqtSignal(QPixmap)
 
     def drawImageFrame(self, frame, color, width = 640, height = 480):
         """Renders a single frame from the video stream and returns a pixmap"""
-        colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if color else cv2.COLOR_BGR2GRAY)
-        if width == 0 and height == 0:
-            newFrame = colorFormat
-        else:
-            newFrame = cv2.resize(colorFormat, (width, height))
-        convertToQtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if color else QImage.Format_Grayscale8)
-        return QPixmap.fromImage(convertToQtFormat)
+        try:
+            colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if color else cv2.COLOR_BGR2GRAY)
+            if width == 0 and height == 0:
+                newFrame = colorFormat
+            else:
+                newFrame = cv2.resize(colorFormat, (width, height))
+            convertToQtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if color else QImage.Format_Grayscale8)
+            return QPixmap.fromImage(convertToQtFormat)
+        except Exception as e:
+            print(e)
 
 
     def run(self):
         """Captures the video, converts them to a QImage and then passes them to the pyqt signal for the label"""
-        self.play_video()
-        self.pr = cProfile.Profile()
-        self.pr.enable()
+        self.cap1.open(self.videoLink1)
+        self.cap2.open(self.videoLink2)
+        #self.pr = cProfile.Profile()
+        #self.pr.enable()
         while self.running:
-            global SETTINGS_CHANGE
-            if SETTINGS_CHANGE:
-                self.play_video()
-                SETTINGS_CHANGE = False
+            try:
+                # OpenCv method to read the values from the video
+                ret1, frame1 = self.cap1.read()
+                ret2, frame2 = self.cap2.read()
 
-            # OpenCv method to read the values from the video
-            ret1, frame1 = self.cap1.read()
-            ret2, frame2 = self.cap2.read()
+                # Checks if there were any frames from both video captures
+                if ret1:
+                    self.changePixmap1.emit(self.drawImageFrame(frame1, self.color1 == "True",
+                    int(self.resolution1[0]) if self.resolution1 != "Source" else 0,
+                    int(self.resolution1[1]) if self.resolution1 != "Source" else 0 ))
 
-            # Checks if there were any frames from both video captures
-            if ret1:
-                self.changePixmap1.emit(self.drawImageFrame(frame1, VIDEO1_COLOR == "True",
-                int(VIDEO1_RESOLUTION[0]) if VIDEO1_RESOLUTION != "Source" else 0,
-                int(VIDEO1_RESOLUTION[1]) if VIDEO1_RESOLUTION != "Source" else 0 ))
-
-            if ret2:
-                self.changePixmap2.emit(self.drawImageFrame(frame2, VIDEO2_COLOR == "True",
-                int(VIDEO2_RESOLUTION[0]) if VIDEO2_RESOLUTION != "Source" else 0,
-                int(VIDEO2_RESOLUTION[1]) if VIDEO2_RESOLUTION != "Source" else 0 ))
-        
-        self.pr.disable()
-        self.pr.print_stats(sort='time')
-    def play_video(self):
-        self.cap1.open(VIDEO2_LINK if self.switch == 1 else VIDEO1_LINK)
-        self.cap2.open(VIDEO1_LINK if self.switch == 1 else VIDEO2_LINK)
-    
-    def switch_video(self):
-        self.switch = not self.switch
-        global SETTINGS_CHANGE
-        SETTINGS_CHANGE = True
+                if ret2:
+                    self.changePixmap2.emit(self.drawImageFrame(frame2, self.color2 == "True",
+                    int(self.resolution2[0]) if self.resolution2 != "Source" else 0,
+                    int(self.resolution2[1]) if self.resolution2 != "Source" else 0 ))
+            except Exception as e:
+                print(e)
+        #self.pr.disable()
+        #self.pr.print_stats(sort='time')
 
 class VideoWindow(QMainWindow):
     """Window class for video display"""
     def __init__(self):
         super().__init__()
-        cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
-        readFromSettings(cfg.SETTINGS)
+        #cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
+        #readFromSettings(cfg.SETTINGS)
         loadUi("designer/video.ui", self)
 
         # Set up thread
@@ -162,11 +140,8 @@ class VideoWindow(QMainWindow):
         # Toolbar button to open settings
         self.actionSettings.triggered.connect(self.settings)
 
-        # Toolbar button to video
-        self.actionSwitch.triggered.connect(self.video_thread.switch_video)
-
     def onSettingsChanged(self, name, params):
-        readFromSettings(params)
+        pass
 
     @pyqtSlot(QPixmap)
     def set_image1(self, image):
