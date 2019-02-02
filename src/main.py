@@ -1,8 +1,11 @@
 """ Default Application Entry Point """
 
 import sys
-import PyQt5.QtWidgets
 import qdarkstyle
+
+from PyQt5.QtWidgets import QSystemTrayIcon, QApplication
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QSize
 
 from communications import udp_conn
 from controller import gamepad as gp
@@ -10,7 +13,8 @@ from mainwindow import window_main as wm
 from utils import event
 from settings import settings as cfg
 
-class MarsRoverApp(PyQt5.QtWidgets.QApplication):
+
+class MarsRoverApp(QApplication):
     def __init__(self):
         super().__init__(sys.argv)
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
@@ -30,18 +34,20 @@ class MarsRoverApp(PyQt5.QtWidgets.QApplication):
     # TODO: Some texts does not change color in dark mode, specifically the graphs text and logger.
     def loadSettings(self, config):
         darkMode = config.get("main", "stylesheet")
-        self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5()) if darkMode == "True" else self.setStyleSheet("")
+        self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5(
+        )) if darkMode == "True" else self.setStyleSheet("")
 
     def loadAppIcon(self):
         """Load application default icon, for all windows + taskbar"""
-        app_icon = PyQt5.QtGui.QIcon()
-        app_icon.addFile('images/logo_16.png', PyQt5.QtCore.QSize(16, 16))
-        app_icon.addFile('images/logo_24.png', PyQt5.QtCore.QSize(24, 24))
-        app_icon.addFile('images/logo_32.png', PyQt5.QtCore.QSize(32, 32))
-        app_icon.addFile('images/logo_48.png', PyQt5.QtCore.QSize(48, 48))
-        app_icon.addFile('images/logo_256.png', PyQt5.QtCore.QSize(256, 256))
-        app_icon.addFile('images/logo.png', PyQt5.QtCore.QSize(512, 512))
+        app_icon = QIcon()
+        app_icon.addFile('images/logo_16.png', QSize(16, 16))
+        app_icon.addFile('images/logo_24.png', QSize(24, 24))
+        app_icon.addFile('images/logo_32.png', QSize(32, 32))
+        app_icon.addFile('images/logo_48.png', QSize(48, 48))
+        app_icon.addFile('images/logo_256.png', QSize(256, 256))
+        app_icon.addFile('images/logo.png', QSize(512, 512))
         return app_icon
+
 
 if __name__ == "__main__":
     cfg.loadSettings()
