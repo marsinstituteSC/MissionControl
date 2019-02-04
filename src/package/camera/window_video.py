@@ -133,6 +133,9 @@ class VideoWindow(QMainWindow):
         self.video_thread.changePixmap1.connect(self.set_image1)
         self.video_thread.changePixmap2.connect(self.set_image2)
 
+        self.video3_widget.hide()
+        self.video4_widget.hide()
+
         # Toolbar button to run the video, and run the video at start
         self.actionStart_Video.triggered.connect(self.runVideo)
         self.runVideo()
