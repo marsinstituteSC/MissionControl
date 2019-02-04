@@ -31,10 +31,10 @@ class CameraThread(QThread):
         # Video variables
         self.videoLink1 = None
         self.color1 = None
-        self.resolution1 = None
+        self.scaling1 = None
         self.videoLink2 = None
         self.color2 = None
-        self.resolution2 = None
+        self.scaling2 = None
         
         # Listener for changes in settings
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
@@ -58,22 +58,22 @@ class CameraThread(QThread):
         # Settings for Video 1
         link1 = config.get("video", "url1") + ":" + config.get("video", "port1") if config.get("video", "port1") else config.get("video", "url1")
         c1 = config.get("video", "color1")
-        res1 = config.get("video", "resolution1") if config.get("video", "resolution1") == "Source" else config.get("video", "resolution1").split("x")
+        res1 = config.get("video", "scaling1") if config.get("video", "scaling1") == "Source" else config.get("video", "scaling1").split("x")
         # If any changes has been made for video 1, then restart the stream
-        if self.videoLink1 != link1 or self.color1 != c1 or self.resolution1 != res1:
+        if self.videoLink1 != link1 or self.color1 != c1 or self.scaling1 != res1:
             self.videoLink1 = link1
             self.color1 = c1
-            self.resolution1 = res1
+            self.scaling1 = res1
             
         # Settings for Video 2
         link2 = config.get("video", "url2") + ":" + config.get("video", "port2") if config.get("video", "port2") else config.get("video", "url2")
         c2 = config.get("video", "color2")
-        res2 = config.get("video", "resolution2") if config.get("video", "resolution2") == "Source" else config.get("video", "resolution2").split("x")
+        res2 = config.get("video", "scaling2") if config.get("video", "scaling2") == "Source" else config.get("video", "scaling2").split("x")
         # If any changes has been made for video 2, then restart the stream
-        if self.videoLink2 != link2 or self.color2 != c2 or self.resolution2 != res2:
+        if self.videoLink2 != link2 or self.color2 != c2 or self.scaling2 != res2:
             self.videoLink2 = link2
             self.color2 = c2
-            self.resolution2 = res2
+            self.scaling2 = res2
     
     # Signals to pass the image to the corresponding slots
     changePixmap1 = pyqtSignal(QPixmap)
@@ -108,13 +108,13 @@ class CameraThread(QThread):
                 # Checks if there were any frames from both video captures
                 if ret1:
                     self.changePixmap1.emit(self.drawImageFrame(frame1, self.color1 == "True",
-                    int(self.resolution1[0]) if self.resolution1 != "Source" else 0,
-                    int(self.resolution1[1]) if self.resolution1 != "Source" else 0 ))
+                    int(self.scaling1[0]) if self.scaling1 != "Source" else 0,
+                    int(self.scaling1[1]) if self.scaling1 != "Source" else 0 ))
 
                 if ret2:
                     self.changePixmap2.emit(self.drawImageFrame(frame2, self.color2 == "True",
-                    int(self.resolution2[0]) if self.resolution2 != "Source" else 0,
-                    int(self.resolution2[1]) if self.resolution2 != "Source" else 0 ))
+                    int(self.scaling2[0]) if self.scaling2 != "Source" else 0,
+                    int(self.scaling2[1]) if self.scaling2 != "Source" else 0 ))
             except Exception as e:
                 print(e)
         #self.pr.disable()

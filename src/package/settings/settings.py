@@ -35,8 +35,14 @@ DEFAULT_VIDEO_SETTINGS = {
     "port2": "",
     "color1": "False",
     "color2": "False",
-    "resolution1" : 0,
-    "resolution2" : 0
+    "scaling1" : "Source",
+    "scaling2" : "Source",
+    "resolution1" : 1,
+    "resolution2" : 1,
+    "name1" : "",
+    "name2" : "",
+    "enable1" : False,
+    "enable2" : False
 }
 
 def loadSettings():
@@ -102,47 +108,73 @@ class OptionWindow(QDialog):
         self.video2_port.setText(SETTINGS.get("video", "port2"))
 
         # Color settings
-        wantColorForVideo1 = (SETTINGS.get("video", "color1") == "True")
-        wantColorForVideo2 = (SETTINGS.get("video", "color2") == "True")
-        self.video1_color_on.setChecked(wantColorForVideo1)
-        self.video1_color_off.setChecked(not wantColorForVideo1)
-        self.video2_color_on.setChecked(wantColorForVideo2)
-        self.video2_color_off.setChecked(not wantColorForVideo2)
+        self.video1_color_on.setChecked((SETTINGS.get("video", "color1") == "True"))
+        self.video1_color_off.setChecked(not (SETTINGS.get("video", "color1") == "True"))
+        self.video2_color_on.setChecked((SETTINGS.get("video", "color2") == "True"))
+        self.video2_color_off.setChecked(not (SETTINGS.get("video", "color2") == "True"))
 
-        # Resolution
-        self.video1_resolution.setCurrentIndex(self.video1_resolution.findText(SETTINGS.get("video", "resolution1")))
-        self.video2_resolution.setCurrentIndex(self.video2_resolution.findText(SETTINGS.get("video", "resolution2")))
+        # Scaling
+        self.video1_scaling.setCurrentIndex(self.video1_scaling.findText(SETTINGS.get("video", "scaling1")))
+        self.video2_scaling.setCurrentIndex(self.video2_scaling.findText(SETTINGS.get("video", "scaling2")))
 
+        # Resolution, NOTE this is for camera resolution from rover
+        self.video1_resolution.setCurrentIndex(self.video1_resolution.findText("Mode: " + SETTINGS.get("video", "resolution1")))
+        self.video2_resolution.setCurrentIndex(self.video2_resolution.findText("Mode: " + SETTINGS.get("video", "resolution2")))
+
+        # Name
+        self.video1_name.setText(SETTINGS.get("video", "name1"))
+        self.video2_name.setText(SETTINGS.get("video", "name2"))
+
+        # Enable
+        self.video1_enable.setChecked((SETTINGS.get("video", "enable1") == "True"))
+        self.video2_enable.setChecked((SETTINGS.get("video", "enable2") == "True"))
 
         # Dark Mode
-        darkMode = (SETTINGS.get("main", "stylesheet") == "True")
-        self.checkBox_dark.setChecked(darkMode)
+        self.checkBox_dark.setChecked((SETTINGS.get("main", "stylesheet") == "True"))
         
         # Communication
         self.server_address.setText(SETTINGS.get("main", "serverAddress"))
         self.server_port.setText(SETTINGS.get("main", "serverPort"))
         self.client_address.setText(SETTINGS.get("main", "clientAddress"))
         self.client_port.setText(SETTINGS.get("main", "clientPort"))
-        communication_protocol = (SETTINGS.get("main", "comProtocol") == "True")
-        self.radioButton_udp.setChecked(communication_protocol)
-        self.radioButton_tcp.setChecked(not communication_protocol)
+        self.radioButton_udp.setChecked((SETTINGS.get("main", "comProtocol") == "True"))
+        self.radioButton_tcp.setChecked(not (SETTINGS.get("main", "comProtocol") == "True"))
 
 
     def saveSettings(self):
         """
         Stores the values into the settings.ini
-        Used on apply and OK, for now.
+        Used on apply.
         """
         global SETTINGS
 
+        # Video
         SETTINGS.set("video", "url1", self.video1_ip.text())
         SETTINGS.set("video", "url2", self.video2_ip.text())
         SETTINGS.set("video", "port1", self.video1_port.text())
         SETTINGS.set("video", "port2", self.video2_port.text())
         SETTINGS.set("video", "color1", str(self.video1_color_on.isChecked()))
         SETTINGS.set("video", "color2", str(self.video2_color_on.isChecked()))
-        SETTINGS.set("video", "resolution1", self.video1_resolution.currentText())
-        SETTINGS.set("video", "resolution2", self.video2_resolution.currentText())
+        SETTINGS.set("video", "scaling1", self.video1_scaling.currentText())
+        SETTINGS.set("video", "scaling2", self.video2_scaling.currentText())
+        SETTINGS.set("video", "name1", self.video1_name.text())
+        SETTINGS.set("video", "name2", self.video2_name.text())
+        SETTINGS.set("video", "enable1", str(self.video1_enable.isChecked()))
+        SETTINGS.set("video", "enable2", str(self.video2_enable.isChecked()))
+        
+        # Need to check if there has been a change to the resolution, if so it needs to send that info to the rover
+        oldRes1 = SETTINGS.get("video", "resolution1")
+        oldRes2 = SETTINGS.get("video", "resolution2")
+        newRes1 = self.video1_resolution.currentText().split(": ")[1]
+        newRes2 = self.video2_resolution.currentText().split(": ")[1]
+        if oldRes1 != newRes1:
+            SETTINGS.set("video", "resolution1", newRes1)
+            updateResolutionOnCamera(SETTINGS.get("video", "name1"), newRes1)
+        if oldRes2 != newRes2:
+            SETTINGS.set("video", "resolution2", newRes2)
+            updateResolutionOnCamera(SETTINGS.get("video", "name2"), newRes2)
+        
+        # Main
         SETTINGS.set("main", "stylesheet", str(self.checkBox_dark.isChecked()))
         SETTINGS.set("main", "serverAddress", str(self.server_address.text()))
         SETTINGS.set("main", "serverPort", str(self.server_port.text()))
@@ -154,6 +186,20 @@ class OptionWindow(QDialog):
     def closeEvent(self, event):
         global SETTINGSWINDOW
         SETTINGSWINDOW = None
+
+def updateResolutionOnCamera(name, mode):
+    """
+    Creates and sends an update to the rover with the new resoltion
+    Inputs:
+        Name: The name of the camera, needs to be the same as the one on the rover
+        Mode: Arbitrary mode ranging from 1-4 to change resolution
+    """
+    # This will change to the json specification
+    output = {
+        "cameraName" : name,
+        "cameraMode" : mode
+    }
+    # Send to udp, will do this later.
 
 
 def openSettings():
