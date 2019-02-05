@@ -166,8 +166,8 @@ class VideoWindow(QMainWindow):
         self.setting = cfg.openSettings()
 
     def closeEvent(self, event):
+        super().closeEvent(event)
         self.video_thread.stop()
-        event.accept()
 
 def loadCameraWindow():
     wndw = VideoWindow()

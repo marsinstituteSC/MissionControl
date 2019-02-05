@@ -38,23 +38,15 @@
      <string>Tools</string>
     </property>
     <addaction name="actionSettings"/>
+    <addaction name="actionLog"/>
    </widget>
    <widget class="QMenu" name="menuCamera_2">
     <property name="title">
      <string>Camera</string>
     </property>
-    <widget class="QMenu" name="menuEffects">
-     <property name="title">
-      <string>Effects</string>
-     </property>
-     <addaction name="actionGrayscale"/>
-     <addaction name="actionFlip"/>
-     <addaction name="actionNightvision"/>
-    </widget>
     <addaction name="actionLoad"/>
     <addaction name="actionSave"/>
     <addaction name="actionCapture"/>
-    <addaction name="menuEffects"/>
     <addaction name="actionCamera_Window"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -107,6 +99,11 @@
   <action name="actionCamera_Window">
    <property name="text">
     <string>Camera Window</string>
+   </property>
+  </action>
+  <action name="actionLog">
+   <property name="text">
+    <string>Log</string>
    </property>
   </action>
  </widget>

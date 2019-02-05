@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QSystemTrayIcon, QApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 
-from communications import udp_conn
+from communications import udp_conn, database
 from controller import gamepad as gp
 from mainwindow import window_main as wm
 from utils import event
@@ -26,6 +26,7 @@ class MarsRoverApp(QApplication):
         if v == 0:
             gp.shutdownGamepad()
             udp_conn.disconnectFromRoverServer()
+            database.closeDBSessions()
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)

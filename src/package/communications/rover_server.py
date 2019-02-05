@@ -74,7 +74,7 @@ if __name__ == "__main__":
         sensorPublisher.writeDatagram(
             generate_random_data(), SENSOR_PUBLISH_SERVER, SENSOR_PUBLISH_PORT)
 
-        time.sleep(200 / 1000)
+        time.sleep(500 / 1000)
 
     # Cleanup
     gamepadServer.close()

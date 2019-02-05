@@ -2,12 +2,15 @@
 
 import time
 import queue
+import json
+import datetime
 
 from PyQt5.QtCore import QThread
 from PyQt5.QtNetwork import QUdpSocket, QHostAddress, QNetworkInterface
 
 from utils import event
 from settings import settings as cfg
+from communications import database
 
 # 192.168.1.3 <- actual server addr. to use.
 
@@ -25,17 +28,15 @@ class UDPRoverServer(QThread):
         super().__init__()
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
         self.shouldDestroy = False
-        self.loadSettings(cfg.SETTINGS)
-        self.messagesToSend = queue.Queue()        
-        self.connectToGamepadServer()
-        self.connectToSensorPublisher()
+        self.messagesToSend = queue.Queue()    
+        self.loadSettings(cfg.SETTINGS)    
 
     def connectToGamepadServer(self):
-        self.gamepadSocket = QUdpSocket(self)
+        self.gamepadSocket = QUdpSocket()
         self.gamepadSocket.bind(CLIENTHOST, CLIENTPORT)
 
     def connectToSensorPublisher(self):
-        self.sensorpubSocket = QUdpSocket(self)
+        self.sensorpubSocket = QUdpSocket()
         self.sensorpubSocket.bind(QHostAddress.AnyIPv4, SENSOR_PUBLISH_PORT, QUdpSocket.ShareAddress)
         self.sensorpubSocket.joinMulticastGroup(SENSOR_PUBLISH_SERVER)
 
@@ -52,17 +53,19 @@ class UDPRoverServer(QThread):
         self.loadSettings(params)
 
     def loadSettings(self, config):
-        self.serverAddress = config.get("main", "serveraddress")
+        self.serverAddress = QHostAddress(config.get("main", "serveraddress"))
         self.serverPort = int(config.get("main", "serverport"))        
 
     def destroy(self):
         self.shouldDestroy = True
-        self.gamepadSocket.close()
-        self.sensorpubSocket.leaveMulticastGroup(SENSOR_PUBLISH_SERVER)
-        self.sensorpubSocket.close()
 
-    def run(self):
+    def run(self):        
+        self.connectToGamepadServer()
+        self.connectToSensorPublisher()
+        dbSession = database.createNewDBSession("sensor")
+
         while self.shouldDestroy == False:
+            # I don't think the gamepad server on the rover will send replies, so this IF check can probably be removed!
             if self.gamepadSocket.hasPendingDatagrams():
                 data, _, _ = self.gamepadSocket.readDatagram(self.gamepadSocket.pendingDatagramSize())
                 if data is not None: # TODO Process incoming messages
@@ -72,6 +75,10 @@ class UDPRoverServer(QThread):
                 data, _, _ = self.sensorpubSocket.readDatagram(self.sensorpubSocket.pendingDatagramSize())
                 if data is not None:
                     print("Received Sensor Data:", data.decode())
+                    obj = json.loads(data)
+                    for k, v in obj.items(): # WIP!!! 
+                        # TODO - Add raise signal to UI thread.
+                        database.Event.add(dbSession, "{} - {}".format(k, v), 0, 0, str(datetime.datetime.now()))
 
             # Fetch messages from a thread-safe queue, if empty, skip and wait
             # for TICK time.
@@ -79,7 +86,11 @@ class UDPRoverServer(QThread):
             if d:
                 self.gamepadSocket.writeDatagram(d.encode(), self.serverAddress, self.serverPort)    
 
-            time.sleep(TICK)        
+            time.sleep(TICK)   
+
+        self.gamepadSocket.close()
+        self.sensorpubSocket.leaveMulticastGroup(SENSOR_PUBLISH_SERVER)
+        self.sensorpubSocket.close()     
 
 def connectToRoverServer():
     global ROVERSERVER

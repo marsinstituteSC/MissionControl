@@ -236,6 +236,7 @@ class OptionWindow(QDialog):
         saveSettings()
 
     def closeEvent(self, event):
+        super().closeEvent(event)
         global SETTINGSWINDOW
         SETTINGSWINDOW = None
 

@@ -9,6 +9,7 @@ from controls import logger
 from communications import udp_conn
 from camera import window_video as wv
 from settings import settings as cfg
+from mainwindow import window_eventlog
 
 class MainWindow(PyQt5.QtWidgets.QMainWindow):
     def __init__(self):
@@ -24,6 +25,7 @@ class MainWindow(PyQt5.QtWidgets.QMainWindow):
 
         # Toolbar button to open settings
         self.actionSettings.triggered.connect(self.settings)
+        self.actionLog.triggered.connect(window_eventlog.showEventLog)
 
     def setupUi(self):
         """
