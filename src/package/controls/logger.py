@@ -5,8 +5,10 @@
 
 from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QWidget, QTableWidget, QTableWidgetItem, QHeaderView
 from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt
 
 from utils.math import clamp
+from settings.settings import SETTINGSEVENT, SETTINGS
 
 import PyQt5.QtGui
 import datetime
@@ -21,9 +23,10 @@ class LogItem():
         self.timestamp = timestamp
         self.color = color
 
-    def getTableItem(self, v):
+    def getTableItem(self, v, p):
         item = QTableWidgetItem(v)
         item.setForeground(self.color)
+        item.setData(Qt.UserRole, p)
         return item
 
 
@@ -31,8 +34,9 @@ class ColorizedLogger(QTableWidget):
 
     def __init__(self, parent = None, colorCommon=QColor(0, 0, 0), colorNotification=QColor(0, 255, 0), colorWarning=QColor(253, 106, 2), colorError=QColor(255, 0, 0)):
         super().__init__()
+        SETTINGSEVENT.addListener(self, self.onSettingsChanged)
         self.setParent(parent)
-        self.colorForPriority = [colorCommon, colorNotification, colorWarning, colorError]
+        self.colorForPriority = [colorCommon if (SETTINGS.get("main", "stylesheet") == "False") else QColor(255, 255, 255) , colorNotification, colorWarning, colorError]
         self.data = {
             "0": [],
             "1": [],
@@ -40,6 +44,20 @@ class ColorizedLogger(QTableWidget):
             "3": []
         }
         self.setupUi()
+
+    def __del__(self):
+        if SETTINGSEVENT:
+            SETTINGSEVENT.removeListener(self)
+
+    def onSettingsChanged(self, name, params):
+        self.colorForPriority[0] = QColor(0, 0, 0) if (params.get("main", "stylesheet") == "False") else QColor(255, 255, 255)
+        for r in range(0, self.rowCount()): # Update the low prio. elements!
+            priority = self.item(r, 0).data(Qt.UserRole)
+            if priority == 0:
+                self.item(r, 0).setForeground(self.colorForPriority[0])
+                self.item(r, 1).setForeground(self.colorForPriority[0])
+                self.item(r, 2).setForeground(self.colorForPriority[0])
+
 
     def setupUi(self):
         self.setEditTriggers(PyQt5.QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -78,6 +96,6 @@ class ColorizedLogger(QTableWidget):
 
         self.data.get(str(priority)).append(item) # TODO write to MySQL as well?
         # Set the desired item in the desired row , column
-        self.setItem(index, 0, item.getTableItem(text))
-        self.setItem(index, 1, item.getTableItem(self.getPriorityText(priority)))
-        self.setItem(index, 2, item.getTableItem(tim))
+        self.setItem(index, 0, item.getTableItem(text, priority))
+        self.setItem(index, 1, item.getTableItem(self.getPriorityText(priority), priority))
+        self.setItem(index, 2, item.getTableItem(tim, priority))

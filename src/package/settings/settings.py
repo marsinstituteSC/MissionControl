@@ -26,6 +26,8 @@ DEFAULT_MAIN_SETTINGS = {
     "stylesheet" : "False",
     "serverAddress" : "127.0.0.1",
     "serverPort" : "5000",
+    "clientAddress" : "127.0.0.1",
+    "clientPort" : "37500",
     "comProtocol" : "UDP"
 }
 DEFAULT_VIDEO_SETTINGS = {

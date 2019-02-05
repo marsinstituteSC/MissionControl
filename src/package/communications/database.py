@@ -30,6 +30,14 @@ class Event(Base):
         if autocommit:
             session.commit()
 
+    def delete(session, id, autocommit=True):
+        """
+        Remove an event from the DB.
+        """
+        session.delete(session.query(Event).filter_by(id=id).first())
+        if autocommit:
+            session.commit()
+
     def findByType(session, type):
         output = list()
         for e in session.query(Event).filter_by(type=type).all():
@@ -37,7 +45,7 @@ class Event(Base):
         return output
 
 
-def createNewDBSession(schema=None):
+def createDBSession(schema=None):
     """
     Returns a new DB session, should only be used on the calling thread!
     Remember to close the session when done!!!

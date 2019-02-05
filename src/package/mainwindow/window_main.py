@@ -1,8 +1,10 @@
 """ Main App Window, renders information from sensors, render graphs, etc... """
 
-import PyQt5.QtWidgets
-import PyQt5.uic
 import random
+
+from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout
+from PyQt5.uic import loadUi
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
 from controls import plot
 from controls import logger
@@ -11,10 +13,10 @@ from camera import window_video as wv
 from settings import settings as cfg
 from mainwindow import window_eventlog
 
-class MainWindow(PyQt5.QtWidgets.QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        PyQt5.uic.loadUi("designer/window_main.ui", self)
+        loadUi("designer/window_main.ui", self)
         self.setWindowTitle("JARL Viking III")    
         self.setupUi()
 
@@ -27,16 +29,18 @@ class MainWindow(PyQt5.QtWidgets.QMainWindow):
         self.actionSettings.triggered.connect(self.settings)
         self.actionLog.triggered.connect(window_eventlog.showEventLog)
 
+        udp_conn.ROVERSERVER.onReceiveData.connect(self.receivedDataFromRover)
+
     def setupUi(self):
         """
         Load/Create UI controls, the toolbar has been created via the UI file.
         """
-        mainWidget = PyQt5.QtWidgets.QWidget(self)
-        mainGrid = PyQt5.QtWidgets.QGridLayout()
+        mainWidget = QWidget(self)
+        mainGrid = QGridLayout()
         self.setCentralWidget(mainWidget)            
         
         # TAB Box which contains multiple graphs for different type of sensors?
-        sensorTABBox = PyQt5.QtWidgets.QTabWidget()
+        sensorTABBox = QTabWidget()
         
         # Make 1 row, 2 columns, 2 plots
         graphs1 = plot.PlotCanvas(None, 10)
@@ -51,17 +55,17 @@ class MainWindow(PyQt5.QtWidgets.QMainWindow):
         sensorTABBox.addTab(graphs2, "Velocity")
 
         # Misc section could contain speed, accel, sensor readings, etc...
-        miscWidget = PyQt5.QtWidgets.QWidget()        
-        miscHBOX = PyQt5.QtWidgets.QHBoxLayout()
+        miscWidget = QWidget()        
+        miscHBOX = QHBoxLayout()
         miscWidget.setLayout(miscHBOX)
         
-        self.speedMeter = PyQt5.QtWidgets.QLCDNumber()      
-        self.speedMeter.setSegmentStyle(PyQt5.QtWidgets.QLCDNumber.Flat) 
+        self.speedMeter = QLCDNumber()      
+        self.speedMeter.setSegmentStyle(QLCDNumber.Flat) 
 
         miscHBOX.addStretch()    
-        miscHBOX.addWidget(PyQt5.QtWidgets.QLabel("Speed"))
+        miscHBOX.addWidget(QLabel("Speed"))
         miscHBOX.addWidget(self.speedMeter)
-        miscHBOX.addWidget(PyQt5.QtWidgets.QLabel("m/s"))
+        miscHBOX.addWidget(QLabel("m/s"))
         self.setSpeedometerValue(12)    
 
         # Bottom section displays the log.
@@ -90,9 +94,13 @@ class MainWindow(PyQt5.QtWidgets.QMainWindow):
         elif self.video_window.isHidden():
             self.video_window.show()
         else:
-            self.video_window.setWindowState(PyQt5.QtCore.Qt.WindowActive)
+            self.video_window.setWindowState(Qt.WindowActive)
 
         self.video_window.activateWindow()
+
+    @pyqtSlot('PyQt_PyObject')
+    def receivedDataFromRover(self, data):
+        pass # Works! TODO: Update UI with the given values! (data refers to the actual json object!)
 
 
 def loadMainWindow():

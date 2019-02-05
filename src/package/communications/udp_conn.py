@@ -5,7 +5,7 @@ import queue
 import json
 import datetime
 
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtNetwork import QUdpSocket, QHostAddress, QNetworkInterface
 
 from utils import event
@@ -24,6 +24,8 @@ ROVERSERVER = None # Allow other files/pgks to easily access our udp server thro
 TICK = (50 / 1000) # How often in msec should we check inc / send outgoing msgs.
 
 class UDPRoverServer(QThread):
+    onReceiveData = pyqtSignal('PyQt_PyObject')
+
     def __init__(self):
         super().__init__()
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
@@ -62,7 +64,7 @@ class UDPRoverServer(QThread):
     def run(self):        
         self.connectToGamepadServer()
         self.connectToSensorPublisher()
-        dbSession = database.createNewDBSession("sensor")
+        dbSession = database.createDBSession("sensor")
 
         while self.shouldDestroy == False:
             # I don't think the gamepad server on the rover will send replies, so this IF check can probably be removed!
@@ -76,6 +78,7 @@ class UDPRoverServer(QThread):
                 if data is not None:
                     print("Received Sensor Data:", data.decode())
                     obj = json.loads(data)
+                    self.onReceiveData.emit(obj)
                     for k, v in obj.items(): # WIP!!! 
                         # TODO - Add raise signal to UI thread.
                         database.Event.add(dbSession, "{} - {}".format(k, v), 0, 0, str(datetime.datetime.now()))
