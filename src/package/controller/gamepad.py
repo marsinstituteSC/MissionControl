@@ -284,18 +284,24 @@ class Gamepad(QThread):
         while self.shouldDestroy == False:
 	        # Go through the event list and find button, axis and hat events
             for EVENT in event.get():
-                
-                # NOTE Should we send both buttons and axis in a single dict or two separate dicts
+                eventHappened = False
                 if EVENT.type == JOYBUTTONDOWN or EVENT.type == JOYBUTTONUP:
-                    # Update the button states
                     self.read_rover_buttons()
-                    print(self.rover_buttons)
-                    # Send the button states to the rover in a dictionary with key = Buttons
+                    eventHappened = True
 
                 if EVENT.type == JOYAXISMOTION or EVENT.type == JOYHATMOTION:
                     self.read_rover_axis()
-                    print(self.rover_axis)
-                    # Send the axis states to the rover in a dictionary with key = Axis
+                    eventHappened = True
+                
+                if eventHappened:
+                    message = {
+                        "Axis" : self.rover_axis,
+                        "Buttons" : self.rover_buttons
+                    }
+                    eventHappened = False
+                    print(message)
+                    # TODO Send to udp
+
 
             # Limit the clock rate to 30 ticks per second
             self.CLOCK.tick(30)

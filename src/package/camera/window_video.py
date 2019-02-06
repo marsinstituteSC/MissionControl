@@ -205,6 +205,32 @@ class VideoWindow(QMainWindow):
                 self.restartSpecificVideo(4, False)
                 self.video4_widget.hide()
 
+        # If both video players at the bottom or top are the only ones active, disable the top frame in order to get a video on each row
+        if self.enabled2 and self.enabled4 and not self.enabled1 and not self.enabled3:
+            self.frame.hide()
+            self.gridLayout_2.removeWidget(self.video4_widget) # Doesn't seem like we need to call this, but its here just in case.
+            self.gridLayout_2.addWidget(self.video4_widget, 1, 0)
+        elif self.enabled1 and self.enabled3 and not self.enabled2 and not self.enabled4:
+            self.frame_2.hide()
+            self.gridLayout.removeWidget(self.video3_widget)
+            self.gridLayout.addWidget(self.video3_widget, 1, 0)
+        elif self.enabled1 and not self.enabled2 and not self.enabled3 and not self.enabled4:
+            self.frame_2.hide()
+        elif self.enabled2 and not self.enabled1 and not self.enabled3 and not self.enabled4:
+            self.frame.hide()
+        elif self.enabled3 and not self.enabled2 and not self.enabled1 and not self.enabled4:
+            self.frame_2.hide()
+        elif self.enabled4 and not self.enabled2 and not self.enabled3 and not self.enabled1:
+            self.frame.hide()
+        else:
+            self.gridLayout.removeWidget(self.video3_widget)
+            self.gridLayout.addWidget(self.video3_widget, 0, 1)
+            self.gridLayout_2.removeWidget(self.video4_widget)
+            self.gridLayout_2.addWidget(self.video4_widget, 0, 1)
+            self.frame.show()
+            self.frame_2.show()
+
+
     @pyqtSlot(QPixmap)
     def set_image1(self, image):
         self.video1_player.setPixmap(image)
