@@ -99,3 +99,5 @@ class ColorizedLogger(QTableWidget):
         self.setItem(index, 0, item.getTableItem(text, priority))
         self.setItem(index, 1, item.getTableItem(self.getPriorityText(priority), priority))
         self.setItem(index, 2, item.getTableItem(tim, priority))
+
+        self.scrollToBottom()

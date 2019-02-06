@@ -69,15 +69,15 @@ class MainWindow(QMainWindow):
         self.setSpeedometerValue(12)    
 
         # Bottom section displays the log.
-        log = logger.ColorizedLogger()
-        log.logData("Anything, especially stuff we normally don't care about", 0)
-        log.logData("Something normal happened", 1)
-        log.logData("Something might be wrong", 2) 
-        log.logData("Something is definitely wrong", 3)        
+        self.log = logger.ColorizedLogger()
+        self.log.logData("Anything, especially stuff we normally don't care about", 0)
+        self.log.logData("Something normal happened", 1)
+        self.log.logData("Something might be wrong", 2) 
+        self.log.logData("Something is definitely wrong", 3)        
         
         mainGrid.addWidget(sensorTABBox, 1, 0)
         mainGrid.addWidget(miscWidget, 2, 0)
-        mainGrid.addWidget(log, 3, 0)
+        mainGrid.addWidget(self.log, 3, 0)
         mainGrid.setRowStretch(1, 50)
         mainGrid.setRowStretch(3, 20)
         mainWidget.setLayout(mainGrid)
@@ -100,7 +100,11 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot('PyQt_PyObject')
     def receivedDataFromRover(self, data):
-        pass # Works! TODO: Update UI with the given values! (data refers to the actual json object!)
+        # TODO Add more stuff here...
+        if 'speed' in data:
+            self.setSpeedometerValue(data['speed'])
+            self.log.logData("Now running at {} m/s.".format(data['speed']), 0)
+
 
 
 def loadMainWindow():

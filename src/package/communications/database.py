@@ -1,15 +1,84 @@
 """ SQLAlchemy Definitions + Session Creation (using PostgreSQL) """
 
-import psycopg2
+import threading
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
+
+from utils import event
+from settings.settings import SETTINGSEVENT, SETTINGS
+
+ADDRESS = None
+PORT = None
+DB = None
+USERNAME = None
+PASSWD = None
 
 engine = create_engine("postgresql://postgres:booty@localhost/rover")
 Base = declarative_base()
-Session = sessionmaker(bind=engine)
-SESSIONS = list()
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
 
+LOCK = threading.Lock() # Only one thread can use a DB session at a time... SAD!
+
+def onSettingsChanged(name, config):
+    pass
+    #global ADDRESS, PORT, DB, USERNAME, PASSWD
+    # ADDRESS = config.get("database", "address")
+    # PORT = config.get("database", "port")
+    # DB = config.get("database", "db")
+    # USERNAME = config.get("database", "user")
+    # PASSWD = config.get("database", "passwd")
+
+
+def loadDatabase():
+    SETTINGSEVENT.addListener(onSettingsChanged, onSettingsChanged)
+    onSettingsChanged(None, SETTINGS)    
+
+def add(el, schema):
+    """Generic Add"""
+    s = None
+    with LOCK:
+        try:
+            s = Session()
+            s.execute('set search_path={}'.format(schema))
+            s.add(el)
+            s.commit()
+        except Exception as e:
+            print(e)
+            if s:
+                s.rollback()  
+        finally:
+            if s:
+                s.close()
+
+def delete(el, schema):
+    """Generic Delete"""
+    s = None
+    with LOCK:
+        try:
+            s = Session()
+            s.execute('set search_path={}'.format(schema))
+            s.delete(el)
+            s.commit()
+        except Exception as e:
+            print(e)
+            if s:
+                s.rollback()    
+        finally:
+            if s:
+                s.close()
+
+def find(id, schema):
+    """Generic Find"""
+    with LOCK:
+        try:
+            s = Session()
+            s.execute('set search_path={}'.format(schema))
+            return s.query(Event).filter_by(id=id).first()
+        except Exception as e:
+            print(e)
+            return None
 
 class Event(Base):
     __tablename__ = "event"
@@ -22,61 +91,27 @@ class Event(Base):
     def __repr__(self):
         return "Sensor.Event(msg={}, sev={}, typ={}, time={})".format(self.message, self.severity, self.type, self.time)
 
-    def add(session, msg, severity, type, time, autocommit=True):
+    def add(msg, severity, type, time):
         """
         Add a new event to the DB.
         """
-        session.add(Event(message=msg, severity=severity, type=type, time=time))
-        if autocommit:
-            session.commit()
+        add(Event(message=msg, severity=severity, type=type, time=time), "sensor")
 
-    def delete(session, id, autocommit=True):
+    def delete(id):
         """
         Remove an event from the DB.
         """
-        session.delete(session.query(Event).filter_by(id=id).first())
-        if autocommit:
-            session.commit()
+        delete(find(id, "sensor"), "sensor")
 
-    def findByType(session, type):
-        output = list()
-        for e in session.query(Event).filter_by(type=type).all():
-            output.append(e)
-        return output
-
-
-def createDBSession(schema=None):
-    """
-    Returns a new DB session, should only be used on the calling thread!
-    Remember to close the session when done!!!
-    """
-    global SESSIONS
-
-    s = Session()
-    if schema:  # Use the right schema! Uses public otherwise.
-        # TODO, this statement will be evicted during rollbacks, pitfal?
-        s.execute('set search_path={}'.format(schema))
-
-    SESSIONS.append(s)
-    return s
-
-
-def closeDBSession(session):
-    """
-    Close session gracefully.
-    """
-    global SESSIONS
-    SESSIONS.remove(session)
-    session.close()
-
-
-def closeDBSessions():
-    """
-    Closes all dormant sessions.
-    """
-    global SESSIONS
-
-    for s in SESSIONS:
-        s.close()
-
-    SESSIONS.clear()
+    def findByType(type):
+        output = list()    
+        with LOCK:
+            try:
+                s = Session()
+                s.execute('set search_path=sensor')
+                for d in s.query(Event).filter_by(type=type).all():
+                    output.append(d)
+            except Exception as e:
+                print(e)
+            finally:
+                return output

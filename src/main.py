@@ -26,7 +26,6 @@ class MarsRoverApp(QApplication):
         if v == 0:
             gp.shutdownGamepad()
             udp_conn.disconnectFromRoverServer()
-            database.closeDBSessions()
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)
@@ -52,6 +51,7 @@ class MarsRoverApp(QApplication):
 
 if __name__ == "__main__":
     cfg.loadSettings()
+    database.loadDatabase()
     app = MarsRoverApp()
     udp_conn.connectToRoverServer()
     gp.loadGamepad()

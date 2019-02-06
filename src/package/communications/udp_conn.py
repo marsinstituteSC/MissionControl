@@ -64,7 +64,6 @@ class UDPRoverServer(QThread):
     def run(self):        
         self.connectToGamepadServer()
         self.connectToSensorPublisher()
-        dbSession = database.createDBSession("sensor")
 
         while self.shouldDestroy == False:
             # I don't think the gamepad server on the rover will send replies, so this IF check can probably be removed!
@@ -79,9 +78,8 @@ class UDPRoverServer(QThread):
                     print("Received Sensor Data:", data.decode())
                     obj = json.loads(data)
                     self.onReceiveData.emit(obj)
-                    for k, v in obj.items(): # WIP!!! 
-                        # TODO - Add raise signal to UI thread.
-                        database.Event.add(dbSession, "{} - {}".format(k, v), 0, 0, str(datetime.datetime.now()))
+                    for k, v in obj.items(): # WIP!!! Could check incoming type here to decide what to do.
+                        database.Event.add("{} - {}".format(k, v), 0, 0, str(datetime.datetime.now()))
 
             # Fetch messages from a thread-safe queue, if empty, skip and wait
             # for TICK time.

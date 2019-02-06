@@ -13,7 +13,6 @@ class EventLogWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         loadUi("designer/window_eventlog.ui", self)
-        self.dbSession = database.createDBSession("sensor")
 
         self.tabCategories.widget(
             0).findChild(QPushButton, "deleteSensorBtn").clicked.connect(self.delSelRowFromSensor)
@@ -27,7 +26,7 @@ class EventLogWindow(QMainWindow):
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
 
-        data = database.Event.findByType(self.dbSession, 0)
+        data = database.Event.findByType(0)
         for row in data:
             idx = self.tableTabSensor.rowCount()
             self.tableTabSensor.insertRow(idx)
@@ -47,14 +46,12 @@ class EventLogWindow(QMainWindow):
 
         id = self.tableTabSensor.item(row, 0).data(Qt.UserRole)
         self.tableTabSensor.removeRow(row)
-        database.Event.delete(self.dbSession, id)
+        database.Event.delete(id)
 
     def closeEvent(self, event):
         super().closeEvent(event)
         global EVENTLOG
         EVENTLOG = None
-        database.closeDBSession(self.dbSession)
-        self.dbSession = None
 
 
 def showEventLog():
