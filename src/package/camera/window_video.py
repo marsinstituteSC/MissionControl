@@ -52,8 +52,12 @@ class VideoRendering(QObject):
                         newFrame = cv2.resize(colorFormat, (int(width), int(height)))
                     convertToQtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videoColor else QImage.Format_Grayscale8)
                     self.changePixmap.emit(QPixmap.fromImage(convertToQtFormat))
+                else:
+                    self.running = False
+                    self.cap.release()
             except Exception as e:
                 print(e)
+        
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)
@@ -134,21 +138,25 @@ class VideoWindow(QMainWindow):
         
         
     def changeVideo1(self, i):
-        self.video1.sourceNumber = i+1
-        self.video1.loadSettings(cfg.SETTINGS)
-        self.restartSpecificVideo(1, True)
+        if i != -1:
+            self.video1.sourceNumber = i+1
+            self.video1.loadSettings(cfg.SETTINGS)
+            self.restartSpecificVideo(1, True)
     def changeVideo2(self, i):
-        self.video2.sourceNumber = i+1
-        self.video2.loadSettings(cfg.SETTINGS)
-        self.restartSpecificVideo(2, True)
+        if i != -1:
+            self.video2.sourceNumber = i+1
+            self.video2.loadSettings(cfg.SETTINGS)
+            self.restartSpecificVideo(2, True)
     def changeVideo3(self, i):
-        self.video3.sourceNumber = i+1
-        self.video3.loadSettings(cfg.SETTINGS)
-        self.restartSpecificVideo(3, True)
+        if i != -1:
+            self.video3.sourceNumber = i+1
+            self.video3.loadSettings(cfg.SETTINGS)
+            self.restartSpecificVideo(3, True)
     def changeVideo4(self, i):
-        self.video4.sourceNumber = i+1
-        self.video4.loadSettings(cfg.SETTINGS)
-        self.restartSpecificVideo(4, True)
+        if i != -1:
+            self.video4.sourceNumber = i+1
+            self.video4.loadSettings(cfg.SETTINGS)
+            self.restartSpecificVideo(4, True)
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)
@@ -159,6 +167,7 @@ class VideoWindow(QMainWindow):
             - If enabled is false for a video, stop the thread and video
             - If enabled is true for a video, restart the video
         """
+        
         if self.video1Name != config.get("video", "name1") or self.video2Name != config.get("video", "name2") or self.video3Name != config.get("video", "name3") or self.video4Name != config.get("video", "name4"):
             self.video1Name = config.get("video", "name1")
             self.video2Name = config.get("video", "name2")
@@ -204,7 +213,14 @@ class VideoWindow(QMainWindow):
                 self.restartSpecificVideo(4, False)
                 self.video4_widget.hide()
 
-        # If both video players at the bottom or top are the only ones active, disable the top frame in order to get a video on each row
+        """
+        First check if the two videos on the bottom or top is active if so:
+            - Hide the empty frame and move one of the widgets
+        Check if it is only one video enabled and hide the empty widget to get fullscreen.
+        Otherwise reset the layout
+        """
+        # Uses two grid frames inside a horisontal layout, could probably change to a full grid layout like it was before
+        # But this works for now, will look at it later.
         if self.enabled2 and self.enabled4 and not self.enabled1 and not self.enabled3:
             self.frame.hide()
             self.gridLayout_2.removeWidget(self.video4_widget) # Doesn't seem like we need to call this, but its here just in case.
@@ -228,7 +244,6 @@ class VideoWindow(QMainWindow):
             self.gridLayout_2.addWidget(self.video4_widget, 0, 1)
             self.frame.show()
             self.frame_2.show()
-
 
     @pyqtSlot(QPixmap)
     def set_image1(self, image):
@@ -293,33 +308,41 @@ class VideoWindow(QMainWindow):
                 self.thread4.start()
 
     def populateComboBox(self):
+        self.video1_choice.currentIndexChanged.disconnect(self.changeVideo1)
         self.video1_choice.clear()
         self.video1_choice.addItem(self.video1Name)
         self.video1_choice.addItem(self.video2Name)
         self.video1_choice.addItem(self.video3Name)
         self.video1_choice.addItem(self.video4Name)
         self.video1_choice.setCurrentIndex(self.video1_choice.findText(self.video1Name))
+        self.video1_choice.currentIndexChanged.connect(self.changeVideo1)
 
+        self.video2_choice.currentIndexChanged.disconnect(self.changeVideo2)
         self.video2_choice.clear()
         self.video2_choice.addItem(self.video1Name)
         self.video2_choice.addItem(self.video2Name)
         self.video2_choice.addItem(self.video3Name)
         self.video2_choice.addItem(self.video4Name)
         self.video2_choice.setCurrentIndex(self.video2_choice.findText(self.video2Name))
+        self.video2_choice.currentIndexChanged.connect(self.changeVideo2)
 
+        self.video3_choice.currentIndexChanged.disconnect(self.changeVideo3)
         self.video3_choice.clear()
         self.video3_choice.addItem(self.video1Name)
         self.video3_choice.addItem(self.video2Name)
         self.video3_choice.addItem(self.video3Name)
         self.video3_choice.addItem(self.video4Name)
         self.video3_choice.setCurrentIndex(self.video3_choice.findText(self.video3Name))
+        self.video3_choice.currentIndexChanged.connect(self.changeVideo3)
 
+        self.video4_choice.currentIndexChanged.disconnect(self.changeVideo4)
         self.video4_choice.clear()
         self.video4_choice.addItem(self.video1Name)
         self.video4_choice.addItem(self.video2Name)
         self.video4_choice.addItem(self.video3Name)
         self.video4_choice.addItem(self.video4Name)
         self.video4_choice.setCurrentIndex(self.video4_choice.findText(self.video4Name))
+        self.video4_choice.currentIndexChanged.connect(self.changeVideo4)
 
     def settings(self):
         self.setting = cfg.openSettings()
