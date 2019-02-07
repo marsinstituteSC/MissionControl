@@ -12,6 +12,7 @@ from settings.settings import SETTINGSEVENT, SETTINGS
 
 import PyQt5.QtGui
 import datetime
+import cProfile
 
 # Log Item could be extended with SQL Alchemy to directly store the logged message to our sql database.
 class LogItem():

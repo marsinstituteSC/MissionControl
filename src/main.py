@@ -2,6 +2,7 @@
 
 import sys
 import qdarkstyle
+import cProfile
 
 from PyQt5.QtWidgets import QSystemTrayIcon, QApplication
 from PyQt5.QtGui import QIcon
@@ -50,6 +51,10 @@ class MarsRoverApp(QApplication):
 
 
 if __name__ == "__main__":
+    #pr = cProfile.Profile()
+    #pr.enable()
+    #pr.disable()
+    #pr.print_stats(sort='time')
     cfg.loadSettings()
     database.loadDatabase()
     app = MarsRoverApp()

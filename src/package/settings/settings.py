@@ -51,14 +51,14 @@ DEFAULT_VIDEO_SETTINGS = {
     "resolution2" : 1,
     "resolution3" : 1,
     "resolution4" : 1,
-    "name1" : "",
-    "name2" : "",
-    "name3" : "",
-    "name4" : "",
-    "enable1" : False,
-    "enable2" : False,
-    "enable3" : False,
-    "enable4" : False
+    "name1" : "Video1",
+    "name2" : "Video2",
+    "name3" : "Video3",
+    "name4" : "Video4",
+    "enable1" : True,
+    "enable2" : True,
+    "enable3" : True,
+    "enable4" : True
 }
 
 def loadSettings():

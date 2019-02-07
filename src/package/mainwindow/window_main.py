@@ -1,6 +1,7 @@
 """ Main App Window, renders information from sensors, render graphs, etc... """
 
 import random
+import cProfile
 
 from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout
 from PyQt5.uic import loadUi
@@ -22,7 +23,7 @@ class MainWindow(QMainWindow):
 
         # Creates the video window as a child and links a button to open it later
         self.video_window = None
-        self.openCameraWindow()
+        #self.openCameraWindow()
         self.actionCamera_Window.triggered.connect(self.openCameraWindow)
 
         # Toolbar button to open settings
@@ -49,7 +50,7 @@ class MainWindow(QMainWindow):
 
         graphs2 = plot.PlotCanvas(None, 10)        
         graphs2.plot("First Plot", [random.random() for i in range(75)], 121)
-        graphs2.plot("Second Plot", [random.random() for i in range(125)], 122)        
+        graphs2.plot("Second Plot", [random.random() for i in range(125)], 122)
 
         sensorTABBox.addTab(graphs1, "Temperature")
         sensorTABBox.addTab(graphs2, "Velocity")
@@ -58,7 +59,6 @@ class MainWindow(QMainWindow):
         miscWidget = QWidget()        
         miscHBOX = QHBoxLayout()
         miscWidget.setLayout(miscHBOX)
-        
         self.speedMeter = QLCDNumber()      
         self.speedMeter.setSegmentStyle(QLCDNumber.Flat) 
 
@@ -66,14 +66,14 @@ class MainWindow(QMainWindow):
         miscHBOX.addWidget(QLabel("Speed"))
         miscHBOX.addWidget(self.speedMeter)
         miscHBOX.addWidget(QLabel("m/s"))
-        self.setSpeedometerValue(12)    
-
+        self.setSpeedometerValue(12)
+        
         # Bottom section displays the log.
         self.log = logger.ColorizedLogger()
         self.log.logData("Anything, especially stuff we normally don't care about", 0)
         self.log.logData("Something normal happened", 1)
         self.log.logData("Something might be wrong", 2) 
-        self.log.logData("Something is definitely wrong", 3)        
+        self.log.logData("Something is definitely wrong", 3)
         
         mainGrid.addWidget(sensorTABBox, 1, 0)
         mainGrid.addWidget(miscWidget, 2, 0)
