@@ -4,6 +4,7 @@
 import sys
 import os
 from configparser import ConfigParser
+import json
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
@@ -14,6 +15,7 @@ from PyQt5.uic import loadUi
 from utils import warning, event
 from camera import window_video as vid
 from communications import database
+from communications import udp_conn as UDP
 
 SETTINGSEVENT = event.Event("SettingsChangedEvent")
 
@@ -294,12 +296,15 @@ def updateResolutionOnCamera(name, mode):
         Mode: Arbitrary mode ranging from 1-4 to change resolution
     """
     # This will change to the json specification
-    output = {
-        "cameraName" : name,
-        "cameraMode" : mode
+    msg = {
+            "cameraName" : name,
+            "cameraMode" : mode
+        }
+    message = {
+        "Camera" : msg
     }
-    # Send to udp, will do this later.
-
+    # Send to udp
+    UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
 
 def openSettings():
     """Open global settings"""

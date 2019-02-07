@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>374</width>
-    <height>566</height>
+    <width>459</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
-    <width>374</width>
-    <height>566</height>
+    <width>459</width>
+    <height>625</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -51,7 +51,7 @@
    <item row="0" column="1">
     <widget class="QTabWidget" name="properties_tab">
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="main_window_tab">
       <attribute name="title">
@@ -249,8 +249,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>330</width>
-            <height>177</height>
+            <width>415</width>
+            <height>207</height>
            </rect>
           </property>
           <attribute name="label">
@@ -560,8 +560,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>330</width>
-            <height>178</height>
+            <width>415</width>
+            <height>207</height>
            </rect>
           </property>
           <attribute name="label">
@@ -813,496 +813,318 @@
       <attribute name="title">
        <string>Database</string>
       </attribute>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>9</y>
-         <width>321</width>
-         <height>111</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Server</string>
-       </property>
-       <widget class="QLabel" name="label_17">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>61</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Address</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="databaseAddress">
-        <property name="geometry">
-         <rect>
-          <x>70</x>
-          <y>30</y>
-          <width>113</width>
-          <height>20</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="databasePort">
-        <property name="geometry">
-         <rect>
-          <x>220</x>
-          <y>30</y>
-          <width>91</width>
-          <height>20</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_18">
-        <property name="geometry">
-         <rect>
-          <x>190</x>
-          <y>30</y>
-          <width>30</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Port</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_19">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>61</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Database</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="databaseDB">
-        <property name="geometry">
-         <rect>
-          <x>70</x>
-          <y>60</y>
-          <width>113</width>
-          <height>20</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>130</y>
-         <width>321</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Credentials</string>
-       </property>
-       <widget class="QLabel" name="label_32">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>30</y>
-          <width>61</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Username</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="databaseUser">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>30</y>
-          <width>151</width>
-          <height>20</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="databasePassword">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>60</y>
-          <width>151</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_33">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>60</y>
-          <width>61</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Password</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="groupBox_9">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>250</y>
-         <width>321</width>
-         <height>111</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Options</string>
-       </property>
-       <widget class="QPushButton" name="button_dbDropAll">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>301</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Drop All Data</string>
-        </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Server</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_22">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>Address</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="databaseAddress"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="databasePort"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>Database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="databaseDB"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Credentials</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_23">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_32">
+            <property name="text">
+             <string>Username</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="databaseUser"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_33">
+            <property name="text">
+             <string>Password</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="databasePassword">
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
+          <string>Options</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_24">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="button_dbDropAll">
+            <property name="text">
+             <string>Drop All Data</string>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="communication_window_tab">
       <attribute name="title">
        <string>Communication</string>
       </attribute>
-      <widget class="QGroupBox" name="groupBox_6">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>321</width>
-         <height>233</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Gamepad</string>
-       </property>
-       <widget class="QGroupBox" name="groupBox_7">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>23</y>
-          <width>301</width>
-          <height>74</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Server</string>
-        </property>
-        <widget class="QLabel" name="label_5">
-         <property name="geometry">
-          <rect>
-           <x>15</x>
-           <y>33</y>
-           <width>45</width>
-           <height>16</height>
-          </rect>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <property name="maximumSize">
           <size>
-           <width>45</width>
-           <height>20</height>
+           <width>16777215</width>
+           <height>16777215</height>
           </size>
          </property>
-         <property name="text">
-          <string>Address</string>
+         <property name="title">
+          <string>Gamepad</string>
          </property>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="groupBox_7">
+            <property name="title">
+             <string>Server</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_20">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_5">
+               <property name="maximumSize">
+                <size>
+                 <width>45</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Address</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="server_address">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>121</width>
+                 <height>25</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_6">
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Port</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="server_port">
+               <property name="maximumSize">
+                <size>
+                 <width>51</width>
+                 <height>25</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="groupBox_8">
+            <property name="title">
+             <string>Client</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_21">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_7">
+               <property name="maximumSize">
+                <size>
+                 <width>45</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Address</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="client_address">
+               <property name="maximumSize">
+                <size>
+                 <width>121</width>
+                 <height>25</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_8">
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Port</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="client_port">
+               <property name="maximumSize">
+                <size>
+                 <width>51</width>
+                 <height>25</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="radioButton_udp">
+            <property name="text">
+             <string>UDP</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QRadioButton" name="radioButton_tcp">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>TCP</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-        <widget class="QLineEdit" name="server_address">
-         <property name="enabled">
-          <bool>true</bool>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_10">
+         <property name="title">
+          <string>Rover Sensors</string>
          </property>
-         <property name="geometry">
-          <rect>
-           <x>71</x>
-           <y>33</y>
-           <width>121</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>121</width>
-           <height>25</height>
-          </size>
-         </property>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_34">
+            <property name="maximumSize">
+             <size>
+              <width>45</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Address</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="rover_address">
+            <property name="maximumSize">
+             <size>
+              <width>121</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_35">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="rover_port">
+            <property name="maximumSize">
+             <size>
+              <width>51</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-        <widget class="QLabel" name="label_6">
-         <property name="geometry">
-          <rect>
-           <x>203</x>
-           <y>33</y>
-           <width>30</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Port</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="server_port">
-         <property name="geometry">
-          <rect>
-           <x>244</x>
-           <y>33</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>51</width>
-           <height>25</height>
-          </size>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_8">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>103</y>
-          <width>301</width>
-          <height>74</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Client</string>
-        </property>
-        <widget class="QLabel" name="label_7">
-         <property name="geometry">
-          <rect>
-           <x>15</x>
-           <y>33</y>
-           <width>45</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>45</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Address</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="client_address">
-         <property name="geometry">
-          <rect>
-           <x>71</x>
-           <y>33</y>
-           <width>121</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>121</width>
-           <height>25</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_8">
-         <property name="geometry">
-          <rect>
-           <x>203</x>
-           <y>33</y>
-           <width>30</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Port</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="client_port">
-         <property name="geometry">
-          <rect>
-           <x>244</x>
-           <y>33</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>51</width>
-           <height>25</height>
-          </size>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QRadioButton" name="radioButton_udp">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>183</y>
-          <width>61</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>UDP</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="radioButton_tcp">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>206</y>
-          <width>61</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>TCP</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="groupBox_10">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>260</y>
-         <width>321</width>
-         <height>71</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Rover Sensors</string>
-       </property>
-       <widget class="QLineEdit" name="rover_port">
-        <property name="geometry">
-         <rect>
-          <x>260</x>
-          <y>30</y>
-          <width>51</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>51</width>
-          <height>20</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_34">
-        <property name="geometry">
-         <rect>
-          <x>31</x>
-          <y>30</y>
-          <width>45</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>45</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Address</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_35">
-        <property name="geometry">
-         <rect>
-          <x>219</x>
-          <y>30</y>
-          <width>30</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Port</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="rover_address">
-        <property name="geometry">
-         <rect>
-          <x>87</x>
-          <y>30</y>
-          <width>121</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>121</width>
-          <height>20</height>
-         </size>
-        </property>
-       </widget>
-      </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
