@@ -7,12 +7,13 @@ from configparser import ConfigParser
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QTabWidget
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QTabWidget, QMessageBox
 from PyQt5.uic import loadUi
 
 # Package imports
 from utils import warning, event
 from camera import window_video as vid
+from communications import database
 
 SETTINGSEVENT = event.Event("SettingsChangedEvent")
 
@@ -20,15 +21,10 @@ SETTINGSEVENT = event.Event("SettingsChangedEvent")
 SETTINGS = ConfigParser()
 SETTINGSWINDOW = None
 
-DEFAULT_SECTIONS = ("main", "video")
+DEFAULT_SECTIONS = ("main", "video", "database", "communication")
 DEFAULT_MAIN_SETTINGS = {
     # Empty means no stylesheet, default look
-    "stylesheet" : "False",
-    "serverAddress" : "127.0.0.1",
-    "serverPort" : "5000",
-    "clientAddress" : "127.0.0.1",
-    "clientPort" : "37500",
-    "comProtocol" : "UDP"
+    "stylesheet" : "False"
 }
 DEFAULT_VIDEO_SETTINGS = {
     "url1": "videos/demo.mp4",
@@ -60,6 +56,22 @@ DEFAULT_VIDEO_SETTINGS = {
     "enable3" : False,
     "enable4" : False
 }
+DEFAULT_DATABASE_SETTINGS = {
+    "address": "127.0.0.1",
+    "port": 5432,
+    "db": "rover",
+    "user": "postgres",
+    "passwd": "xyz"
+}
+DEFAULT_COMMUNICATION_SETTINGS = {
+    "serverGamepadAddress" : "127.0.0.1",
+    "serverGamepadPort" : "5000",
+    "clientGamepadAddress" : "127.0.0.1",
+    "clientGamepadPort" : "37500",
+    "comGamepadProtocol" : "True", # True - UDP, TCP otherwise.
+    "serverRoverAddress" : "239.255.43.21", # Rover Broadcast Addr.
+    "serverRoverPort" : "45454"
+}
 
 def loadSettings():
     """
@@ -77,6 +89,12 @@ def loadSettings():
 
             for key, value in DEFAULT_VIDEO_SETTINGS.items():
                 SETTINGS.set(str("video"), str(key), str(value))
+
+            for key, value in DEFAULT_DATABASE_SETTINGS.items():
+                SETTINGS.set(str("database"), str(key), str(value))
+
+            for key, value in DEFAULT_COMMUNICATION_SETTINGS.items():
+                SETTINGS.set(str("communication"), str(key), str(value))
 
             with open("settings.ini", "w") as configfile:
                 SETTINGS.write(configfile)
@@ -107,12 +125,14 @@ class OptionWindow(QDialog):
     def __init__(self):
         super().__init__()
         loadUi("designer/settings.ui", self)
+        self.properties_tab.setCurrentIndex(0)
 
         # Button connections
         self.button_cancel.clicked.connect(self.close)
         #self.button_ok.clicked.connect(self.saveSettings)
         self.button_ok.clicked.connect(self.close)
         self.button_apply.clicked.connect(self.saveSettings)
+        self.button_dbDropAll.clicked.connect(self.dropDatabaseTable)
 
         # Fetch settings
         global SETTINGS
@@ -163,15 +183,23 @@ class OptionWindow(QDialog):
 
         # Dark Mode
         self.checkBox_dark.setChecked((SETTINGS.get("main", "stylesheet") == "True"))
-        
-        # Communication
-        self.server_address.setText(SETTINGS.get("main", "serverAddress"))
-        self.server_port.setText(SETTINGS.get("main", "serverPort"))
-        self.client_address.setText(SETTINGS.get("main", "clientAddress"))
-        self.client_port.setText(SETTINGS.get("main", "clientPort"))
-        self.radioButton_udp.setChecked((SETTINGS.get("main", "comProtocol") == "True"))
-        self.radioButton_tcp.setChecked(not (SETTINGS.get("main", "comProtocol") == "True"))
 
+        # Database
+        self.databaseAddress.setText(SETTINGS.get("database", "address"))
+        self.databasePort.setText(SETTINGS.get("database", "port"))
+        self.databaseDB.setText(SETTINGS.get("database", "db"))
+        self.databaseUser.setText(SETTINGS.get("database", "user"))
+        self.databasePassword.setText(SETTINGS.get("database", "passwd"))
+
+        # Communication
+        self.server_address.setText(SETTINGS.get("communication", "serverGamepadAddress"))
+        self.server_port.setText(SETTINGS.get("communication", "serverGamepadPort"))
+        self.client_address.setText(SETTINGS.get("communication", "clientGamepadAddress"))
+        self.client_port.setText(SETTINGS.get("communication", "clientGamepadPort"))
+        self.radioButton_udp.setChecked((SETTINGS.get("communication", "comGamepadProtocol") == "True"))
+        self.radioButton_tcp.setChecked(not (SETTINGS.get("communication", "comGamepadProtocol") == "True"))   
+        self.rover_address.setText(SETTINGS.get("communication", "serverRoverAddress"))
+        self.rover_port.setText(SETTINGS.get("communication", "serverRoverPort"))   
 
     def saveSettings(self):
         """
@@ -230,17 +258,33 @@ class OptionWindow(QDialog):
         
         # Main
         SETTINGS.set("main", "stylesheet", str(self.checkBox_dark.isChecked()))
-        SETTINGS.set("main", "serverAddress", str(self.server_address.text()))
-        SETTINGS.set("main", "serverPort", str(self.server_port.text()))
-        SETTINGS.set("main", "clientAddress", str(self.client_address.text()))
-        SETTINGS.set("main", "clientPort", str(self.client_port.text()))
-        SETTINGS.set("main", "comProtocol", str(self.radioButton_udp.isChecked()))
+
+        # Database
+        SETTINGS.set("database", "address", str(self.databaseAddress.text()))
+        SETTINGS.set("database", "port", str(self.databasePort.text()))
+        SETTINGS.set("database", "db", str(self.databaseDB.text()))
+        SETTINGS.set("database", "user", str(self.databaseUser.text()))
+        SETTINGS.set("database", "passwd", str(self.databasePassword.text()))
+
+        # Communication
+        SETTINGS.set("communication", "serverGamepadAddress", str(self.server_address.text()))
+        SETTINGS.set("communication", "serverGamepadPort", str(self.server_port.text()))
+        SETTINGS.set("communication", "clientGamepadAddress", str(self.client_address.text()))
+        SETTINGS.set("communication", "clientGamepadPort", str(self.client_port.text()))
+        SETTINGS.set("communication", "comGamepadProtocol", str(self.radioButton_udp.isChecked()))
+        SETTINGS.set("communication", "serverRoverAddress", str(self.rover_address.text()))
+        SETTINGS.set("communication", "serverRoverPort", str(self.rover_port.text()))
+
         saveSettings()
 
     def closeEvent(self, event):
         super().closeEvent(event)
         global SETTINGSWINDOW
         SETTINGSWINDOW = None
+
+    def dropDatabaseTable(self):
+        if warning.showPrompt("Disclaimer!", "This will delete all the data from the database, the structure will still be in tact. Do you want to proceed?", self) == QMessageBox.Yes:
+            database.deleteDataFromDatabase("sensor")
 
 def updateResolutionOnCamera(name, mode):
     """

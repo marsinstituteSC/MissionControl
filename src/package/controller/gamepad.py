@@ -1,42 +1,17 @@
 """ Reading the input from a game controller """
 
+import json
+
 from pygame import joystick, time, event, init, quit, JOYBUTTONDOWN, JOYAXISMOTION, JOYHATMOTION, JOYBUTTONUP
 from PyQt5.QtCore import QThread
 
-from utils import warning
-import json
+from communications import udp_conn as UDP
 
 # A lot of help from
 # https://github.com/joncoop/pygame-xbox360controller/blob/master/xbox360_controller.py
 # for class structure, methods and better deadzone calculations
 
 GAMEPAD = None
-
-# Helper dicts to see which button corresponds to which id/subkey
-HELPER_ROVER_MAPPING_BUTTONS = {
-    "A": 0,
-    "B": 1,
-    "Y": 2,
-    "X": 3,
-    "LB": 4,
-    "RB": 5,
-    "START": 6,
-    "SELECT": 7,
-    "XBOX": 8, # Not detected
-    "LEFT_STICK_CLICK": 9,
-    "RIGHT_STICK_CLICK": 10
-}
-
-HELPER_ROVER_MAPPING_AXIS = {
-    "LEFT_STICK_X": 0,
-    "LEFT_STICK_Y": 1,
-    "BUMPERS_LEFT": 2,  # > 0
-    "RIGHT_STICK_X": 3,
-    "RIGHT_STICK_Y": 4,
-    "BUMPERS_RIGHT": 5,  # < 0
-    "ARROW_X": 6,  # Left will be -1 and Right will be +1
-    "ARROW_Y": 7  # Up will be -1 and Down will be +1
-}
 
 ROVER_MAPPING_AXIS = {
     0 : 0,
@@ -62,17 +37,6 @@ ROVER_MAPPING_BUTTONS = {
     9 : False,
     10 : False
 }
-
-def getKeyAsJsonFormattedString(typ, key, value):
-    """
-    Use the mapping documented for the rover to create a json object (string) 
-    which can be sent to the rover.
-    """
-    # TODO, are values within range?
-    if typ == "Axis":
-        return json.dumps({"Axis": {HELPER_ROVER_MAPPING_AXIS.get(key): value}}, separators=(',', ':'))
-    else:
-        return json.dumps({"Buttons": {HELPER_ROVER_MAPPING_BUTTONS.get(key): value}}, separators=(',', ':'))
 
 class Gamepad(QThread):
     """Class for gamepad"""
@@ -155,26 +119,6 @@ class Gamepad(QThread):
         else:
             return 0
 
-    def get_buttons(self):
-        """
-        Reads the values from the buttons
-        Returns a dictionary with button name as key and button state as value
-        """
-        button_states = {
-            "A" : self.joystick.get_button(self.gamepad_mapping["A"]),
-            "B" : self.joystick.get_button(self.gamepad_mapping["B"]),
-            "X" : self.joystick.get_button(self.gamepad_mapping["X"]),
-            "Y" : self.joystick.get_button(self.gamepad_mapping["Y"]),
-            "LB" : self.joystick.get_button(self.gamepad_mapping["LB"]),
-            "RB" : self.joystick.get_button(self.gamepad_mapping["RB"]),
-            "BACK" : self.joystick.get_button(self.gamepad_mapping["BACK"]),
-            "START" : self.joystick.get_button(self.gamepad_mapping["START"]),
-            "LEFT_STICK_BUTTON" : self.joystick.get_button(self.gamepad_mapping["LEFT_STICK_BUTTON"]),
-            "RIGHT_STICK_BUTTON" : self.joystick.get_button(self.gamepad_mapping["RIGHT_STICK_BUTTON"])
-        }
-
-        return button_states
-
     def read_rover_buttons(self):
         """
         A lot like the get_buttons function, but specialized for the rover and does not return anything
@@ -231,50 +175,6 @@ class Gamepad(QThread):
         self.rover_axis[6] = Dx # X
         self.rover_axis[7] = -Dy # Y, need to flip it to correspond to the json specification
 
-
-    def get_left_stick(self):
-        """
-        Returns a x and y tuple
-        Negative values are left and up
-        Positive values are right and down
-        """
-        x = self.axis_value(self.joystick.get_axis(self.gamepad_mapping["LEFT_STICK_X"]))
-        y = self.axis_value(self.joystick.get_axis(self.gamepad_mapping["LEFT_STICK_Y"]))
-
-        return (x, y)
-
-    def get_right_stick(self):
-        """
-        Returns a x and y tuple
-        Negative values are left and up
-        Positive values are right and down
-        """
-        x = self.axis_value(self.joystick.get_axis(self.gamepad_mapping["RIGHT_STICK_X"]))
-        y = self.axis_value(self.joystick.get_axis(self.gamepad_mapping["RIGHT_STICK_Y"])) 
-
-        return (x, y)
-
-    def get_bumpers(self):
-        """
-        Returns the value from the bumpers
-        Will use the deadzone
-        Negative is RB and Positive means LB
-        """
-        value = self.axis_value(self.joystick.get_axis(self.gamepad_mapping["BUMPERS"]))
-        if value > 0.99:
-            return 1
-        elif value < -0.99:
-            return -1
-        return value
-
-    def get_dpad(self):
-        """
-        Returns a tuple of x and y, where negative values are left and up
-        """
-        x, y = self.joystick.get_hat(0)
-        #up = int(y == 1)#down = int(y == -1)#left = int(x == -1)#right = int(x == 1)
-        return(x, -y)
-
     # NOTE create a local variable to hold the gamepad value for the functions
     # we
     # will use.
@@ -298,10 +198,8 @@ class Gamepad(QThread):
                         "Axis" : self.rover_axis,
                         "Buttons" : self.rover_buttons
                     }
-                    eventHappened = False
                     print(message)
-                    # TODO Send to udp
-
+                    UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
 
             # Limit the clock rate to 30 ticks per second
             self.CLOCK.tick(30)

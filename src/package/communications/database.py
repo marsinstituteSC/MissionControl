@@ -5,8 +5,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+import settings
 from utils import event
-from settings.settings import SETTINGSEVENT, SETTINGS
 
 ADDRESS = None
 PORT = None
@@ -14,26 +14,29 @@ DB = None
 USERNAME = None
 PASSWD = None
 
-engine = create_engine("postgresql://postgres:booty@localhost/rover")
+engine = None
 Base = declarative_base()
-session_factory = sessionmaker(bind=engine)
-Session = scoped_session(session_factory)
+Session = scoped_session(sessionmaker())
 
 LOCK = threading.Lock() # Only one thread can use a DB session at a time... SAD!
 
-def onSettingsChanged(name, config):
-    pass
-    #global ADDRESS, PORT, DB, USERNAME, PASSWD
-    # ADDRESS = config.get("database", "address")
-    # PORT = config.get("database", "port")
-    # DB = config.get("database", "db")
-    # USERNAME = config.get("database", "user")
-    # PASSWD = config.get("database", "passwd")
-
+def onSettingsChanged(name, config): # Deals with reconnecting the engine for new db settings.
+    global ADDRESS, PORT, DB, USERNAME, PASSWD, engine
+    ADDRESS = config.get("database", "address")
+    PORT = config.get("database", "port")
+    DB = config.get("database", "db")
+    USERNAME = config.get("database", "user")
+    PASSWD = config.get("database", "passwd")
+    with LOCK: # Update connection itself... WAIT for other queries to finish via the lock.
+        if engine:
+            engine.dispose()
+            Session.remove()
+        engine = create_engine("postgresql://{}:{}@{}:{}/{}".format(USERNAME, PASSWD, ADDRESS, PORT, DB))
+        Session.configure(bind=engine)
 
 def loadDatabase():
-    SETTINGSEVENT.addListener(onSettingsChanged, onSettingsChanged)
-    onSettingsChanged(None, SETTINGS)    
+    settings.settings.SETTINGSEVENT.addListener(onSettingsChanged, onSettingsChanged)
+    onSettingsChanged(None, settings.settings.SETTINGS)    
 
 def add(el, schema):
     """Generic Add"""
@@ -115,3 +118,24 @@ class Event(Base):
                 print(e)
             finally:
                 return output
+
+def deleteDataFromDatabase(schema):
+    """Delete all data!"""
+    s = None
+    with LOCK:
+        try:
+            s = Session()
+            s.execute('set search_path={}'.format(schema))                    
+            
+            # Delete actual table data here:
+            s.query(Event).delete() # Delete all events.
+
+            # Commit changes!
+            s.commit()
+        except Exception as e:
+            print(e)
+            if s:
+                s.rollback()    
+        finally:
+            if s:
+                s.close()

@@ -31,7 +31,6 @@ class MarsRoverApp(QApplication):
         self.loadSettings(params)
 
     # Configuration for application, specifically for stylesheet. Dark Mode should overwrite all other settings.
-    # TODO: Some texts does not change color in dark mode, specifically the graphs text and logger.
     def loadSettings(self, config):
         darkMode = config.get("main", "stylesheet")
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5(

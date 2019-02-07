@@ -18,7 +18,6 @@ import cv2
 # Package imports
 from utils import event
 from settings import settings as cfg
-from utils import warning
 
 class VideoRendering(QObject):
     def __init__(self, videoNr):

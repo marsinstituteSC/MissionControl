@@ -14,12 +14,6 @@ from communications import database
 
 # 192.168.1.3 <- actual server addr. to use.
 
-CLIENTHOST = QHostAddress("127.0.0.1")
-CLIENTPORT = 37500
-
-SENSOR_PUBLISH_SERVER = QHostAddress("239.255.43.21")
-SENSOR_PUBLISH_PORT = 45454
-
 ROVERSERVER = None # Allow other files/pgks to easily access our udp server through this global.
 TICK = (50 / 1000) # How often in msec should we check inc / send outgoing msgs.
 
@@ -31,16 +25,32 @@ class UDPRoverServer(QThread):
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
         self.shouldDestroy = False
         self.messagesToSend = queue.Queue()    
+        self.gamepadSocket = None
+        self.sensorpubSocket = None
+        self.lastSensorBroadcastAddress = None
         self.loadSettings(cfg.SETTINGS)    
 
     def connectToGamepadServer(self):
         self.gamepadSocket = QUdpSocket()
-        self.gamepadSocket.bind(CLIENTHOST, CLIENTPORT)
+        self.gamepadSocket.bind(self.clientAddress, self.clientPort)
 
-    def connectToSensorPublisher(self):
+    def connectToSensorPublisher(self):        
         self.sensorpubSocket = QUdpSocket()
-        self.sensorpubSocket.bind(QHostAddress.AnyIPv4, SENSOR_PUBLISH_PORT, QUdpSocket.ShareAddress)
-        self.sensorpubSocket.joinMulticastGroup(SENSOR_PUBLISH_SERVER)
+        self.sensorpubSocket.bind(QHostAddress.AnyIPv4, self.sensorBroadcastPort, QUdpSocket.ShareAddress)
+        self.sensorpubSocket.joinMulticastGroup(self.sensorBroadcastAddress)
+        self.lastSensorBroadcastAddress = self.sensorBroadcastAddress
+
+    def disconnect(self):
+        if self.gamepadSocket:
+            self.gamepadSocket.close()
+
+        if self.sensorpubSocket:
+            if self.lastSensorBroadcastAddress:
+                self.sensorpubSocket.leaveMulticastGroup(self.lastSensorBroadcastAddress)
+            self.sensorpubSocket.close()
+
+        self.gamepadSocket = None
+        self.sensorpubSocket = None
 
     def writeToRover(self, data):
         self.messagesToSend.put_nowait(data)
@@ -55,17 +65,30 @@ class UDPRoverServer(QThread):
         self.loadSettings(params)
 
     def loadSettings(self, config):
-        self.serverAddress = QHostAddress(config.get("main", "serveraddress"))
-        self.serverPort = int(config.get("main", "serverport"))        
+        self.serverAddress = QHostAddress(config.get("communication", "serverGamepadAddress"))
+        self.serverPort = int(config.get("communication", "serverGamepadPort"))      
+        self.clientAddress = QHostAddress(config.get("communication", "clientGamepadAddress"))
+        self.clientPort = int(config.get("communication", "clientGamepadPort"))     
+        self.sensorBroadcastAddress = QHostAddress(config.get("communication", "serverRoverAddress"))
+        self.sensorBroadcastPort = int(config.get("communication", "serverRoverPort"))    
+        self.reconnect = True 
 
     def destroy(self):
         self.shouldDestroy = True
 
     def run(self):        
-        self.connectToGamepadServer()
-        self.connectToSensorPublisher()
-
         while self.shouldDestroy == False:
+            if self.reconnect:
+                self.reconnect = False
+                self.disconnect()
+                self.connectToGamepadServer()
+                self.connectToSensorPublisher()            
+            
+            # If the socket(s) are down, wait.
+            if self.gamepadSocket is None or self.sensorpubSocket is None:
+                time.sleep(TICK)   
+                continue
+
             # I don't think the gamepad server on the rover will send replies, so this IF check can probably be removed!
             if self.gamepadSocket.hasPendingDatagrams():
                 data, _, _ = self.gamepadSocket.readDatagram(self.gamepadSocket.pendingDatagramSize())
@@ -89,9 +112,7 @@ class UDPRoverServer(QThread):
 
             time.sleep(TICK)   
 
-        self.gamepadSocket.close()
-        self.sensorpubSocket.leaveMulticastGroup(SENSOR_PUBLISH_SERVER)
-        self.sensorpubSocket.close()     
+        self.disconnect()
 
 def connectToRoverServer():
     global ROVERSERVER
