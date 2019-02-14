@@ -26,7 +26,8 @@ SETTINGSWINDOW = None
 DEFAULT_SECTIONS = ("main", "video", "database", "communication")
 DEFAULT_MAIN_SETTINGS = {
     # Empty means no stylesheet, default look
-    "stylesheet" : "False"
+    "stylesheet" : "False",
+    "threadmode" : "True"
 }
 DEFAULT_VIDEO_SETTINGS = {
     "url1": "videos/demo.mp4",
@@ -165,11 +166,13 @@ class OptionWindow(QDialog):
         self.video3_scaling.setCurrentIndex(self.video3_scaling.findText(SETTINGS.get("video", "scaling3")))
         self.video4_scaling.setCurrentIndex(self.video4_scaling.findText(SETTINGS.get("video", "scaling4")))
 
+        """
         # Resolution, NOTE this is for camera resolution from rover
         self.video1_resolution.setCurrentIndex(self.video1_resolution.findText("Mode: " + SETTINGS.get("video", "resolution1")))
         self.video2_resolution.setCurrentIndex(self.video2_resolution.findText("Mode: " + SETTINGS.get("video", "resolution2")))
         self.video3_resolution.setCurrentIndex(self.video3_resolution.findText("Mode: " + SETTINGS.get("video", "resolution3")))
         self.video4_resolution.setCurrentIndex(self.video4_resolution.findText("Mode: " + SETTINGS.get("video", "resolution4")))
+        """
 
         # Name
         self.video1_name.setText(SETTINGS.get("video", "name1"))
@@ -186,6 +189,10 @@ class OptionWindow(QDialog):
         # Dark Mode
         self.checkBox_dark.setChecked((SETTINGS.get("main", "stylesheet") == "True"))
 
+        # Threadmode
+        self.threadSync.setChecked((SETTINGS.get("main", "threadmode") == "True"))
+        self.threadAsync.setChecked(not (SETTINGS.get("main", "threadmode") == "True"))
+
         # Database
         self.databaseAddress.setText(SETTINGS.get("database", "address"))
         self.databasePort.setText(SETTINGS.get("database", "port"))
@@ -201,7 +208,14 @@ class OptionWindow(QDialog):
         self.radioButton_udp.setChecked((SETTINGS.get("communication", "comGamepadProtocol") == "True"))
         self.radioButton_tcp.setChecked(not (SETTINGS.get("communication", "comGamepadProtocol") == "True"))   
         self.rover_address.setText(SETTINGS.get("communication", "serverRoverAddress"))
-        self.rover_port.setText(SETTINGS.get("communication", "serverRoverPort"))   
+        self.rover_port.setText(SETTINGS.get("communication", "serverRoverPort"))
+
+        # Warning
+        self.threadAsync.clicked.connect(self.showAsyncWarning)
+
+    def showAsyncWarning(self):
+        self.warning = warning.asyncWarningDialog()
+        self.warning.show()
 
     def saveSettings(self):
         """
@@ -236,6 +250,8 @@ class OptionWindow(QDialog):
         SETTINGS.set("video", "enable3", str(self.video3_enable.isChecked()))
         SETTINGS.set("video", "enable4", str(self.video4_enable.isChecked()))
         
+        """
+        OLD CODE, NO NEED FOR IT
         # Need to check if there has been a change to the resolution, if so it needs to send that info to the rover
         oldRes1 = SETTINGS.get("video", "resolution1")
         oldRes2 = SETTINGS.get("video", "resolution2")
@@ -245,6 +261,7 @@ class OptionWindow(QDialog):
         newRes2 = self.video2_resolution.currentText().split(": ")[1]
         newRes3 = self.video3_resolution.currentText().split(": ")[1]
         newRes4 = self.video4_resolution.currentText().split(": ")[1]
+       
         if oldRes1 != newRes1:
             SETTINGS.set("video", "resolution1", newRes1)
             updateResolutionOnCamera(SETTINGS.get("video", "name1"), newRes1)
@@ -257,9 +274,11 @@ class OptionWindow(QDialog):
         if oldRes4 != newRes4:
             SETTINGS.set("video", "resolution4", newRes4)
             updateResolutionOnCamera(SETTINGS.get("video", "name4"), newRes4)
-        
+        """
+
         # Main
         SETTINGS.set("main", "stylesheet", str(self.checkBox_dark.isChecked()))
+        SETTINGS.set("main", "threadmode", str(self.threadSync.isChecked()))
 
         # Database
         SETTINGS.set("database", "address", str(self.databaseAddress.text()))

@@ -13,6 +13,7 @@ from communications import udp_conn
 from camera import window_video as wv
 from settings import settings as cfg
 from mainwindow import window_eventlog
+from controller import gamepad as gp
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -29,6 +30,12 @@ class MainWindow(QMainWindow):
         # Toolbar button to open settings
         self.actionSettings.triggered.connect(self.settings)
         self.actionLog.triggered.connect(window_eventlog.showEventLog)
+
+        # Gamepad toolbar
+        self.gamepadRefresh.triggered.connect(self.refreshGamepad)
+        self.menuGamepads.triggered.connect(self.initializeGamepad)
+        self.refreshGamepad()
+        self.populateGamepads()
 
         udp_conn.ROVERSERVER.onReceiveData.connect(self.receivedDataFromRover)
 
@@ -81,6 +88,21 @@ class MainWindow(QMainWindow):
         mainGrid.setRowStretch(1, 50)
         mainGrid.setRowStretch(3, 20)
         mainWidget.setLayout(mainGrid)
+
+    def refreshGamepad(self):
+        # Sets the refresh boolean to true for the gamepad class to check for new gamepads in the new iteration.
+        gp.GAMEPAD.needRefresh = True
+        self.populateGamepads()
+
+    def populateGamepads(self):
+        self.menuGamepads.clear()
+        gamepads = gp.GAMEPAD.get_all_gamepads()
+        for id, name in gamepads.items():
+            self.menuGamepads.addAction(str(id) + ": " + str(name))
+
+    def initializeGamepad(self, gamepad):
+        id, _ = gamepad.text().split(": ")
+        gp.GAMEPAD.initialize(int(id))
 
     def setSpeedometerValue(self, value):
         self.speedMeter.display(value)

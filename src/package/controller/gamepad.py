@@ -71,11 +71,11 @@ class Gamepad(QThread):
         self.rover_axis = ROVER_MAPPING_AXIS
         self.rover_buttons = ROVER_MAPPING_BUTTONS
 
+        self.needRefresh = False
         self.joystick = None
         self.deadzone = deadzone
         self.joystick_id = None
-        joystick.init()
-        self.initialize(0)
+        self.refresh()
 
     def destroy(self):
         self.shouldDestroy = True
@@ -97,9 +97,21 @@ class Gamepad(QThread):
         """
         joysticks = {}
         for i in range(joystick.get_count()):
-            joysticks[i] = joystick.get_name()
+            stick = joystick.Joystick(i)
+            stick.init()
+            joysticks[i] = stick.get_name()
+            stick.quit()
 
         return joysticks
+    
+    def refresh(self):
+        """
+        Finds all connected gamepads. Must be called at the start of the run loop if there has been a change.
+        Will uninitialize and then initialize the joystick module
+        """
+        joystick.quit()
+        joystick.init()
+        self.initialize(0)
 
     def get_joystick_id(self):
         """
@@ -138,42 +150,63 @@ class Gamepad(QThread):
     def read_rover_axis(self):
         """
         Reads the axises and dpad values
+        Returns a boolean to identify if there has been a change.
         """
+        changed = False
         # Left stick
         Lx = int(100 * self.axis_value(self.joystick.get_axis(self.gamepad_mapping["LEFT_STICK_X"])))
         Ly = int(-100 * self.axis_value(self.joystick.get_axis(self.gamepad_mapping["LEFT_STICK_Y"])))
-        self.rover_axis[0] = Lx
-        self.rover_axis[1] = Ly
+        if Lx != self.rover_axis[0]:
+            self.rover_axis[0] = Lx
+            changed = True
+        if Ly != self.rover_axis[1]:
+            self.rover_axis[1] = Ly
+            changed = True
 
         # Right stick
         Rx = int(100 * self.axis_value(self.joystick.get_axis(self.gamepad_mapping["RIGHT_STICK_X"])))
         Ry = int(-100 * self.axis_value(self.joystick.get_axis(self.gamepad_mapping["RIGHT_STICK_Y"])))
-        self.rover_axis[3] = Rx
-        self.rover_axis[4] = Ry
+        if Rx != self.rover_axis[3]:
+            self.rover_axis[3] = Rx
+            changed = True
+        if Ry != self.rover_axis[4]:
+            self.rover_axis[4] = Ry
+            changed = True
 
         # Bumpers NOTE Does not reset correctly
-        value = int(100 * self.axis_value(self.joystick.get_axis(self.gamepad_mapping["BUMPERS"])))
+        # Multiply with 255 for JSON specification
+        value = int(255 * self.axis_value(self.joystick.get_axis(self.gamepad_mapping["BUMPERS"])))
         # Left bumper
         if value > 0:
             if value > 95:
-                self.rover_axis[2] = 100
+                self.rover_axis[2] = 255
+                changed = True
             else:
                 self.rover_axis[2] = value
+                changed = True
         # Right bumper
         elif value < 0:
             if value < -95:
-                self.rover_axis[5] = -100
+                self.rover_axis[5] = -255
+                changed = True
             else:
                 self.rover_axis[5] = value
+                changed = True
 
         elif value == 0:
             self.rover_axis[2] = 0
             self.rover_axis[5] = 0
+            changed = True
 
         # D-pad
         Dx, Dy = self.joystick.get_hat(0)
-        self.rover_axis[6] = Dx # X
-        self.rover_axis[7] = -Dy # Y, need to flip it to correspond to the json specification
+        if Dx != self.rover_axis[6]:
+            self.rover_axis[6] = Dx # X
+            changed = True
+        if -Dy != self.rover_axis[7]:
+            self.rover_axis[7] = -Dy # Y, need to flip it to correspond to the json specification
+            changed = True
+        return changed
 
     # NOTE create a local variable to hold the gamepad value for the functions
     # we
@@ -183,6 +216,9 @@ class Gamepad(QThread):
     def run(self):
         while self.shouldDestroy == False:
 	        # Go through the event list and find button, axis and hat events
+            if self.needRefresh:
+                self.refresh()
+                self.needRefresh = False
             for EVENT in event.get():
                 eventHappened = False
                 if EVENT.type == JOYBUTTONDOWN or EVENT.type == JOYBUTTONUP:
@@ -190,8 +226,8 @@ class Gamepad(QThread):
                     eventHappened = True
 
                 if EVENT.type == JOYAXISMOTION or EVENT.type == JOYHATMOTION:
-                    self.read_rover_axis()
-                    eventHappened = True
+                    if self.read_rover_axis():
+                        eventHappened = True
                 
                 if eventHappened:
                     message = {

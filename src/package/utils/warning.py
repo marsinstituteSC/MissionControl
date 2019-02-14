@@ -1,6 +1,7 @@
 """ Miscellaneous Utilities """
 
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QDialog
+from PyQt5.uic import loadUi
 
 
 def showWarning(title, text, parent=None):
@@ -12,3 +13,9 @@ def showPrompt(title, text, parent=None):
     msg = QMessageBox(QMessageBox.Information, title, text,
                       QMessageBox.Yes | QMessageBox.No, parent)
     return msg.exec_()
+
+class asyncWarningDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        loadUi("designer/asyncwarning.ui", self)
+        

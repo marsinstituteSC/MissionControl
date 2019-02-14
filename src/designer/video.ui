@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1037</width>
-    <height>883</height>
+    <height>915</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
-   <layout class="QGridLayout" name="gridLayout_3">
+   <layout class="QGridLayout" name="gridLayout_2">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -44,6 +44,9 @@
     </property>
     <item row="0" column="0">
      <widget class="QFrame" name="frame">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
@@ -54,9 +57,6 @@
        <number>0</number>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
-       </property>
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -130,6 +130,13 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="record1">
+            <property name="text">
+             <string>Record Video</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -177,43 +184,17 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="record2">
+            <property name="text">
+             <string>Record Video</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QFrame" name="frame_2">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>0</number>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
+       <item row="1" column="0">
         <widget class="QWidget" name="video2_widget" native="true">
          <layout class="QGridLayout" name="gridLayout_5">
           <property name="leftMargin">
@@ -265,10 +246,17 @@
           <item row="0" column="0">
            <widget class="QComboBox" name="video2_choice"/>
           </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="record3">
+            <property name="text">
+             <string>Record Video</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="1" column="1">
         <widget class="QWidget" name="video4_widget" native="true">
          <property name="enabled">
           <bool>true</bool>
@@ -308,6 +296,13 @@
             </property>
             <property name="scaledContents">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="record4">
+            <property name="text">
+             <string>Record Video</string>
             </property>
            </widget>
           </item>

@@ -58,18 +58,63 @@
        <string>Main</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="1">
-        <widget class="QGroupBox" name="groupBox_5">
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <property name="topMargin">
+        <number>9</number>
+       </property>
+       <property name="rightMargin">
+        <number>9</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_11">
          <property name="maximumSize">
           <size>
            <width>16777215</width>
-           <height>16777215</height>
+           <height>50</height>
           </size>
          </property>
          <property name="title">
-          <string/>
+          <string>Video Thread</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QRadioButton" name="threadSync">
+              <property name="text">
+               <string>Sync</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="threadAsync">
+              <property name="text">
+               <string>Async</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_12">
+         <property name="title">
+          <string>General</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_26">
           <item row="0" column="0">
            <widget class="QCheckBox" name="checkBox_dark">
             <property name="text">
@@ -93,74 +138,80 @@
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page_3">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>234</width>
-            <height>164</height>
+            <width>415</width>
+            <height>207</height>
            </rect>
           </property>
           <attribute name="label">
            <string>Video Feed 3</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_17">
-           <item row="1" column="0" colspan="3">
-            <layout class="QGridLayout" name="gridLayout_14">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_23">
-               <property name="text">
-                <string>Name:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="3">
-              <widget class="QLineEdit" name="video3_name"/>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_24">
-               <property name="text">
-                <string>Source:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="video3_ip">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="label_25">
-               <property name="text">
-                <string>Port:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="video3_port">
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QLabel" name="label_22">
+          <layout class="QGridLayout" name="gridLayout_14">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="video3_enable">
              <property name="text">
-              <string>Source Camera Resolution:</string>
+              <string>Enable</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_23">
+             <property name="text">
+              <string>Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="4">
+            <widget class="QLineEdit" name="video3_name"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_24">
+             <property name="text">
+              <string>Source:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="QLineEdit" name="video3_ip">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_25">
+             <property name="text">
+              <string>Port:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLineEdit" name="video3_port">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QRadioButton" name="video3_color_off">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will only affect the video, not the stream from the rover.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Grey</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
             <widget class="QRadioButton" name="video3_color_on">
              <property name="text">
               <string>RGB</string>
@@ -170,8 +221,18 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
+           <item row="4" column="0" colspan="2">
+            <widget class="QLabel" name="label_26">
+             <property name="text">
+              <string>Local Video Scaling:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
             <widget class="QComboBox" name="video3_scaling">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This only scales on the computer and will cause slowdown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <item>
               <property name="text">
                <string>Source</string>
@@ -194,8 +255,21 @@
              </item>
             </widget>
            </item>
-           <item row="4" column="2">
+           <item row="5" column="0" colspan="2">
+            <widget class="QLabel" name="label_22">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Source Camera Resolution:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
             <widget class="QComboBox" name="video3_resolution">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <item>
               <property name="text">
                <string>Mode: 1</string>
@@ -216,30 +290,6 @@
                <string>Mode: 4</string>
               </property>
              </item>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QRadioButton" name="video3_color_off">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will only affect the video, not the stream from the rover.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Grey</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QLabel" name="label_26">
-             <property name="text">
-              <string>Local Video Scaling:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="video3_enable">
-             <property name="text">
-              <string>Enable</string>
-             </property>
             </widget>
            </item>
           </layout>
@@ -256,53 +306,56 @@
           <attribute name="label">
            <string>Video Feed 4</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_19">
-           <item row="1" column="0" colspan="3">
-            <layout class="QGridLayout" name="gridLayout_15">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_28">
-               <property name="text">
-                <string>Name:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="3">
-              <widget class="QLineEdit" name="video4_name"/>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_29">
-               <property name="text">
-                <string>Source:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="video4_ip">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="label_30">
-               <property name="text">
-                <string>Port:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="video4_port">
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-            </layout>
+          <layout class="QGridLayout" name="gridLayout_15">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="video4_enable">
+             <property name="text">
+              <string>Enable</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_28">
+             <property name="text">
+              <string>Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="4">
+            <widget class="QLineEdit" name="video4_name"/>
            </item>
            <item row="2" column="0">
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>Source:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="QLineEdit" name="video4_ip">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Port:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLineEdit" name="video4_port">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
             <widget class="QRadioButton" name="video4_color_off">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will only affect the video, not the stream from the rover.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -312,39 +365,28 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="2">
-            <widget class="QComboBox" name="video4_resolution">
-             <item>
-              <property name="text">
-               <string>Mode: 1</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Mode: 2</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Mode: 3</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Mode: 4</string>
-              </property>
-             </item>
+           <item row="3" column="2">
+            <widget class="QRadioButton" name="video4_color_on">
+             <property name="text">
+              <string>RGB</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="4" column="0" colspan="2">
             <widget class="QLabel" name="label_31">
              <property name="text">
               <string>Local Video Scaling:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
+           <item row="4" column="2">
             <widget class="QComboBox" name="video4_scaling">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This only scales on the computer and will cause slowdown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <item>
               <property name="text">
                <string>Source</string>
@@ -367,28 +409,41 @@
              </item>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QRadioButton" name="video4_color_on">
-             <property name="text">
-              <string>RGB</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0" colspan="2">
+           <item row="5" column="0" colspan="2">
             <widget class="QLabel" name="label_27">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Source Camera Resolution:</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="video4_enable">
-             <property name="text">
-              <string>Enable</string>
+           <item row="5" column="2">
+            <widget class="QComboBox" name="video4_resolution">
+             <property name="enabled">
+              <bool>false</bool>
              </property>
+             <item>
+              <property name="text">
+               <string>Mode: 1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mode: 2</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mode: 3</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mode: 4</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
@@ -401,98 +456,111 @@
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>234</width>
-            <height>164</height>
+            <width>415</width>
+            <height>207</height>
            </rect>
           </property>
           <attribute name="label">
            <string>Video Feed 1</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_16">
-           <item row="1" column="0" colspan="2">
-            <layout class="QGridLayout" name="gridLayout_3">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_13">
-               <property name="text">
-                <string>Name:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="3">
-              <widget class="QLineEdit" name="video1_name"/>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Source:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="video1_ip">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="label_2">
-               <property name="text">
-                <string>Port:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="video1_port">
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="0">
-            <widget class="QSplitter" name="splitter">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0" colspan="2">
+            <widget class="QCheckBox" name="video1_enable">
+             <property name="text">
+              <string>Enable</string>
              </property>
-             <widget class="QRadioButton" name="video1_color_off">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will only affect the video, not the stream from the rover.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Grey</string>
-              </property>
-             </widget>
-             <widget class="QRadioButton" name="video1_color_on">
-              <property name="text">
-               <string>RGB</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0" colspan="2">
             <widget class="QLabel" name="label_14">
              <property name="text">
               <string>Local Video Scaling:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Source:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLineEdit" name="video1_port">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2" colspan="3">
+            <widget class="QRadioButton" name="video1_color_on">
+             <property name="text">
+              <string>RGB</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QLabel" name="label_15">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Source Camera Resolution:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="4">
+            <widget class="QLineEdit" name="video1_name"/>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="QLineEdit" name="video1_ip">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QRadioButton" name="video1_color_off">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will only affect the video, not the stream from the rover.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Grey</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Port:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
             <widget class="QComboBox" name="video1_scaling">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This only scales on the computer and will cause slowdown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <item>
               <property name="text">
                <string>Source</string>
@@ -515,8 +583,11 @@
              </item>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="2">
             <widget class="QComboBox" name="video1_resolution">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <item>
               <property name="text">
                <string>Mode: 1</string>
@@ -537,20 +608,6 @@
                <string>Mode: 4</string>
               </property>
              </item>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>Source Camera Resolution:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="video1_enable">
-             <property name="text">
-              <string>Enable</string>
-             </property>
             </widget>
            </item>
           </layout>
@@ -567,53 +624,56 @@
           <attribute name="label">
            <string>Video Feed 2</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_18">
-           <item row="1" column="0" colspan="3">
-            <layout class="QGridLayout" name="gridLayout_13">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_20">
-               <property name="text">
-                <string>Name:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_3">
-               <property name="text">
-                <string>Source:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="video2_ip">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QLineEdit" name="video2_port">
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="label_4">
-               <property name="text">
-                <string>Port:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="3">
-              <widget class="QLineEdit" name="video2_name"/>
-             </item>
-            </layout>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="video2_enable">
+             <property name="text">
+              <string>Enable</string>
+             </property>
+            </widget>
            </item>
-           <item row="4" column="0">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_20">
+             <property name="text">
+              <string>Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="4">
+            <widget class="QLineEdit" name="video2_name"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Source:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="QLineEdit" name="video2_ip">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For a local video, write the location of the file and leave the port blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Port:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLineEdit" name="video2_port">
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
             <widget class="QRadioButton" name="video2_color_off">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will only affect the video, not the stream from the rover.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -623,7 +683,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="3" column="2">
             <widget class="QRadioButton" name="video2_color_on">
              <property name="text">
               <string>RGB</string>
@@ -633,15 +693,34 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
+           <item row="4" column="0" colspan="2">
             <widget class="QLabel" name="label_21">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="text">
               <string>Local Video Scaling:</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="2">
+           <item row="5" column="0" colspan="2">
+            <widget class="QLabel" name="label_16">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Source Camera Resolution:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
             <widget class="QComboBox" name="video2_scaling">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This only scales on the computer and will cause slowdown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <item>
               <property name="text">
                <string>Source</string>
@@ -664,8 +743,11 @@
              </item>
             </widget>
            </item>
-           <item row="6" column="2">
+           <item row="5" column="2">
             <widget class="QComboBox" name="video2_resolution">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <item>
               <property name="text">
                <string>Mode: 1</string>
@@ -686,20 +768,6 @@
                <string>Mode: 4</string>
               </property>
              </item>
-            </widget>
-           </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QLabel" name="label_16">
-             <property name="text">
-              <string>Source Camera Resolution:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="video2_enable">
-             <property name="text">
-              <string>Enable</string>
-             </property>
             </widget>
            </item>
           </layout>
@@ -1132,38 +1200,27 @@
  </widget>
  <tabstops>
   <tabstop>properties_tab</tabstop>
-  <tabstop>checkBox_dark</tabstop>
   <tabstop>button_ok</tabstop>
   <tabstop>button_cancel</tabstop>
   <tabstop>button_apply</tabstop>
-  <tabstop>video1_enable</tabstop>
   <tabstop>video1_name</tabstop>
   <tabstop>video1_ip</tabstop>
   <tabstop>video1_port</tabstop>
   <tabstop>video1_color_off</tabstop>
-  <tabstop>video1_color_on</tabstop>
-  <tabstop>video1_scaling</tabstop>
-  <tabstop>video1_resolution</tabstop>
   <tabstop>video2_enable</tabstop>
   <tabstop>video2_name</tabstop>
   <tabstop>video2_ip</tabstop>
   <tabstop>video2_port</tabstop>
   <tabstop>video2_color_off</tabstop>
   <tabstop>video2_color_on</tabstop>
-  <tabstop>video2_scaling</tabstop>
-  <tabstop>video2_resolution</tabstop>
   <tabstop>video3_enable</tabstop>
   <tabstop>video3_name</tabstop>
   <tabstop>video3_ip</tabstop>
-  <tabstop>video3_port</tabstop>
   <tabstop>video3_color_off</tabstop>
   <tabstop>video3_color_on</tabstop>
-  <tabstop>video3_scaling</tabstop>
-  <tabstop>video3_resolution</tabstop>
   <tabstop>video4_enable</tabstop>
   <tabstop>video4_name</tabstop>
   <tabstop>video4_ip</tabstop>
-  <tabstop>video4_port</tabstop>
   <tabstop>video4_color_off</tabstop>
   <tabstop>video4_color_on</tabstop>
   <tabstop>video4_scaling</tabstop>
