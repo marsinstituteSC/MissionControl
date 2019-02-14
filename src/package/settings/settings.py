@@ -63,7 +63,8 @@ DEFAULT_DATABASE_SETTINGS = {
     "port": 5432,
     "db": "rover",
     "user": "postgres",
-    "passwd": "xyz"
+    "passwd": "xyz",
+    "type": "postgresql"
 }
 DEFAULT_COMMUNICATION_SETTINGS = {
     "serverGamepadAddress" : "127.0.0.1",
@@ -192,6 +193,10 @@ class OptionWindow(QDialog):
         self.databaseDB.setText(SETTINGS.get("database", "db"))
         self.databaseUser.setText(SETTINGS.get("database", "user"))
         self.databasePassword.setText(SETTINGS.get("database", "passwd"))
+        self.checkMySQL.setChecked(True) if (SETTINGS.get("database", "type") == "mysql") else self.checkPostgreSQL.setChecked(True)
+
+        self.checkMySQL.toggled.connect(self.setDefaultDBPort)
+        self.checkPostgreSQL.toggled.connect(self.setDefaultDBPort)
 
         # Communication
         self.server_address.setText(SETTINGS.get("communication", "serverGamepadAddress"))
@@ -267,6 +272,7 @@ class OptionWindow(QDialog):
         SETTINGS.set("database", "db", str(self.databaseDB.text()))
         SETTINGS.set("database", "user", str(self.databaseUser.text()))
         SETTINGS.set("database", "passwd", str(self.databasePassword.text()))
+        SETTINGS.set("database", "type", "mysql" if self.checkMySQL.isChecked() else "postgresql")
 
         # Communication
         SETTINGS.set("communication", "serverGamepadAddress", str(self.server_address.text()))
@@ -279,6 +285,9 @@ class OptionWindow(QDialog):
 
         saveSettings()
 
+    def setDefaultDBPort(self):
+        self.databasePort.setText("3306") if self.checkMySQL.isChecked() else self.databasePort.setText("5432")
+        
     def closeEvent(self, event):
         super().closeEvent(event)
         global SETTINGSWINDOW
