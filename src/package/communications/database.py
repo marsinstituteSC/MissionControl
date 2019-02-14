@@ -13,6 +13,7 @@ PORT = None
 DB = None
 USERNAME = None
 PASSWD = None
+USEMYSQL = False
 
 engine = None
 Base = declarative_base()
@@ -21,17 +22,19 @@ Session = scoped_session(sessionmaker())
 LOCK = threading.Lock() # Only one thread can use a DB session at a time... SAD!
 
 def onSettingsChanged(name, config): # Deals with reconnecting the engine for new db settings.
-    global ADDRESS, PORT, DB, USERNAME, PASSWD, engine
+    global ADDRESS, PORT, DB, USERNAME, PASSWD, USEMYSQL, Session, engine
     ADDRESS = config.get("database", "address")
     PORT = config.get("database", "port")
     DB = config.get("database", "db")
     USERNAME = config.get("database", "user")
-    PASSWD = config.get("database", "passwd")
+    PASSWD = config.get("database", "passwd")    
     with LOCK: # Update connection itself... WAIT for other queries to finish via the lock.
+        USEMYSQL = (config.get("database", "type") == "mysql") # Must not be changed while other queries run, since postgres needs to set the schema!
         if engine:
             engine.dispose()
             Session.remove()
-        engine = create_engine("postgresql://{}:{}@{}:{}/{}".format(USERNAME, PASSWD, ADDRESS, PORT, DB))
+            Session = scoped_session(sessionmaker())
+        engine = create_engine("{}{}:{}@{}:{}/{}".format("mysql+pymysql://" if USEMYSQL else "postgresql://", USERNAME, PASSWD, ADDRESS, PORT, DB))
         Session.configure(bind=engine)
 
 def loadDatabase():
@@ -44,7 +47,8 @@ def add(el, schema):
     with LOCK:
         try:
             s = Session()
-            s.execute('set search_path={}'.format(schema))
+            if not USEMYSQL:
+                s.execute('set search_path={}'.format(schema))
             s.add(el)
             s.commit()
         except Exception as e:
@@ -61,7 +65,8 @@ def delete(el, schema):
     with LOCK:
         try:
             s = Session()
-            s.execute('set search_path={}'.format(schema))
+            if not USEMYSQL:
+                s.execute('set search_path={}'.format(schema))
             s.delete(el)
             s.commit()
         except Exception as e:
@@ -77,7 +82,8 @@ def find(id, schema):
     with LOCK:
         try:
             s = Session()
-            s.execute('set search_path={}'.format(schema))
+            if not USEMYSQL:
+                s.execute('set search_path={}'.format(schema))
             return s.query(Event).filter_by(id=id).first()
         except Exception as e:
             print(e)
@@ -111,7 +117,8 @@ class Event(Base):
         with LOCK:
             try:
                 s = Session()
-                s.execute('set search_path=sensor')
+                if not USEMYSQL:
+                    s.execute('set search_path=sensor')
                 for d in s.query(Event).filter_by(type=type).all():
                     output.append(d)
             except Exception as e:
@@ -125,7 +132,8 @@ def deleteDataFromDatabase(schema):
     with LOCK:
         try:
             s = Session()
-            s.execute('set search_path={}'.format(schema))                    
+            if not USEMYSQL:
+                s.execute('set search_path={}'.format(schema))                    
             
             # Delete actual table data here:
             s.query(Event).delete() # Delete all events.
