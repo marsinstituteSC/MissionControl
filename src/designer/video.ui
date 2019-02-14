@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1037</width>
-    <height>915</height>
+    <height>916</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,7 +70,7 @@
         <number>0</number>
        </property>
        <property name="spacing">
-        <number>0</number>
+        <number>5</number>
        </property>
        <item row="0" column="0">
         <widget class="QWidget" name="video1_widget" native="true">
@@ -88,17 +88,14 @@
            <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QComboBox" name="video1_choice"/>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="video1_player">
             <property name="sizePolicy">
@@ -130,11 +127,47 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="record1">
-            <property name="text">
-             <string>Record Video</string>
+          <item row="0" column="0">
+           <widget class="QWidget" name="widget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>40</height>
+             </size>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="video1_choice"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="record1">
+               <property name="text">
+                <string>Record Video</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -142,9 +175,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QWidget" name="video3_widget" native="true">
-         <layout class="QGridLayout" name="gridLayout_6">
+         <layout class="QGridLayout" name="gridLayout_5">
           <property name="leftMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
            <number>0</number>
@@ -153,7 +186,7 @@
            <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="spacing">
            <number>0</number>
@@ -178,17 +211,44 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QComboBox" name="video3_choice">
-            <property name="editable">
-             <bool>false</bool>
+           <widget class="QWidget" name="widget_3" native="true">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>40</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="record2">
-            <property name="text">
-             <string>Record Video</string>
-            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="video3_choice">
+               <property name="editable">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="record3">
+               <property name="text">
+                <string>Record Video</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -196,15 +256,15 @@
        </item>
        <item row="1" column="0">
         <widget class="QWidget" name="video2_widget" native="true">
-         <layout class="QGridLayout" name="gridLayout_5">
+         <layout class="QGridLayout" name="gridLayout_3">
           <property name="leftMargin">
            <number>0</number>
           </property>
           <property name="topMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="bottomMargin">
            <number>0</number>
@@ -244,13 +304,40 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QComboBox" name="video2_choice"/>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="record3">
-            <property name="text">
-             <string>Record Video</string>
+           <widget class="QWidget" name="widget_2" native="true">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>40</height>
+             </size>
             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="video2_choice"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="record2">
+               <property name="text">
+                <string>Record Video</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -261,12 +348,12 @@
          <property name="enabled">
           <bool>true</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout_7">
+         <layout class="QGridLayout" name="gridLayout_6">
           <property name="leftMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
-           <number>3</number>
+           <number>0</number>
           </property>
           <property name="rightMargin">
            <number>0</number>
@@ -277,9 +364,6 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QComboBox" name="video4_choice"/>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="video4_player">
             <property name="sizePolicy">
@@ -299,11 +383,41 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="record4">
-            <property name="text">
-             <string>Record Video</string>
+          <item row="0" column="0">
+           <widget class="QWidget" name="widget_4" native="true">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>40</height>
+             </size>
             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="video4_choice"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="record4">
+               <property name="text">
+                <string>Record Video</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
