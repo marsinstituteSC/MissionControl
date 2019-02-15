@@ -23,142 +23,74 @@ class VideoRenderingSync(QObject):
     """
     Class to render all four videos
     """
+    changePixmap = pyqtSignal(dict)
     def __init__(self):
         super().__init__()
         self.running = True
-
-        # Initialize every local video settings
-        self.videoUrl1 = None
-        self.videoColor1 = None
-        self.videoScaling1 = None
-        self.videoUrl2 = None
-        self.videoColor2 = None
-        self.videoScaling2 = None
-        self.videoUrl3 = None
-        self.videoColor3 = None
-        self.videoScaling3 = None
-        self.videoUrl4 = None
-        self.videoColor4 = None
-        self.videoScaling4 = None
-
-        # Initialize temporary variables and sourcenumber
-        self.sourceNumber1 = 1
-        self.videoUrlTemp1 = None
-        self.videoColorTemp1 = None
-        self.videoScalingTemp1 = None
-        self.sourceNumber2 = 2
-        self.videoUrlTemp2 = None
-        self.videoColorTemp2 = None
-        self.videoScalingTemp2 = None
-        self.sourceNumber3 = 3
-        self.videoUrlTemp3 = None
-        self.videoColorTemp3 = None
-        self.videoScalingTemp3 = None
-        self.sourceNumber4 = 4
-        self.videoUrlTemp4 = None
-        self.videoColorTemp4 = None
-        self.videoScalingTemp4 = None
-        self.changed = False
-
-        # In order to disable a specific video, use enabled to check
-        self.enabled1 = True
-        self.enabled2 = True
-        self.enabled3 = True
-        self.enabled4 = True
-
-        # Initialize capture
-        self.cap1 = cv2.VideoCapture(self.videoUrl1)
-        self.cap2 = cv2.VideoCapture(self.videoUrl2)
-        self.cap3 = cv2.VideoCapture(self.videoUrl3)
-        self.cap4 = cv2.VideoCapture(self.videoUrl4)
+        self.videos = {}
+        for i in range(4):
+            i += 1
+            settings = {
+                "url" : None,
+                "color" : None,
+                "scaling" : None,
+                "enabled" : True,
+                "constantUrl" : None,
+                "constantColor" : None,
+                "constantScaling" : None,
+                "cap" : cv2.VideoCapture(None),
+                "finished" : True,
+                "sourceChanged" : False,
+                "newSource" : i
+            }
+            self.videos[i] = settings
+        self.settingsChanged = False
 
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
         self.loadSettings(cfg.SETTINGS)
 
-    changePixmap = pyqtSignal(dict)
-
     def run(self):
+        self.running = True
         self.setNewSettings()
-        self.cap1.open(self.videoUrl1)
-        self.cap2.open(self.videoUrl2)
-        self.cap3.open(self.videoUrl3)
-        self.cap4.open(self.videoUrl4)
+        for i in range(4):
+            i += 1
+            self.videos[i]["cap"].open(self.videos[i]["url"])
         while self.running:
             try:
-                # This is to only apply settings when a new iteration of the loop starts.
-                if self.changed:
+                # Apply any changes in settings or source
+                if self.settingsChanged:
                     self.setNewSettings()
-                    self.changed = False
+                    self.settingsChanged = False
+                for i in range(4):
+                    i += 1
+                    if self.videos[i]["sourceChanged"]:
+                        self.changeVideoSource(i, self.videos[i]["newSource"])
+                        self.videos[i]["sourceChanged"] = False
+                
                 # Dictionary with every pixmap to send a single signal when everyone is done rendering
-                output = {
-                    1 : None,
-                    2 : None,
-                    3 : None,
-                    4 : None
-                }
-                ret1, frame1 = self.cap1.read()
-                ret2, frame2 = self.cap2.read()
-                ret3, frame3 = self.cap3.read()
-                ret4, frame4 = self.cap4.read()
-                if ret1 or ret2 or ret3 or ret4:
-                    if ret1 and self.enabled1:
-                        colorFormat = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGB if self.videoColor1 else cv2.COLOR_BGR2GRAY)
-                        if self.videoScaling1 == "Source":
-                            newFrame = colorFormat
+                output = { 1 : None, 2 : None, 3 : None, 4 : None }
+                
+                # Iterate through every video stream and convert them into pixmap ready to be sent
+                for i in range(4):
+                    i += 1
+                    if self.videos[i]["enabled"]:
+                        ret, frame = self.videos[i]["cap"].read()
+                        if ret:
+                            self.videos[i]["finished"] = False
+                            colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if self.videos[i]["color"] else cv2.COLOR_BGR2GRAY)
+                            if self.videos[i]["scaling"] == "Source":
+                                newFrame = colorFormat
+                            else:
+                                width, height = self.videos[i]["scaling"].split("x")
+                                newFrame = cv2.resize(colorFormat, (int(width), int(height)))
+                            qtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videos[i]["color"] else QImage.Format_Grayscale8)
+                            output[i] = QPixmap.fromImage(qtFormat)
                         else:
-                            # Check if it will scale the image down or up and use InterArea Interpolation for downscale and InterLinear for upscale.
-                            width, height = self.videoScaling1.split("x")
-                            newFrame = cv2.resize(colorFormat, (int(width), int(height)))
-                        qtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videoColor1 else QImage.Format_Grayscale8)
-                        output[1] = QPixmap.fromImage(qtFormat)
-                    else:
-                        self.cap1.release()
-
-                    if ret2 and self.enabled2:
-                        colorFormat = cv2.cvtColor(frame2, cv2.COLOR_BGR2RGB if self.videoColor2 else cv2.COLOR_BGR2GRAY)
-                        if self.videoScaling2 == "Source":
-                            newFrame = colorFormat
-                        else:
-                            # Check if it will scale the image down or up and use InterArea Interpolation for downscale and InterLinear for upscale.
-                            width, height = self.videoScaling2.split("x")
-                            newFrame = cv2.resize(colorFormat, (int(width), int(height)))
-                        qtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videoColor2 else QImage.Format_Grayscale8)
-                        output[2] = QPixmap.fromImage(qtFormat)
-                    else:
-                        self.cap2.release()
-
-                    if ret3 and self.enabled3:
-                        colorFormat = cv2.cvtColor(frame3, cv2.COLOR_BGR2RGB if self.videoColor3 else cv2.COLOR_BGR2GRAY)
-                        if self.videoScaling3 == "Source":
-                            newFrame = colorFormat
-                        else:
-                            # Check if it will scale the image down or up and use InterArea Interpolation for downscale and InterLinear for upscale.
-                            width, height = self.videoScaling3.split("x")
-                            newFrame = cv2.resize(colorFormat, (int(width), int(height)))
-                        qtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videoColor3 else QImage.Format_Grayscale8)
-                        output[3] = QPixmap.fromImage(qtFormat)
-                    else:
-                        self.cap3.release()
-
-                    if ret4 and self.enabled4:
-                        colorFormat = cv2.cvtColor(frame4, cv2.COLOR_BGR2RGB if self.videoColor4 else cv2.COLOR_BGR2GRAY)
-                        if self.videoScaling4 == "Source":
-                            newFrame = colorFormat
-                        else:
-                            # Check if it will scale the image down or up and use InterArea Interpolation for downscale and InterLinear for upscale.
-                            width, height = self.videoScaling4.split("x")
-                            newFrame = cv2.resize(colorFormat, (int(width), int(height)))
-                        qtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videoColor4 else QImage.Format_Grayscale8)
-                        output[4] = QPixmap.fromImage(qtFormat)
-                    else:
-                        self.cap4.release()
-                    self.changePixmap.emit(output)
-                else:
+                            self.videos[i]["cap"].release()
+                            self.videos[i]["finished"] = True
+                if self.videos[1]["finished"] and self.videos[2]["finished"] and self.videos[3]["finished"] and self.videos[4]["finished"]:
                     self.running = False
-                    self.cap1.release()
-                    self.cap2.release()
-                    self.cap3.release()
-                    self.cap4.release()
+                self.changePixmap.emit(output)
             except Exception as e:
                 print(e)
 
@@ -166,60 +98,36 @@ class VideoRenderingSync(QObject):
         self.loadSettings(params)
 
     def loadSettings(self, config):
-        link = config.get("video", "url" + str(self.sourceNumber1)) + ":" + config.get("video", "port" + str(self.sourceNumber1)) if config.get("video", "port" + str(self.sourceNumber1)) else config.get("video", "url" + str(self.sourceNumber1))
-        color = (config.get("video", "color1") == "True")
-        scaling = config.get("video", "scaling1")
-        self.enabled1 = (config.get("video", "enable1") == "True")
-        if self.videoUrlTemp1 != link or self.videoColorTemp1 != scaling or self.videoScalingTemp1 != scaling:
-            # Temporary values to hold new settings
-            self.videoUrlTemp1 = link
-            self.videoColorTemp1 = color
-            self.videoScalingTemp1 = scaling
-            self.changed = True
-        link = config.get("video", "url" + str(self.sourceNumber2)) + ":" + config.get("video", "port" + str(self.sourceNumber2)) if config.get("video", "port" + str(self.sourceNumber2)) else config.get("video", "url" + str(self.sourceNumber2))
-        color = (config.get("video", "color2") == "True")
-        scaling = config.get("video", "scaling2")
-        self.enabled2 = (config.get("video", "enable2") == "True")
-        if self.videoUrlTemp2 != link or self.videoColorTemp2 != scaling or self.videoScalingTemp2 != scaling:
-            # Temporary values to hold new settings
-            self.videoUrlTemp2 = link
-            self.videoColorTemp2 = color
-            self.videoScalingTemp2 = scaling
-            self.changed = True
-        link = config.get("video", "url" + str(self.sourceNumber3)) + ":" + config.get("video", "port" + str(self.sourceNumber3)) if config.get("video", "port" + str(self.sourceNumber3)) else config.get("video", "url" + str(self.sourceNumber3))
-        color = (config.get("video", "color3") == "True")
-        scaling = config.get("video", "scaling3")
-        self.enabled3 = (config.get("video", "enable3") == "True")
-        if self.videoUrlTemp3 != link or self.videoColorTemp3 != scaling or self.videoScalingTemp3 != scaling:
-            # Temporary values to hold new settings
-            self.videoUrlTemp3 = link
-            self.videoColorTemp3 = color
-            self.videoScalingTemp3 = scaling
-            self.changed = True
-        link = config.get("video", "url" + str(self.sourceNumber4)) + ":" + config.get("video", "port" + str(self.sourceNumber4)) if config.get("video", "port" + str(self.sourceNumber4)) else config.get("video", "url" + str(self.sourceNumber4))
-        color = (config.get("video", "color4") == "True")
-        scaling = config.get("video", "scaling4")
-        self.enabled4 = (config.get("video", "enable4") == "True")
-        if self.videoUrlTemp4 != link or self.videoColorTemp4 != scaling or self.videoScalingTemp4 != scaling:
-            # Temporary values to hold new settings
-            self.videoUrlTemp4 = link
-            self.videoColorTemp4 = color
-            self.videoScalingTemp4 = scaling
-            self.changed = True
+        for i in range (4):
+            i += 1
+            link = config.get("video", "url" + str(i)) + ":" + config.get("video", "port" + str(i)) if config.get("video", "port" + str(i)) else config.get("video", "url" + str(i))
+            color = (config.get("video", "color" + str(i)) == "True")
+            scaling = config.get("video", "scaling" + str(i))
+            self.videos[i]["enabled"] = (config.get("video", "enable" + str(i)) == "True")
+            if self.videos[i]["constantUrl"] != link or self.videos[i]["constantColor"] != color or self.videos[i]["constantScaling"] != scaling:
+                self.videos[i]["constantUrl"] = link
+                self.videos[i]["constantColor"] = color
+                self.videos[i]["constantScaling"] = scaling
+                self.settingsChanged = True
 
     def setNewSettings(self):
-        self.videoUrl1 = self.videoUrlTemp1
-        self.videoColor1 = self.videoColorTemp1
-        self.videoScaling1 = self.videoScalingTemp1
-        self.videoUrl2 = self.videoUrlTemp2
-        self.videoColor2 = self.videoColorTemp2
-        self.videoScaling2 = self.videoScalingTemp2
-        self.videoUrl3 = self.videoUrlTemp3
-        self.videoColor3 = self.videoColorTemp3
-        self.videoScaling3 = self.videoScalingTemp3
-        self.videoUrl4 = self.videoUrlTemp4
-        self.videoColor4 = self.videoColorTemp4
-        self.videoScaling4 = self.videoScalingTemp4
+        for i in range(4):
+            i += 1
+            if self.videos[i]["url"] != self.videos[self.videos[i]["newSource"]]["constantUrl"]: self.videos[i]["url"] = self.videos[self.videos[i]["newSource"]]["constantUrl"]
+            if self.videos[i]["color"] != self.videos[i]["constantColor"]: self.videos[i]["color"] = self.videos[i]["constantColor"]
+            if self.videos[i]["scaling"] != self.videos[i]["constantScaling"]: self.videos[i]["scaling"] = self.videos[i]["constantScaling"]
+
+    def prepareChangeVideoSource(self, videoNumber, videoSource):
+        """
+        Preparation for changing the video source of the specified video for the next iteration
+        """
+        self.videos[videoNumber]["newSource"] = videoSource
+        self.videos[videoNumber]["sourceChanged"] = True
+
+    def changeVideoSource(self, videoNumber, videoSource):
+        self.videos[videoNumber]["cap"].release()
+        self.videos[videoNumber]["url"] = self.videos[videoSource]["constantUrl"]
+        self.videos[videoNumber]["cap"].open(self.videos[videoNumber]["url"])
 
 class VideoRenderingAsync(QObject):
     """
@@ -362,13 +270,10 @@ class VideoWindow(QMainWindow):
             if self.enabled3 : self.thread3.start()
             if self.enabled4 : self.thread4.start()
 
- 
     def changeVideo1(self, i):
         if i != -1:
             if self.threadMode == "Sync":
-                self.video.sourceNumber1 = i+1
-                self.video.loadSettings(cfg.SETTINGS)
-                self.restartAllVideos()
+                self.video.prepareChangeVideoSource(1, i+1)
             else:
                 self.video1.sourceNumber = i+1
                 self.video1.loadSettings(cfg.SETTINGS)
@@ -376,9 +281,7 @@ class VideoWindow(QMainWindow):
     def changeVideo2(self, i):
         if i != -1:
             if self.threadMode == "Sync":
-                self.video.sourceNumber2 = i+1
-                self.video.loadSettings(cfg.SETTINGS)
-                self.restartAllVideos()
+                self.video.prepareChangeVideoSource(2, i+1)
             else:
                 self.video2.sourceNumber = i+1
                 self.video2.loadSettings(cfg.SETTINGS)
@@ -386,9 +289,7 @@ class VideoWindow(QMainWindow):
     def changeVideo3(self, i):
         if i != -1:
             if self.threadMode == "Sync":
-                self.video.sourceNumber3 = i+1
-                self.video.loadSettings(cfg.SETTINGS)
-                self.restartAllVideos()
+                self.video.prepareChangeVideoSource(3, i+1)
             else:
                 self.video3.sourceNumber = i+1
                 self.video3.loadSettings(cfg.SETTINGS)
@@ -396,9 +297,7 @@ class VideoWindow(QMainWindow):
     def changeVideo4(self, i):
         if i != -1:
             if self.threadMode == "Sync":
-                self.video.sourceNumber4 = i+1
-                self.video.loadSettings(cfg.SETTINGS)
-                self.restartAllVideos()
+                self.video.prepareChangeVideoSource(4, i+1)
             else:
                 self.video4.sourceNumber = i+1
                 self.video4.loadSettings(cfg.SETTINGS)
@@ -429,37 +328,34 @@ class VideoWindow(QMainWindow):
         if self.enabled1 != (config.get("video", "enable1") == "True"):
             self.enabled1 = (config.get("video", "enable1") == "True")
             if self.enabled1:
-                self.restartSpecificVideo(1, True)
+                if not self.threadMode == "Sync": self.restartSpecificVideo(1, True)
                 self.video1_widget.show()
             else:
-                self.restartSpecificVideo(1, False)
+                if not self.threadMode == "Sync": self.restartSpecificVideo(1, False)
                 self.video1_widget.hide()
-
         if self.enabled2 != (config.get("video", "enable2") == "True"):
             self.enabled2 = (config.get("video", "enable2") == "True")
             if self.enabled2:
-                self.restartSpecificVideo(2, True)
+                if not self.threadMode == "Sync": self.restartSpecificVideo(2, True)
                 self.video2_widget.show()
             else:
-                self.restartSpecificVideo(2, False)
-                self.video2_widget.hide()
-        
+                if not self.threadMode == "Sync": self.restartSpecificVideo(2, False)
+                self.video2_widget.hide()  
         if self.enabled3 != (config.get("video", "enable3") == "True"):
             self.enabled3 = (config.get("video", "enable3") == "True")
             if self.enabled3:
-                self.restartSpecificVideo(3, True)
+                if not self.threadMode == "Sync": self.restartSpecificVideo(3, True)
                 self.video3_widget.show()
             else:
-                self.restartSpecificVideo(3, False)
-                self.video3_widget.hide()
-        
+                if not self.threadMode == "Sync": self.restartSpecificVideo(3, False)
+                self.video3_widget.hide()  
         if self.enabled4 != (config.get("video", "enable4") == "True"):
             self.enabled4 = (config.get("video", "enable4") == "True")
             if self.enabled4:
-                self.restartSpecificVideo(4, True)
+                if not self.threadMode == "Sync": self.restartSpecificVideo(4, True)
                 self.video4_widget.show()
             else:
-                self.restartSpecificVideo(4, False)
+                if not self.threadMode == "Sync": self.restartSpecificVideo(4, False)
                 self.video4_widget.hide()
 
         """
@@ -470,7 +366,6 @@ class VideoWindow(QMainWindow):
         """
         if self.enabled2 and self.enabled4 and not self.enabled1 and not self.enabled3:
             # Move video 2 top the top and video 4 to the bottom
-            print("TEST")
             self.gridLayout.removeWidget(self.video1_widget)
             self.gridLayout.removeWidget(self.video2_widget)
             self.gridLayout.removeWidget(self.video3_widget)
@@ -560,10 +455,8 @@ class VideoWindow(QMainWindow):
         Then restarts the thread and running.
         """
         if self.threadMode == "Sync":
-            self.video.running = False
             self.thread.quit()
             self.thread.wait()
-            self.video.running = True
             self.thread.start()
         else:    
             self.restartSpecificVideo(1, True)
