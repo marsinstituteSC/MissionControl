@@ -31,27 +31,32 @@ class VideoRenderingSync(QObject):
         for i in range(4):
             i += 1
             settings = {
-                "url" : None,
-                "color" : None,
-                "scaling" : None,
-                "enabled" : True,
-                "constantUrl" : None,
-                "constantColor" : None,
-                "constantScaling" : None,
-                "cap" : cv2.VideoCapture(None),
-                "finished" : True,
-                "sourceChanged" : False,
-                "newSource" : i
+                "url" : None, # The url used for rendering, this will be changed during runtime by settings and any methods that may change what is displayed 
+                "color" : None, # The color used for rendering, usually not changed except by settings
+                "scaling" : None, # The scaling used for rendering, usually not changed except by settings
+                "enabled" : True, # Checks if the widget is enabled or disabled. If disabled it will not render the video.
+                "constantUrl" : None, # Will hold the read url value from settings file, will not be changed except by settings
+                "constantColor" : None, # Will hold the read color value from settings file, will not be changed except by settings
+                "constantScaling" : None, # Will hold the read scaling value from settings file, will not be changed except by settings
+                "cap" : cv2.VideoCapture(None), # OpenCv videocapture object
+                "finished" : True, # Boolean to check if the video has no more frames, usually used for viewing video file, not stream.
+                "sourceChanged" : False, # Helper boolean to apply new changes to newSource in the next iteration of rendering.
+                "newSource" : i # Holds the index of which the video should look for its source url
             }
             self.videos[i] = settings
+        # Helper boolean to check if there has been any changes before a new iteration of rendering.
         self.settingsChanged = False
 
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
         self.loadSettings(cfg.SETTINGS)
 
     def run(self):
+        #self.pr = cProfile.Profile()
+        #self.pr.enable()
         self.running = True
+        # Copies the values from the constant values to the values used for rendering.
         self.setNewSettings()
+        # Opens the OpenCv capture for each video
         for i in range(4):
             i += 1
             self.videos[i]["cap"].open(self.videos[i]["url"])
@@ -70,7 +75,7 @@ class VideoRenderingSync(QObject):
                 # Dictionary with every pixmap to send a single signal when everyone is done rendering
                 output = { 1 : None, 2 : None, 3 : None, 4 : None }
                 
-                # Iterate through every video stream and convert them into pixmap ready to be sent
+                # Iterate through every video stream and convert them into pixmap ready to be sent in a dictionary
                 for i in range(4):
                     i += 1
                     if self.videos[i]["enabled"]:
@@ -88,11 +93,17 @@ class VideoRenderingSync(QObject):
                         else:
                             self.videos[i]["cap"].release()
                             self.videos[i]["finished"] = True
+                    else:
+                        self.videos[i]["cap"].release()
+                        self.videos[i]["finished"] = True
+                # If every video is finished with its video, stop the loop to free the thread.
                 if self.videos[1]["finished"] and self.videos[2]["finished"] and self.videos[3]["finished"] and self.videos[4]["finished"]:
                     self.running = False
                 self.changePixmap.emit(output)
             except Exception as e:
                 print(e)
+        #self.pr.disable()
+        #self.pr.print_stats(sort='time')
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)
@@ -103,7 +114,13 @@ class VideoRenderingSync(QObject):
             link = config.get("video", "url" + str(i)) + ":" + config.get("video", "port" + str(i)) if config.get("video", "port" + str(i)) else config.get("video", "url" + str(i))
             color = (config.get("video", "color" + str(i)) == "True")
             scaling = config.get("video", "scaling" + str(i))
-            self.videos[i]["enabled"] = (config.get("video", "enable" + str(i)) == "True")
+            if self.videos[i]["enabled"] != (config.get("video", "enable" + str(i)) == "True"):
+                self.videos[i]["enabled"] = (config.get("video", "enable" + str(i)) == "True")
+                if self.videos[i]["enabled"]:
+                    self.videos[i]["cap"].release()
+                    self.videos[i]["cap"].open(self.videos[i]["url"])
+                else:
+                    self.videos[i]["cap"].release()
             if self.videos[i]["constantUrl"] != link or self.videos[i]["constantColor"] != color or self.videos[i]["constantScaling"] != scaling:
                 self.videos[i]["constantUrl"] = link
                 self.videos[i]["constantColor"] = color
@@ -313,9 +330,6 @@ class VideoWindow(QMainWindow):
             - If enabled is false for a video, stop the thread and video
             - If enabled is true for a video, restart the video
         """
-        #self.pr = cProfile.Profile()
-        #self.pr.enable()
-        
         if self.video1Name != config.get("video", "name1") or self.video2Name != config.get("video", "name2") or self.video3Name != config.get("video", "name3") or self.video4Name != config.get("video", "name4"):
             self.video1Name = config.get("video", "name1")
             self.video2Name = config.get("video", "name2")
@@ -422,8 +436,6 @@ class VideoWindow(QMainWindow):
             self.gridLayout.addWidget(self.video2_widget, 1, 0)
             self.gridLayout.addWidget(self.video3_widget, 0, 1)
             self.gridLayout.addWidget(self.video4_widget, 1, 1)
-        #self.pr.disable()
-        #self.pr.print_stats(sort='time')
     
     # Draw the image to the labels with the rendered image
     @pyqtSlot(QPixmap)
