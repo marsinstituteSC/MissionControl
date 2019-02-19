@@ -16,7 +16,7 @@ class Event():
             return "Event()"
 
     def __del__(self):
-        self.listeners.clear()
+        self.clearListeners()
 
     def addListener(self, obj, func):
         self.listeners[obj] = func
@@ -26,6 +26,9 @@ class Event():
             self.listeners.pop(obj)
         except:
             print("{} is not listening to this event!".format(str(obj)))
+
+    def clearListeners(self):
+        self.listeners.clear()
 
     def raiseEvent(self, params=None):
         for _, v in self.listeners.items():
