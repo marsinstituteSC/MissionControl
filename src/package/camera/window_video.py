@@ -3,7 +3,7 @@
 # Normal Package Imports
 from configparser import ConfigParser
 import cProfile
-import time
+import time, datetime, os
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot, QObject
@@ -24,6 +24,7 @@ class VideoRenderingSync(QObject):
     Class to render all four videos
     """
     changePixmap = pyqtSignal(dict)
+    finishedSignal = pyqtSignal()
     def __init__(self):
         super().__init__()
         self.running = True
@@ -41,7 +42,10 @@ class VideoRenderingSync(QObject):
                 "cap" : cv2.VideoCapture(None), # OpenCv videocapture object
                 "finished" : True, # Boolean to check if the video has no more frames, usually used for viewing video file, not stream.
                 "sourceChanged" : False, # Helper boolean to apply new changes to newSource in the next iteration of rendering.
-                "newSource" : i # Holds the index of which the video should look for its source url
+                "newSource" : i, # Holds the index of which the video should look for its source url
+                "recording" : False,
+                "videoWriter" : cv2.VideoWriter(),
+                "name" : "video" + str(i)
             }
             self.videos[i] = settings
         # Helper boolean to check if there has been any changes before a new iteration of rendering.
@@ -71,6 +75,8 @@ class VideoRenderingSync(QObject):
                     if self.videos[i]["sourceChanged"]:
                         self.changeVideoSource(i, self.videos[i]["newSource"])
                         self.videos[i]["sourceChanged"] = False
+                    if not self.videos[i]["recording"] and self.videos[i]["videoWriter"].isOpened():
+                        self.videos[i]["videoWriter"].release()
                 
                 # Dictionary with every pixmap to send a single signal when everyone is done rendering
                 output = { 1 : None, 2 : None, 3 : None, 4 : None }
@@ -81,6 +87,8 @@ class VideoRenderingSync(QObject):
                     if self.videos[i]["enabled"]:
                         ret, frame = self.videos[i]["cap"].read()
                         if ret:
+                            if self.videos[i]["recording"]:
+                                self.videos[i]["videoWriter"].write(frame)
                             self.videos[i]["finished"] = False
                             colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if self.videos[i]["color"] else cv2.COLOR_BGR2GRAY)
                             if self.videos[i]["scaling"] == "Source":
@@ -91,14 +99,19 @@ class VideoRenderingSync(QObject):
                             qtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videos[i]["color"] else QImage.Format_Grayscale8)
                             output[i] = QPixmap.fromImage(qtFormat)
                         else:
+                            self.videos[i]["videoWriter"].release()
                             self.videos[i]["cap"].release()
                             self.videos[i]["finished"] = True
+                            self.videos[i]["recording"] = False
                     else:
+                        self.videos[i]["videoWriter"].release()
                         self.videos[i]["cap"].release()
                         self.videos[i]["finished"] = True
+                        self.videos[i]["recording"] = False
                 # If every video is finished with its video, stop the loop to free the thread.
                 if self.videos[1]["finished"] and self.videos[2]["finished"] and self.videos[3]["finished"] and self.videos[4]["finished"]:
                     self.running = False
+                    self.finishedSignal.emit()
                 self.changePixmap.emit(output)
             except Exception as e:
                 print(e)
@@ -126,6 +139,7 @@ class VideoRenderingSync(QObject):
                 self.videos[i]["constantColor"] = color
                 self.videos[i]["constantScaling"] = scaling
                 self.settingsChanged = True
+            self.videos[i]["name"] = config.get("video", "name" + str(i))
 
     def setNewSettings(self):
         for i in range(4):
@@ -143,8 +157,33 @@ class VideoRenderingSync(QObject):
 
     def changeVideoSource(self, videoNumber, videoSource):
         self.videos[videoNumber]["cap"].release()
+        self.videos[videoNumber]["videoWriter"].release()
         self.videos[videoNumber]["url"] = self.videos[videoSource]["constantUrl"]
         self.videos[videoNumber]["cap"].open(self.videos[videoNumber]["url"])
+
+    def startRecord(self, videoNumber):
+        time = datetime.datetime.now()
+        # Check if the directory exits, aka the dated folder
+        if not os.path.exists("videos/" + str(time.day) + "-" + str(time.month) + "-" + str(time.year)):
+            os.makedirs("videos/" + str(time.day) + "-" + str(time.month) + "-" + str(time.year))
+
+        # Set-up for recording, it needs to not be recording, not finished and is enabled
+        if not self.videos[videoNumber]["recording"] and self.videos[videoNumber]["enabled"] and not self.videos[videoNumber]["finished"]:
+            self.videos[videoNumber]["recording"] = True
+            width = int(self.videos[videoNumber]["cap"].get(3))
+            height = int(self.videos[videoNumber]["cap"].get(4))
+            videoFileName = "videos/" + str(time.day) + "-" + str(time.month) + "-" + str(time.year) + "/" + str(self.videos[videoNumber]["name"].replace(" ", "-")) + "_" + str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
+            self.videos[videoNumber]["videoWriter"] = cv2.VideoWriter(videoFileName + ".avi", cv2.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
+            return True
+        else:
+            return False
+
+    def stopRecord(self, videoNumber):
+        if self.videos[videoNumber]["recording"] == True:
+            self.videos[videoNumber]["recording"] = False
+            return True
+        else:
+            return False
 
 class VideoRenderingAsync(QObject):
     """
@@ -246,6 +285,9 @@ class VideoWindow(QMainWindow):
         self.video3_choice.currentIndexChanged.connect(self.changeVideo3)
         self.video4_choice.currentIndexChanged.connect(self.changeVideo4)
 
+        # Record buttons
+        self.record1.clicked.connect(self.recordVideo1)
+
         # Only start one thread and place every renderer into that thread
         if self.threadMode == "Sync":
             self.thread = QThread()
@@ -253,6 +295,7 @@ class VideoWindow(QMainWindow):
             self.video.moveToThread(self.thread)
             self.thread.started.connect(self.video.run)
             self.video.changePixmap.connect(self.set_all_images)
+            self.video.finishedSignal.connect(self.videoFinished)
         # Start 4 threads and move each renderer into each own thread
         else:
             # Initialize the video rendering class and connect the signal to the slot
@@ -291,6 +334,7 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(1, i+1)
+                self.record1.setText("Record Video")
             else:
                 self.video1.sourceNumber = i+1
                 self.video1.loadSettings(cfg.SETTINGS)
@@ -299,6 +343,7 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(2, i+1)
+                self.record2.setText("Record Video")
             else:
                 self.video2.sourceNumber = i+1
                 self.video2.loadSettings(cfg.SETTINGS)
@@ -307,6 +352,7 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(3, i+1)
+                self.record3.setText("Record Video")
             else:
                 self.video3.sourceNumber = i+1
                 self.video3.loadSettings(cfg.SETTINGS)
@@ -315,10 +361,31 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(4, i+1)
+                self.record4.setText("Record Video")
             else:
                 self.video4.sourceNumber = i+1
                 self.video4.loadSettings(cfg.SETTINGS)
                 self.restartSpecificVideo(4, True)
+
+    def videoFinished(self):
+        """
+        Base function to handle video shutdown
+        """
+        if self.threadMode == "Sync":
+            self.record1.setText("Record Video")
+            self.record2.setText("Record Video")
+            self.record3.setText("Record Video")
+            self.record4.setText("Record Video")
+
+    # Toggleable record button
+    def recordVideo1(self):
+        # Flip the text and start recording
+        if self.threadMode == "Sync":
+            if self.record1.text() == "Record Video" and self.video.startRecord(1): 
+                self.record1.setText("Stop Recording")
+            else:
+                self.record1.setText("Record Video")
+                self.video.stopRecord(1)
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)
@@ -466,6 +533,10 @@ class VideoWindow(QMainWindow):
         Restarts every video thread and object by setting each objects running to false and pauses the thread.
         Then restarts the thread and running.
         """
+        self.record1.setText("Record Video")
+        self.record2.setText("Record Video")
+        self.record3.setText("Record Video")
+        self.record4.setText("Record Video")
         if self.threadMode == "Sync":
             self.thread.quit()
             self.thread.wait()
@@ -484,6 +555,7 @@ class VideoWindow(QMainWindow):
             - restart, if true then the video should restart, if else it will only stop
         """
         if videoNumber == 1 and self.enabled1 == True:
+            self.record1.setText("Record Video")
             self.video1.running = False
             self.thread1.quit()
             self.thread1.wait()
@@ -491,6 +563,7 @@ class VideoWindow(QMainWindow):
                 self.video1.running = True
                 self.thread1.start()
         elif videoNumber == 2 and self.enabled2 == True:
+            self.record2.setText("Record Video")
             self.video2.running = False
             self.thread2.quit()
             self.thread2.wait()
@@ -498,6 +571,7 @@ class VideoWindow(QMainWindow):
                 self.video2.running = True
                 self.thread2.start()
         elif videoNumber == 3 and self.enabled3 == True:
+            self.record3.setText("Record Video")
             self.video3.running = False
             self.thread3.quit()
             self.thread3.wait()
@@ -505,6 +579,7 @@ class VideoWindow(QMainWindow):
                 self.video3.running = True
                 self.thread3.start()
         elif videoNumber == 4 and self.enabled4 == True:
+            self.record4.setText("Record Video")
             self.video4.running = False
             self.thread4.quit()
             self.thread4.wait()
