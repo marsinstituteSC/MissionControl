@@ -43,51 +43,45 @@ class MainWindow(QMainWindow):
         """
         Load/Create UI controls, the toolbar has been created via the UI file.
         """
-        mainWidget = QWidget(self)
-        mainGrid = QGridLayout()
-        self.setCentralWidget(mainWidget)            
-        
-        # TAB Box which contains multiple graphs for different type of sensors?
-        sensorTABBox = QTabWidget()
-        
-        # Make 1 row, 2 columns, 2 plots
-        graphs1 = plot.PlotCanvas(None, 10)
-        graphs1.plot("First Plot", [random.random() for i in range(25)], 121)
-        graphs1.plot("Second Plot", [random.random() for i in range(25)], 122)
+        mainGrid = self.centralWidget().layout()      
 
-        graphs2 = plot.PlotCanvas(None, 10)        
-        graphs2.plot("First Plot", [random.random() for i in range(75)], 121)
-        graphs2.plot("Second Plot", [random.random() for i in range(125)], 122)
-
-        sensorTABBox.addTab(graphs1, "Temperature")
-        sensorTABBox.addTab(graphs2, "Velocity")
-
-        # Misc section could contain speed, accel, sensor readings, etc...
-        miscWidget = QWidget()        
-        miscHBOX = QHBoxLayout()
-        miscWidget.setLayout(miscHBOX)
-        self.speedMeter = QLCDNumber()      
-        self.speedMeter.setSegmentStyle(QLCDNumber.Flat) 
-
-        miscHBOX.addStretch()    
-        miscHBOX.addWidget(QLabel("Speed"))
-        miscHBOX.addWidget(self.speedMeter)
-        miscHBOX.addWidget(QLabel("m/s"))
-        self.setSpeedometerValue(12)
-        
-        # Bottom section displays the log.
+        # Assign logger to group box in grid.
         self.log = logger.ColorizedLogger()
         self.log.logData("Anything, especially stuff we normally don't care about", 0)
         self.log.logData("Something normal happened", 1)
         self.log.logData("Something might be wrong", 2) 
         self.log.logData("Something is definitely wrong", 3)
+        self.logSection.layout().addWidget(self.log)
+
+        # Assign measurement displays to the status TAB.
+        statusTAB = self.tabSection.widget(0)    
+        statusTAB.layout().addStretch() 
+
+        self.speedMeter = QLCDNumber()      
+        self.speedMeter.setSegmentStyle(QLCDNumber.Flat) 
+
+        statusTAB.layout().addWidget(QLabel("Speed"))
+        statusTAB.layout().addWidget(self.speedMeter)
+        statusTAB.layout().addWidget(QLabel("m/s"))
+
+        self.setSpeedometerValue(12)
         
-        mainGrid.addWidget(sensorTABBox, 1, 0)
-        mainGrid.addWidget(miscWidget, 2, 0)
-        mainGrid.addWidget(self.log, 3, 0)
-        mainGrid.setRowStretch(1, 50)
-        mainGrid.setRowStretch(3, 20)
-        mainWidget.setLayout(mainGrid)
+        # Assign Graphs to measurement TAB.
+        measurementTAB = self.tabSection.widget(1)                
+
+        # Make 1 row, 2 columns, 2 plots
+        graphs1 = plot.PlotCanvas(None, 10)        
+        graphs1.plot("First Plot", [random.random() for i in range(75)], 121)
+        graphs1.plot("Second Plot", [random.random() for i in range(125)], 122)
+
+        measurementTAB.layout().addWidget(graphs1, 0, 0)
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        if self.video_window:
+            self.video_window.close()
+            
+        self.video_window = None
 
     def refreshGamepad(self):
         # Sets the refresh boolean to true for the gamepad class to check for new gamepads in the new iteration.
@@ -126,8 +120,6 @@ class MainWindow(QMainWindow):
         if 'speed' in data:
             self.setSpeedometerValue(data['speed'])
             self.log.logData("Now running at {} m/s.".format(data['speed']), 0)
-
-
 
 def loadMainWindow():
     wndw = MainWindow()

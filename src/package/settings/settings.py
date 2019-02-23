@@ -18,6 +18,7 @@ from communications import database
 from communications import udp_conn as UDP
 
 SETTINGSEVENT = event.Event("SettingsChangedEvent")
+RESTARTEVENT = event.Event("RestartAppEvent")
 
 # Default settings
 SETTINGS = ConfigParser()
@@ -119,7 +120,8 @@ def saveSettings():
             SETTINGS.write(configfile)
 
         SETTINGSEVENT.raiseEvent(SETTINGS)
-    except:
+    except Exception as e:
+        print(e)
         warning.showWarning(
             "Fatal Error", "Unable to write settings.ini", None)
 
@@ -215,12 +217,8 @@ class OptionWindow(QDialog):
         self.rover_address.setText(SETTINGS.get("communication", "serverRoverAddress"))
         self.rover_port.setText(SETTINGS.get("communication", "serverRoverPort"))
 
-        # Warning
-        self.threadAsync.clicked.connect(self.showAsyncWarning)
-
-    def showAsyncWarning(self):
-        self.warning = warning.asyncWarningDialog()
-        self.warning.show()
+        # Warning        
+        self.threadAsync.toggled.connect(lambda: RESTARTEVENT.raiseEvent(self))
 
     def saveSettings(self):
         """

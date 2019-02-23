@@ -51,7 +51,7 @@
    <item row="0" column="1">
     <widget class="QTabWidget" name="properties_tab">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="main_window_tab">
       <attribute name="title">
@@ -145,8 +145,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>415</width>
-            <height>207</height>
+            <width>320</width>
+            <height>162</height>
            </rect>
           </property>
           <attribute name="label">
@@ -299,8 +299,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>415</width>
-            <height>207</height>
+            <width>320</width>
+            <height>162</height>
            </rect>
           </property>
           <attribute name="label">
@@ -463,8 +463,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>415</width>
-            <height>207</height>
+            <width>320</width>
+            <height>162</height>
            </rect>
           </property>
           <attribute name="label">
@@ -617,8 +617,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>415</width>
-            <height>207</height>
+            <width>320</width>
+            <height>162</height>
            </rect>
           </property>
           <attribute name="label">
