@@ -24,7 +24,52 @@
        <attribute name="title">
         <string>Status</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch=""/>
+       <layout class="QGridLayout" name="statusGrid">
+        <item row="0" column="1">
+         <widget class="QFrame" name="topFrame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="topFrameGrid"/>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QFrame" name="bottomFrame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="bottomFrameGrid"/>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="2">
+         <widget class="QFrame" name="leftFrame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="leftFrameGrid"/>
+         </widget>
+        </item>
+        <item row="0" column="2" rowspan="2">
+         <widget class="QFrame" name="rightFrame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="rightFrameGrid"/>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tabMeasurements">
        <attribute name="title">

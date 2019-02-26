@@ -99,6 +99,9 @@
             </item>
             <item>
              <widget class="QRadioButton" name="threadAsync">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
                <string>Async</string>
               </property>
@@ -145,8 +148,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>320</width>
-            <height>162</height>
+            <width>415</width>
+            <height>207</height>
            </rect>
           </property>
           <attribute name="label">
@@ -463,8 +466,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>320</width>
-            <height>162</height>
+            <width>415</width>
+            <height>207</height>
            </rect>
           </property>
           <attribute name="label">

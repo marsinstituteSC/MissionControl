@@ -14,6 +14,8 @@ from camera import window_video as wv
 from settings import settings as cfg
 from mainwindow import window_eventlog
 from controller import gamepad as gp
+from widgets.gyroscope import GyroscopeWidget
+from widgets.simpleStatus import SimpleStatus
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -43,7 +45,7 @@ class MainWindow(QMainWindow):
         """
         Load/Create UI controls, the toolbar has been created via the UI file.
         """
-        mainGrid = self.centralWidget().layout()      
+        mainGrid = self.centralWidget().layout()
 
         # Assign logger to group box in grid.
         self.log = logger.ColorizedLogger()
@@ -54,17 +56,21 @@ class MainWindow(QMainWindow):
         self.logSection.layout().addWidget(self.log)
 
         # Assign measurement displays to the status TAB.
-        statusTAB = self.tabSection.widget(0)    
-        statusTAB.layout().addStretch() 
+        #statusTAB = self.tabSection.widget(0)
+        #statusTAB.layout().addStretch()
 
-        self.speedMeter = QLCDNumber()      
-        self.speedMeter.setSegmentStyle(QLCDNumber.Flat) 
+        #self.speedMeter = QLCDNumber()
+        #self.speedMeter.setSegmentStyle(QLCDNumber.Flat)
+        self.gyro = GyroscopeWidget()
+        self.status = SimpleStatus()
+        self.leftFrameGrid.addWidget(self.status, 0, 0)
+        self.bottomFrameGrid.addWidget(self.gyro, 0, 0)
 
-        statusTAB.layout().addWidget(QLabel("Speed"))
-        statusTAB.layout().addWidget(self.speedMeter)
-        statusTAB.layout().addWidget(QLabel("m/s"))
-
-        self.setSpeedometerValue(12)
+        # NOTE: Commented this out since it will be contained in its own widget
+        #self.horizontalLayout.addWidget(QLabel("Speed"))
+        #self.horizontalLayout.addWidget(self.speedMeter)
+        #self.horizontalLayout.addWidget(QLabel("m/s"))
+        #self.setSpeedometerValue(12)
         
         # Assign Graphs to measurement TAB.
         measurementTAB = self.tabSection.widget(1)                

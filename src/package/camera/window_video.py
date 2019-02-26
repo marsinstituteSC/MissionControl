@@ -208,12 +208,17 @@ class VideoRenderingAsync(QObject):
         self.videoNumber = videoNr # Used to identify from where settings should be read, color and scale. Should not be changed
         self.sourceNumber = videoNr # Used to identify from where source url should be read from settings, to allow multiple of same video with different settings.
         self.cap = cv2.VideoCapture(self.videoUrl)
+        self.recording = False
+        self.videoWriter = cv2.VideoWriter()
+        self.name = "Video" + str(videoNr)
+        self.enabled = True
 
         # Settings listener
         cfg.SETTINGSEVENT.addListener(self, self.onSettingsChanged)
         self.loadSettings(cfg.SETTINGS)
 
     changePixmap = pyqtSignal(QPixmap)
+    finished = pyqtSignal()
 
     def run(self):
         self.videoUrl = self.videoUrlTemp
@@ -227,21 +232,34 @@ class VideoRenderingAsync(QObject):
                 self.videoColor = self.videoColorTemp
                 self.videoScaling = self.videoScalingTemp
                 ret, frame = self.cap.read()
-                if ret:
-                    colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if self.videoColor else cv2.COLOR_BGR2GRAY)
-                    if self.videoScaling == "Source":
-                        newFrame = colorFormat
+                if not self.recording and self.videoWriter.isOpened():
+                    self.videoWriter.release()
+                if self.enabled:
+                    if ret:
+                        if self.recording:
+                            self.videoWriter.write(frame)
+                        colorFormat = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB if self.videoColor else cv2.COLOR_BGR2GRAY)
+                        if self.videoScaling == "Source":
+                            newFrame = colorFormat
+                        else:
+                            # Check if it will scale the image down or up and use InterArea Interpolation for downscale and InterLinear for upscale.
+                            width, height = self.videoScaling.split("x")
+                            newFrame = cv2.resize(colorFormat, (int(width), int(height)))
+                        convertToQtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videoColor else QImage.Format_Grayscale8)
+                        self.changePixmap.emit(QPixmap.fromImage(convertToQtFormat))
                     else:
-                        # Check if it will scale the image down or up and use InterArea Interpolation for downscale and InterLinear for upscale.
-                        width, height = self.videoScaling.split("x")
-                        newFrame = cv2.resize(colorFormat, (int(width), int(height)))
-                    convertToQtFormat = QImage(newFrame.data, newFrame.shape[1], newFrame.shape[0], QImage.Format_RGB888 if self.videoColor else QImage.Format_Grayscale8)
-                    self.changePixmap.emit(QPixmap.fromImage(convertToQtFormat))
+                        self.running = False
+                        self.recording = False
+                        self.videoWriter.release()
+                        self.cap.release()
                 else:
                     self.running = False
+                    self.recording = False
+                    self.videoWriter.release()
                     self.cap.release()
             except Exception as e:
                 print(e)
+            self.finished.emit()
         
 
     def onSettingsChanged(self, name, params):
@@ -256,6 +274,39 @@ class VideoRenderingAsync(QObject):
             self.videoUrlTemp = link
             self.videoColorTemp = color
             self.videoScalingTemp = scaling
+            self.name = config.get("video", "name" + str(self.videoNumber))
+        
+        if self.enabled != (config.get("video", "enable" + str(self.videoNumber)) == "True"):
+                self.enabled = (config.get("video", "enable" + str(self.videoNumber)) == "True")
+                if self.enabled:
+                    self.cap.release()
+                    self.cap.open(self.videoUrlTemp)
+                else:
+                    self.cap.release()
+
+    def startRecord(self):
+        time = datetime.datetime.now()
+        # Check if the directory exits, aka the dated folder
+        if not os.path.exists("videos/" + str(time.day) + "-" + str(time.month) + "-" + str(time.year)):
+            os.makedirs("videos/" + str(time.day) + "-" + str(time.month) + "-" + str(time.year))
+
+        # Set-up for recording, it needs to not be recording, not finished and is enabled
+        if not self.recording and self.enabled and self.running:
+            self.recording = True
+            width = int(self.cap.get(3))
+            height = int(self.cap.get(4))
+            videoFileName = "videos/" + str(time.day) + "-" + str(time.month) + "-" + str(time.year) + "/" + str(self.name.replace(" ", "-")) + "_" + str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
+            self.videoWriter = cv2.VideoWriter(videoFileName + ".avi", cv2.VideoWriter_fourcc('M','J','P','G'), 60, (width,height))
+            return True
+        else:
+            return False
+
+    def stopRecord(self):
+        if self.recording == True:
+            self.recording = False
+            return True
+        else:
+            return False
 
 class VideoWindow(QMainWindow):
     """Window class for video display"""
@@ -287,6 +338,9 @@ class VideoWindow(QMainWindow):
 
         # Record buttons
         self.record1.clicked.connect(self.recordVideo1)
+        self.record2.clicked.connect(self.recordVideo2)
+        self.record3.clicked.connect(self.recordVideo3)
+        self.record4.clicked.connect(self.recordVideo4)
 
         # Only start one thread and place every renderer into that thread
         if self.threadMode == "Sync":
@@ -386,6 +440,54 @@ class VideoWindow(QMainWindow):
             else:
                 self.record1.setText("Record Video")
                 self.video.stopRecord(1)
+        else:
+            if self.record1.text() == "Record Video" and self.video1.startRecord(): 
+                self.record1.setText("Stop Recording")
+            else:
+                self.record1.setText("Record Video")
+                self.video1.stopRecord()
+    def recordVideo2(self):
+        # Flip the text and start recording
+        if self.threadMode == "Sync":
+            if self.record2.text() == "Record Video" and self.video.startRecord(2): 
+                self.record2.setText("Stop Recording")
+            else:
+                self.record2.setText("Record Video")
+                self.video.stopRecord(2)
+        else:
+            if self.record2.text() == "Record Video" and self.video2.startRecord(): 
+                self.record2.setText("Stop Recording")
+            else:
+                self.record2.setText("Record Video")
+                self.video2.stopRecord()
+    def recordVideo3(self):
+        # Flip the text and start recording
+        if self.threadMode == "Sync":
+            if self.record3.text() == "Record Video" and self.video.startRecord(3): 
+                self.record3.setText("Stop Recording")
+            else:
+                self.record3.setText("Record Video")
+                self.video.stopRecord(3)
+        else:
+            if self.record3.text() == "Record Video" and self.video3.startRecord(): 
+                self.record3.setText("Stop Recording")
+            else:
+                self.record3.setText("Record Video")
+                self.video3.stopRecord()
+    def recordVideo4(self):
+        # Flip the text and start recording
+        if self.threadMode == "Sync":
+            if self.record4.text() == "Record Video" and self.video.startRecord(4): 
+                self.record4.setText("Stop Recording")
+            else:
+                self.record4.setText("Record Video")
+                self.video.stopRecord(4)
+        else:
+            if self.record4.text() == "Record Video" and self.video4.startRecord(): 
+                self.record4.setText("Stop Recording")
+            else:
+                self.record4.setText("Record Video")
+                self.video4.stopRecord()
 
     def onSettingsChanged(self, name, params):
         self.loadSettings(params)
