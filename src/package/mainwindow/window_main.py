@@ -1,6 +1,6 @@
 """ Main App Window, renders information from sensors, render graphs, etc... """
 
-import random
+import random, time
 import cProfile
 
 from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout
@@ -16,6 +16,8 @@ from mainwindow import window_eventlog
 from controller import gamepad as gp
 from widgets.gyroscope import GyroscopeWidget
 from widgets.simpleStatus import SimpleStatus
+from widgets.compass import CompassWidget
+from widgets.motionControl import MotionControlWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -45,8 +47,6 @@ class MainWindow(QMainWindow):
         """
         Load/Create UI controls, the toolbar has been created via the UI file.
         """
-        mainGrid = self.centralWidget().layout()
-
         # Assign logger to group box in grid.
         self.log = logger.ColorizedLogger()
         self.log.logData("Anything, especially stuff we normally don't care about", 0)
@@ -63,24 +63,25 @@ class MainWindow(QMainWindow):
         #self.speedMeter.setSegmentStyle(QLCDNumber.Flat)
         self.gyro = GyroscopeWidget()
         self.status = SimpleStatus()
+        self.compass = CompassWidget()
+        self.motionControl = MotionControlWidget()
         self.leftFrameGrid.addWidget(self.status, 0, 0)
+        self.topFrameGrid.addWidget(self.compass, 0, 0)
         self.bottomFrameGrid.addWidget(self.gyro, 0, 0)
+        self.rightFrameGrid.addWidget(self.motionControl, 0, 0)
 
         # NOTE: Commented this out since it will be contained in its own widget
         #self.horizontalLayout.addWidget(QLabel("Speed"))
         #self.horizontalLayout.addWidget(self.speedMeter)
         #self.horizontalLayout.addWidget(QLabel("m/s"))
-        #self.setSpeedometerValue(12)
-        
-        # Assign Graphs to measurement TAB.
-        measurementTAB = self.tabSection.widget(1)                
+        #self.setSpeedometerValue(12)           
 
         # Make 1 row, 2 columns, 2 plots
         graphs1 = plot.PlotCanvas(None, 10)        
         graphs1.plot("First Plot", [random.random() for i in range(75)], 121)
         graphs1.plot("Second Plot", [random.random() for i in range(125)], 122)
 
-        measurementTAB.layout().addWidget(graphs1, 0, 0)
+        self.measurementGrid.addWidget(graphs1, 0, 0)
 
     def closeEvent(self, event):
         super().closeEvent(event)

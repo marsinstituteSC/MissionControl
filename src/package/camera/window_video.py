@@ -25,6 +25,7 @@ class VideoRenderingSync(QObject):
     """
     changePixmap = pyqtSignal(dict)
     finishedSignal = pyqtSignal()
+    videoFinished = pyqtSignal(int)
     def __init__(self):
         super().__init__()
         self.running = True
@@ -103,6 +104,7 @@ class VideoRenderingSync(QObject):
                             self.videos[i]["cap"].release()
                             self.videos[i]["finished"] = True
                             self.videos[i]["recording"] = False
+                            self.videoFinished.emit(i)
                     else:
                         self.videos[i]["videoWriter"].release()
                         self.videos[i]["cap"].release()
@@ -218,7 +220,7 @@ class VideoRenderingAsync(QObject):
         self.loadSettings(cfg.SETTINGS)
 
     changePixmap = pyqtSignal(QPixmap)
-    finished = pyqtSignal()
+    finished = pyqtSignal(int)
 
     def run(self):
         self.videoUrl = self.videoUrlTemp
@@ -259,7 +261,7 @@ class VideoRenderingAsync(QObject):
                     self.cap.release()
             except Exception as e:
                 print(e)
-            self.finished.emit()
+        self.finished.emit(self.videoNumber)
         
 
     def onSettingsChanged(self, name, params):
@@ -349,18 +351,22 @@ class VideoWindow(QMainWindow):
             self.video.moveToThread(self.thread)
             self.thread.started.connect(self.video.run)
             self.video.changePixmap.connect(self.set_all_images)
-            self.video.finishedSignal.connect(self.videoFinished)
+            self.video.videoFinished.connect(self.videoFinished)
         # Start 4 threads and move each renderer into each own thread
         else:
             # Initialize the video rendering class and connect the signal to the slot
             self.video1 = VideoRenderingAsync(1)
             self.video1.changePixmap.connect(self.set_image1)
+            self.video1.finished.connect(self.videoFinished)
             self.video2 = VideoRenderingAsync(2)
             self.video2.changePixmap.connect(self.set_image2)
+            self.video2.finished.connect(self.videoFinished)
             self.video3 = VideoRenderingAsync(3)
             self.video3.changePixmap.connect(self.set_image3)
+            self.video3.finished.connect(self.videoFinished)
             self.video4 = VideoRenderingAsync(4)
             self.video4.changePixmap.connect(self.set_image4)
+            self.video4.finished.connect(self.videoFinished)
             self.thread1 = QThread()
             self.thread2 = QThread()
             self.thread3 = QThread()
@@ -421,14 +427,17 @@ class VideoWindow(QMainWindow):
                 self.video4.loadSettings(cfg.SETTINGS)
                 self.restartSpecificVideo(4, True)
 
-    def videoFinished(self):
+    def videoFinished(self, nr):
         """
-        Base function to handle video shutdown
+        Reset the record button's text to record video
         """
-        if self.threadMode == "Sync":
+        if nr == 1:
             self.record1.setText("Record Video")
+        elif nr == 2:
             self.record2.setText("Record Video")
+        elif nr == 3:
             self.record3.setText("Record Video")
+        elif nr == 4:
             self.record4.setText("Record Video")
 
     # Toggleable record button
@@ -441,7 +450,7 @@ class VideoWindow(QMainWindow):
                 self.record1.setText("Record Video")
                 self.video.stopRecord(1)
         else:
-            if self.record1.text() == "Record Video" and self.video1.startRecord(): 
+            if self.record1.text() == "Record Video" and self.video1.startRecord():
                 self.record1.setText("Stop Recording")
             else:
                 self.record1.setText("Record Video")

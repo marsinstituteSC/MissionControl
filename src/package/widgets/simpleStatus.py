@@ -1,6 +1,5 @@
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot, QObject
-from PyQt5.QtWidgets import QApplication, QDialog, QWidget, QGridLayout
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QIcon
+from PyQt5.QtWidgets import QWidget, QGridLayout
+from PyQt5.QtGui import QPixmap
 from PyQt5.uic import loadUi
 import sys
 
@@ -249,10 +248,3 @@ def exampleData():
             "main" : body
         }
     return status
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ex = SimpleStatus()
-    ex.statusHandler(exampleData())
-    ex.show()
-    app.exec_()

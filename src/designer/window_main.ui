@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1104</width>
+    <height>853</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,8 +25,48 @@
         <string>Status</string>
        </attribute>
        <layout class="QGridLayout" name="statusGrid">
+        <item row="0" column="2" rowspan="2">
+         <widget class="QFrame" name="rightFrame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="rightFrameGrid"/>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="2">
+         <widget class="QFrame" name="leftFrame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="leftFrameGrid"/>
+         </widget>
+        </item>
         <item row="0" column="1">
          <widget class="QFrame" name="topFrame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -38,6 +78,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QFrame" name="bottomFrame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -47,35 +93,13 @@
           <layout class="QGridLayout" name="bottomFrameGrid"/>
          </widget>
         </item>
-        <item row="0" column="0" rowspan="2">
-         <widget class="QFrame" name="leftFrame">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <layout class="QGridLayout" name="leftFrameGrid"/>
-         </widget>
-        </item>
-        <item row="0" column="2" rowspan="2">
-         <widget class="QFrame" name="rightFrame">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <layout class="QGridLayout" name="rightFrameGrid"/>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tabMeasurements">
        <attribute name="title">
         <string>Measurements</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_4"/>
+       <layout class="QGridLayout" name="measurementGrid"/>
       </widget>
      </widget>
     </item>
@@ -94,7 +118,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1104</width>
      <height>21</height>
     </rect>
    </property>
