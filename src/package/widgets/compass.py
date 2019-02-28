@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot, QObject, QPoint
-from PyQt5.QtWidgets import QApplication, QDialog, QWidget
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QPalette, QFont, QFontMetricsF, QPen, QPolygon, QColor
+from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QPainter, QPalette, QFont, QFontMetricsF, QPen, QPolygon, QColor
 from PyQt5.uic import loadUi
 import sys, random, time
 
@@ -88,16 +88,9 @@ class CompassWidget(QWidget):
         super().__init__()
         loadUi("designer/widget_compass.ui", self)
         self.compass = Compass()
-        self.gridLayout_3.addWidget(self.compass, 0, 0)
-        self.label.setText(str(self.compass.getAngle()) + "º")
+        self.grid_compass.addWidget(self.compass, 0, 0)
+        self.label_direction.setText(str(self.compass.getAngle()) + "º")
 
     def setAngleCompass(self, angle):
         self.compass.setAngle(angle)
-        self.label.setText(str(angle) + "º")
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = CompassWidget()
-    win.show()
-    win.setAngleCompass(300)
-    sys.exit(app.exec_())
+        self.label_direction.setText(str(angle) + "º")

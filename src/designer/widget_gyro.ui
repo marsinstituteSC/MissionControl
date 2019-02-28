@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>from_main</class>
+ <widget class="QWidget" name="from_main">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -19,9 +19,21 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="grid_main">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
-    <widget class="QFrame" name="numericGyro">
+    <widget class="QFrame" name="frame_gyro">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -34,9 +46,21 @@
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QGridLayout" name="grid_gyro">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item row="0" column="7">
-       <widget class="QLCDNumber" name="rotationZ">
+       <widget class="QLCDNumber" name="lcd_yaw">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -46,14 +70,17 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="label_roll">
         <property name="text">
          <string>Roll (X)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
       <item row="0" column="4">
-       <widget class="QLCDNumber" name="rotationY">
+       <widget class="QLCDNumber" name="lcd_pitch">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -70,7 +97,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLCDNumber" name="rotationX">
+       <widget class="QLCDNumber" name="lcd_roll">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -80,16 +107,22 @@
        </widget>
       </item>
       <item row="0" column="6">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="label_yaw">
         <property name="text">
          <string>Yaw (Z)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="label_pitch">
         <property name="text">
          <string>Pitch (Y)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>

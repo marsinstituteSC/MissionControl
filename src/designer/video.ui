@@ -19,14 +19,14 @@
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="widget_central">
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
-   <layout class="QGridLayout" name="gridLayout_2">
+   <layout class="QGridLayout" name="grid_main">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -43,7 +43,7 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QFrame" name="frame">
+     <widget class="QFrame" name="frame_videos">
       <property name="autoFillBackground">
        <bool>false</bool>
       </property>
@@ -56,7 +56,7 @@
       <property name="lineWidth">
        <number>0</number>
       </property>
-      <layout class="QGridLayout" name="gridLayout">
+      <layout class="QGridLayout" name="grid_videos">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -73,14 +73,14 @@
         <number>5</number>
        </property>
        <item row="0" column="0">
-        <widget class="QWidget" name="video1_widget" native="true">
+        <widget class="QWidget" name="widget_video1" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <layout class="QGridLayout" name="gridLayout_4" columnstretch="0">
+         <layout class="QGridLayout" name="grid_video1" columnstretch="0">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -97,7 +97,7 @@
            <number>0</number>
           </property>
           <item row="0" column="0">
-           <widget class="QWidget" name="widget" native="true">
+           <widget class="QWidget" name="widget_buttons_video1" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -110,7 +110,7 @@
               <height>40</height>
              </size>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
+            <layout class="QHBoxLayout" name="horizontal_buttons_video1">
              <property name="spacing">
               <number>0</number>
              </property>
@@ -127,10 +127,10 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QComboBox" name="video1_choice"/>
+              <widget class="QComboBox" name="combo_video1"/>
              </item>
              <item>
-              <widget class="QPushButton" name="record1">
+              <widget class="QPushButton" name="button_record1">
                <property name="text">
                 <string>Record Video</string>
                </property>
@@ -140,7 +140,7 @@
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="video1_player">
+           <widget class="QLabel" name="label_video1_player">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
               <horstretch>0</horstretch>
@@ -174,8 +174,8 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QWidget" name="video3_widget" native="true">
-         <layout class="QGridLayout" name="gridLayout_5">
+        <widget class="QWidget" name="widget_video3" native="true">
+         <layout class="QGridLayout" name="grid_video3">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -192,7 +192,7 @@
            <number>0</number>
           </property>
           <item row="1" column="0">
-           <widget class="QLabel" name="video3_player">
+           <widget class="QLabel" name="label_video3_player">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
               <horstretch>0</horstretch>
@@ -211,14 +211,14 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QWidget" name="widget_3" native="true">
+           <widget class="QWidget" name="widget_buttons_video3" native="true">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>40</height>
              </size>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <layout class="QHBoxLayout" name="horizontal_buttons_video3">
              <property name="spacing">
               <number>0</number>
              </property>
@@ -235,14 +235,14 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QComboBox" name="video3_choice">
+              <widget class="QComboBox" name="combo_video3">
                <property name="editable">
                 <bool>false</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="record3">
+              <widget class="QPushButton" name="button_record3">
                <property name="text">
                 <string>Record Video</string>
                </property>
@@ -255,8 +255,8 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QWidget" name="video2_widget" native="true">
-         <layout class="QGridLayout" name="gridLayout_3">
+        <widget class="QWidget" name="widget_video2" native="true">
+         <layout class="QGridLayout" name="grid_video2">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -273,7 +273,7 @@
            <number>0</number>
           </property>
           <item row="1" column="0">
-           <widget class="QLabel" name="video2_player">
+           <widget class="QLabel" name="label_video2_player">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
               <horstretch>0</horstretch>
@@ -304,14 +304,14 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QWidget" name="widget_2" native="true">
+           <widget class="QWidget" name="widget_buttons_video2" native="true">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>40</height>
              </size>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <layout class="QHBoxLayout" name="horizontal_buttons_video2">
              <property name="spacing">
               <number>0</number>
              </property>
@@ -328,10 +328,10 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QComboBox" name="video2_choice"/>
+              <widget class="QComboBox" name="combo_video2"/>
              </item>
              <item>
-              <widget class="QPushButton" name="record2">
+              <widget class="QPushButton" name="button_record2">
                <property name="text">
                 <string>Record Video</string>
                </property>
@@ -344,11 +344,11 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QWidget" name="video4_widget" native="true">
+        <widget class="QWidget" name="widget_video4" native="true">
          <property name="enabled">
           <bool>true</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout_6">
+         <layout class="QGridLayout" name="horizontal_buttons_video4">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -365,7 +365,7 @@
            <number>0</number>
           </property>
           <item row="1" column="0">
-           <widget class="QLabel" name="video4_player">
+           <widget class="QLabel" name="label_video4_player">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
               <horstretch>0</horstretch>
@@ -384,7 +384,7 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QWidget" name="widget_4" native="true">
+           <widget class="QWidget" name="widget_buttons_video4" native="true">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -408,10 +408,10 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QComboBox" name="video4_choice"/>
+              <widget class="QComboBox" name="combo_video4"/>
              </item>
              <item>
-              <widget class="QPushButton" name="record4">
+              <widget class="QPushButton" name="button_record4">
                <property name="text">
                 <string>Record Video</string>
                </property>

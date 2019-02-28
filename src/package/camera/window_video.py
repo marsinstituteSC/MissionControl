@@ -333,16 +333,16 @@ class VideoWindow(QMainWindow):
         self.actionSettings.triggered.connect(self.settings)
 
         # Combobox signals
-        self.video1_choice.currentIndexChanged.connect(self.changeVideo1)
-        self.video2_choice.currentIndexChanged.connect(self.changeVideo2)
-        self.video3_choice.currentIndexChanged.connect(self.changeVideo3)
-        self.video4_choice.currentIndexChanged.connect(self.changeVideo4)
+        self.combo_video1.currentIndexChanged.connect(self.changeVideo1)
+        self.combo_video2.currentIndexChanged.connect(self.changeVideo2)
+        self.combo_video3.currentIndexChanged.connect(self.changeVideo3)
+        self.combo_video4.currentIndexChanged.connect(self.changeVideo4)
 
         # Record buttons
-        self.record1.clicked.connect(self.recordVideo1)
-        self.record2.clicked.connect(self.recordVideo2)
-        self.record3.clicked.connect(self.recordVideo3)
-        self.record4.clicked.connect(self.recordVideo4)
+        self.button_record1.clicked.connect(self.recordVideo1)
+        self.button_record2.clicked.connect(self.recordVideo2)
+        self.button_record3.clicked.connect(self.recordVideo3)
+        self.button_record4.clicked.connect(self.recordVideo4)
 
         # Only start one thread and place every renderer into that thread
         if self.threadMode == "Sync":
@@ -394,7 +394,7 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(1, i+1)
-                self.record1.setText("Record Video")
+                self.button_record1.setText("Record Video")
             else:
                 self.video1.sourceNumber = i+1
                 self.video1.loadSettings(cfg.SETTINGS)
@@ -403,7 +403,7 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(2, i+1)
-                self.record2.setText("Record Video")
+                self.button_record2.setText("Record Video")
             else:
                 self.video2.sourceNumber = i+1
                 self.video2.loadSettings(cfg.SETTINGS)
@@ -412,7 +412,7 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(3, i+1)
-                self.record3.setText("Record Video")
+                self.button_record3.setText("Record Video")
             else:
                 self.video3.sourceNumber = i+1
                 self.video3.loadSettings(cfg.SETTINGS)
@@ -421,7 +421,7 @@ class VideoWindow(QMainWindow):
         if i != -1:
             if self.threadMode == "Sync":
                 self.video.prepareChangeVideoSource(4, i+1)
-                self.record4.setText("Record Video")
+                self.button_record4.setText("Record Video")
             else:
                 self.video4.sourceNumber = i+1
                 self.video4.loadSettings(cfg.SETTINGS)
@@ -432,70 +432,70 @@ class VideoWindow(QMainWindow):
         Reset the record button's text to record video
         """
         if nr == 1:
-            self.record1.setText("Record Video")
+            self.button_record1.setText("Record Video")
         elif nr == 2:
-            self.record2.setText("Record Video")
+            self.button_record2.setText("Record Video")
         elif nr == 3:
-            self.record3.setText("Record Video")
+            self.button_record3.setText("Record Video")
         elif nr == 4:
-            self.record4.setText("Record Video")
+            self.button_record4.setText("Record Video")
 
     # Toggleable record button
     def recordVideo1(self):
         # Flip the text and start recording
         if self.threadMode == "Sync":
-            if self.record1.text() == "Record Video" and self.video.startRecord(1): 
-                self.record1.setText("Stop Recording")
+            if self.button_record1.text() == "Record Video" and self.video.startRecord(1): 
+                self.button_record1.setText("Stop Recording")
             else:
-                self.record1.setText("Record Video")
+                self.button_record1.setText("Record Video")
                 self.video.stopRecord(1)
         else:
-            if self.record1.text() == "Record Video" and self.video1.startRecord():
-                self.record1.setText("Stop Recording")
+            if self.button_record1.text() == "Record Video" and self.video1.startRecord():
+                self.button_record1.setText("Stop Recording")
             else:
-                self.record1.setText("Record Video")
+                self.button_record1.setText("Record Video")
                 self.video1.stopRecord()
     def recordVideo2(self):
         # Flip the text and start recording
         if self.threadMode == "Sync":
-            if self.record2.text() == "Record Video" and self.video.startRecord(2): 
-                self.record2.setText("Stop Recording")
+            if self.button_record2.text() == "Record Video" and self.video.startRecord(2): 
+                self.button_record2.setText("Stop Recording")
             else:
-                self.record2.setText("Record Video")
+                self.button_record2.setText("Record Video")
                 self.video.stopRecord(2)
         else:
-            if self.record2.text() == "Record Video" and self.video2.startRecord(): 
-                self.record2.setText("Stop Recording")
+            if self.button_record2.text() == "Record Video" and self.video2.startRecord(): 
+                self.button_record2.setText("Stop Recording")
             else:
-                self.record2.setText("Record Video")
+                self.button_record2.setText("Record Video")
                 self.video2.stopRecord()
     def recordVideo3(self):
         # Flip the text and start recording
         if self.threadMode == "Sync":
-            if self.record3.text() == "Record Video" and self.video.startRecord(3): 
-                self.record3.setText("Stop Recording")
+            if self.button_record3.text() == "Record Video" and self.video.startRecord(3): 
+                self.button_record3.setText("Stop Recording")
             else:
-                self.record3.setText("Record Video")
+                self.button_record3.setText("Record Video")
                 self.video.stopRecord(3)
         else:
-            if self.record3.text() == "Record Video" and self.video3.startRecord(): 
-                self.record3.setText("Stop Recording")
+            if self.button_record3.text() == "Record Video" and self.video3.startRecord(): 
+                self.button_record3.setText("Stop Recording")
             else:
-                self.record3.setText("Record Video")
+                self.button_record3.setText("Record Video")
                 self.video3.stopRecord()
     def recordVideo4(self):
         # Flip the text and start recording
         if self.threadMode == "Sync":
-            if self.record4.text() == "Record Video" and self.video.startRecord(4): 
-                self.record4.setText("Stop Recording")
+            if self.button_record4.text() == "Record Video" and self.video.startRecord(4): 
+                self.button_record4.setText("Stop Recording")
             else:
-                self.record4.setText("Record Video")
+                self.button_record4.setText("Record Video")
                 self.video.stopRecord(4)
         else:
-            if self.record4.text() == "Record Video" and self.video4.startRecord(): 
-                self.record4.setText("Stop Recording")
+            if self.button_record4.text() == "Record Video" and self.video4.startRecord(): 
+                self.button_record4.setText("Stop Recording")
             else:
-                self.record4.setText("Record Video")
+                self.button_record4.setText("Record Video")
                 self.video4.stopRecord()
 
     def onSettingsChanged(self, name, params):
@@ -521,34 +521,34 @@ class VideoWindow(QMainWindow):
             self.enabled1 = (config.get("video", "enable1") == "True")
             if self.enabled1:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(1, True)
-                self.video1_widget.show()
+                self.widget_video1.show()
             else:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(1, False)
-                self.video1_widget.hide()
+                self.widget_video1.hide()
         if self.enabled2 != (config.get("video", "enable2") == "True"):
             self.enabled2 = (config.get("video", "enable2") == "True")
             if self.enabled2:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(2, True)
-                self.video2_widget.show()
+                self.widget_video2.show()
             else:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(2, False)
-                self.video2_widget.hide()  
+                self.widget_video2.hide()  
         if self.enabled3 != (config.get("video", "enable3") == "True"):
             self.enabled3 = (config.get("video", "enable3") == "True")
             if self.enabled3:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(3, True)
-                self.video3_widget.show()
+                self.widget_video3.show()
             else:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(3, False)
-                self.video3_widget.hide()  
+                self.widget_video3.hide()  
         if self.enabled4 != (config.get("video", "enable4") == "True"):
             self.enabled4 = (config.get("video", "enable4") == "True")
             if self.enabled4:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(4, True)
-                self.video4_widget.show()
+                self.widget_video4.show()
             else:
                 if not self.threadMode == "Sync": self.restartSpecificVideo(4, False)
-                self.video4_widget.hide()
+                self.widget_video4.hide()
 
         """
         First check if the two videos on the bottom or top is active if so:
@@ -558,96 +558,96 @@ class VideoWindow(QMainWindow):
         """
         if self.enabled2 and self.enabled4 and not self.enabled1 and not self.enabled3:
             # Move video 2 top the top and video 4 to the bottom
-            self.gridLayout.removeWidget(self.video1_widget)
-            self.gridLayout.removeWidget(self.video2_widget)
-            self.gridLayout.removeWidget(self.video3_widget)
-            self.gridLayout.removeWidget(self.video4_widget)
-            self.gridLayout.addWidget(self.video2_widget, 0, 0)
-            self.gridLayout.addWidget(self.video4_widget, 1, 0)
+            self.grid_videos.removeWidget(self.widget_video1)
+            self.grid_videos.removeWidget(self.widget_video2)
+            self.grid_videos.removeWidget(self.widget_video3)
+            self.grid_videos.removeWidget(self.widget_video4)
+            self.grid_videos.addWidget(self.widget_video2, 0, 0)
+            self.grid_videos.addWidget(self.widget_video4, 1, 0)
         elif self.enabled1 and self.enabled3 and not self.enabled2 and not self.enabled4:
             # Move video 1 top the top and video 3 to the bottom
-            self.gridLayout.removeWidget(self.video1_widget)
-            self.gridLayout.removeWidget(self.video2_widget)
-            self.gridLayout.removeWidget(self.video3_widget)
-            self.gridLayout.removeWidget(self.video4_widget)
-            self.gridLayout.addWidget(self.video1_widget, 0, 0)
-            self.gridLayout.addWidget(self.video3_widget, 1, 0)
+            self.grid_videos.removeWidget(self.widget_video1)
+            self.grid_videos.removeWidget(self.widget_video2)
+            self.grid_videos.removeWidget(self.widget_video3)
+            self.grid_videos.removeWidget(self.widget_video4)
+            self.grid_videos.addWidget(self.widget_video1, 0, 0)
+            self.grid_videos.addWidget(self.widget_video3, 1, 0)
         # If only one video is displayed on the top row or bottom row
         elif self.enabled1 and not self.enabled3 and self.enabled2 and self.enabled4:
-            self.gridLayout.removeWidget(self.video1_widget)
-            self.gridLayout.removeWidget(self.video2_widget)
-            self.gridLayout.removeWidget(self.video3_widget)
-            self.gridLayout.removeWidget(self.video4_widget)
-            self.gridLayout.addWidget(self.video1_widget, 0, 0, 1, 2)
-            self.gridLayout.addWidget(self.video2_widget, 1, 0)
-            self.gridLayout.addWidget(self.video4_widget, 1, 1)
+            self.grid_videos.removeWidget(self.widget_video1)
+            self.grid_videos.removeWidget(self.widget_video2)
+            self.grid_videos.removeWidget(self.widget_video3)
+            self.grid_videos.removeWidget(self.widget_video4)
+            self.grid_videos.addWidget(self.widget_video1, 0, 0, 1, 2)
+            self.grid_videos.addWidget(self.widget_video2, 1, 0)
+            self.grid_videos.addWidget(self.widget_video4, 1, 1)
         elif self.enabled3 and not self.enabled1 and self.enabled2 and self.enabled4:
-            self.gridLayout.removeWidget(self.video1_widget)
-            self.gridLayout.removeWidget(self.video2_widget)
-            self.gridLayout.removeWidget(self.video3_widget)
-            self.gridLayout.removeWidget(self.video4_widget)
-            self.gridLayout.addWidget(self.video3_widget, 0, 0, 1, 2)
-            self.gridLayout.addWidget(self.video2_widget, 1, 0)
-            self.gridLayout.addWidget(self.video4_widget, 1, 1)
+            self.grid_videos.removeWidget(self.widget_video1)
+            self.grid_videos.removeWidget(self.widget_video2)
+            self.grid_videos.removeWidget(self.widget_video3)
+            self.grid_videos.removeWidget(self.widget_video4)
+            self.grid_videos.addWidget(self.widget_video3, 0, 0, 1, 2)
+            self.grid_videos.addWidget(self.widget_video2, 1, 0)
+            self.grid_videos.addWidget(self.widget_video4, 1, 1)
         elif self.enabled2 and not self.enabled4 and self.enabled1 and self.enabled3:
-            self.gridLayout.removeWidget(self.video1_widget)
-            self.gridLayout.removeWidget(self.video2_widget)
-            self.gridLayout.removeWidget(self.video3_widget)
-            self.gridLayout.removeWidget(self.video4_widget)
-            self.gridLayout.addWidget(self.video2_widget, 1, 0, 1, 2)
-            self.gridLayout.addWidget(self.video1_widget, 0, 0)
-            self.gridLayout.addWidget(self.video3_widget, 0, 1)
+            self.grid_videos.removeWidget(self.widget_video1)
+            self.grid_videos.removeWidget(self.widget_video2)
+            self.grid_videos.removeWidget(self.widget_video3)
+            self.grid_videos.removeWidget(self.widget_video4)
+            self.grid_videos.addWidget(self.widget_video2, 1, 0, 1, 2)
+            self.grid_videos.addWidget(self.widget_video1, 0, 0)
+            self.grid_videos.addWidget(self.widget_video3, 0, 1)
         elif self.enabled4 and not self.enabled2 and self.enabled1 and self.enabled3:
-            self.gridLayout.removeWidget(self.video1_widget)
-            self.gridLayout.removeWidget(self.video2_widget)
-            self.gridLayout.removeWidget(self.video3_widget)
-            self.gridLayout.removeWidget(self.video4_widget)
-            self.gridLayout.addWidget(self.video4_widget, 1, 0, 1, 2)
-            self.gridLayout.addWidget(self.video1_widget, 0, 0)
-            self.gridLayout.addWidget(self.video3_widget, 0, 1)
+            self.grid_videos.removeWidget(self.widget_video1)
+            self.grid_videos.removeWidget(self.widget_video2)
+            self.grid_videos.removeWidget(self.widget_video3)
+            self.grid_videos.removeWidget(self.widget_video4)
+            self.grid_videos.addWidget(self.widget_video4, 1, 0, 1, 2)
+            self.grid_videos.addWidget(self.widget_video1, 0, 0)
+            self.grid_videos.addWidget(self.widget_video3, 0, 1)
         else:
-            self.gridLayout.removeWidget(self.video1_widget)
-            self.gridLayout.removeWidget(self.video2_widget)
-            self.gridLayout.removeWidget(self.video3_widget)
-            self.gridLayout.removeWidget(self.video4_widget)
-            self.gridLayout.addWidget(self.video1_widget, 0, 0)
-            self.gridLayout.addWidget(self.video2_widget, 1, 0)
-            self.gridLayout.addWidget(self.video3_widget, 0, 1)
-            self.gridLayout.addWidget(self.video4_widget, 1, 1)
+            self.grid_videos.removeWidget(self.widget_video1)
+            self.grid_videos.removeWidget(self.widget_video2)
+            self.grid_videos.removeWidget(self.widget_video3)
+            self.grid_videos.removeWidget(self.widget_video4)
+            self.grid_videos.addWidget(self.widget_video1, 0, 0)
+            self.grid_videos.addWidget(self.widget_video2, 1, 0)
+            self.grid_videos.addWidget(self.widget_video3, 0, 1)
+            self.grid_videos.addWidget(self.widget_video4, 1, 1)
     
     # Draw the image to the labels with the rendered image
     @pyqtSlot(QPixmap)
     def set_image1(self, image):
-        self.video1_player.setPixmap(image)
+        self.label_video1_player.setPixmap(image)
     @pyqtSlot(QPixmap)
     def set_image2(self, image):
-        self.video2_player.setPixmap(image)
+        self.label_video2_player.setPixmap(image)
     @pyqtSlot(QPixmap)
     def set_image3(self, image):
-        self.video3_player.setPixmap(image)
+        self.label_video3_player.setPixmap(image)
     @pyqtSlot(QPixmap)
     def set_image4(self, image):
-        self.video4_player.setPixmap(image)
+        self.label_video4_player.setPixmap(image)
     @pyqtSlot(dict)
     def set_all_images(self, images):
         if images[1]:
-            self.video1_player.setPixmap(images[1])
+            self.label_video1_player.setPixmap(images[1])
         if images[2]:
-            self.video2_player.setPixmap(images[2])
+            self.label_video2_player.setPixmap(images[2])
         if images[3]:
-            self.video3_player.setPixmap(images[3])
+            self.label_video3_player.setPixmap(images[3])
         if images[4]:
-            self.video4_player.setPixmap(images[4])
+            self.label_video4_player.setPixmap(images[4])
 
     def restartAllVideos(self):
         """
         Restarts every video thread and object by setting each objects running to false and pauses the thread.
         Then restarts the thread and running.
         """
-        self.record1.setText("Record Video")
-        self.record2.setText("Record Video")
-        self.record3.setText("Record Video")
-        self.record4.setText("Record Video")
+        self.button_record1.setText("Record Video")
+        self.button_record2.setText("Record Video")
+        self.button_record3.setText("Record Video")
+        self.button_record4.setText("Record Video")
         if self.threadMode == "Sync":
             self.thread.quit()
             self.thread.wait()
@@ -666,7 +666,7 @@ class VideoWindow(QMainWindow):
             - restart, if true then the video should restart, if else it will only stop
         """
         if videoNumber == 1 and self.enabled1 == True:
-            self.record1.setText("Record Video")
+            self.button_record1.setText("Record Video")
             self.video1.running = False
             self.thread1.quit()
             self.thread1.wait()
@@ -674,7 +674,7 @@ class VideoWindow(QMainWindow):
                 self.video1.running = True
                 self.thread1.start()
         elif videoNumber == 2 and self.enabled2 == True:
-            self.record2.setText("Record Video")
+            self.button_record2.setText("Record Video")
             self.video2.running = False
             self.thread2.quit()
             self.thread2.wait()
@@ -682,7 +682,7 @@ class VideoWindow(QMainWindow):
                 self.video2.running = True
                 self.thread2.start()
         elif videoNumber == 3 and self.enabled3 == True:
-            self.record3.setText("Record Video")
+            self.button_record3.setText("Record Video")
             self.video3.running = False
             self.thread3.quit()
             self.thread3.wait()
@@ -690,7 +690,7 @@ class VideoWindow(QMainWindow):
                 self.video3.running = True
                 self.thread3.start()
         elif videoNumber == 4 and self.enabled4 == True:
-            self.record4.setText("Record Video")
+            self.button_record4.setText("Record Video")
             self.video4.running = False
             self.thread4.quit()
             self.thread4.wait()
@@ -699,41 +699,41 @@ class VideoWindow(QMainWindow):
                 self.thread4.start()
 
     def populateComboBox(self):
-        self.video1_choice.currentIndexChanged.disconnect(self.changeVideo1)
-        self.video1_choice.clear()
-        self.video1_choice.addItem(self.video1Name)
-        self.video1_choice.addItem(self.video2Name)
-        self.video1_choice.addItem(self.video3Name)
-        self.video1_choice.addItem(self.video4Name)
-        self.video1_choice.setCurrentIndex(self.video1_choice.findText(self.video1Name))
-        self.video1_choice.currentIndexChanged.connect(self.changeVideo1)
+        self.combo_video1.currentIndexChanged.disconnect(self.changeVideo1)
+        self.combo_video1.clear()
+        self.combo_video1.addItem(self.video1Name)
+        self.combo_video1.addItem(self.video2Name)
+        self.combo_video1.addItem(self.video3Name)
+        self.combo_video1.addItem(self.video4Name)
+        self.combo_video1.setCurrentIndex(self.combo_video1.findText(self.video1Name))
+        self.combo_video1.currentIndexChanged.connect(self.changeVideo1)
 
-        self.video2_choice.currentIndexChanged.disconnect(self.changeVideo2)
-        self.video2_choice.clear()
-        self.video2_choice.addItem(self.video1Name)
-        self.video2_choice.addItem(self.video2Name)
-        self.video2_choice.addItem(self.video3Name)
-        self.video2_choice.addItem(self.video4Name)
-        self.video2_choice.setCurrentIndex(self.video2_choice.findText(self.video2Name))
-        self.video2_choice.currentIndexChanged.connect(self.changeVideo2)
+        self.combo_video2.currentIndexChanged.disconnect(self.changeVideo2)
+        self.combo_video2.clear()
+        self.combo_video2.addItem(self.video1Name)
+        self.combo_video2.addItem(self.video2Name)
+        self.combo_video2.addItem(self.video3Name)
+        self.combo_video2.addItem(self.video4Name)
+        self.combo_video2.setCurrentIndex(self.combo_video2.findText(self.video2Name))
+        self.combo_video2.currentIndexChanged.connect(self.changeVideo2)
 
-        self.video3_choice.currentIndexChanged.disconnect(self.changeVideo3)
-        self.video3_choice.clear()
-        self.video3_choice.addItem(self.video1Name)
-        self.video3_choice.addItem(self.video2Name)
-        self.video3_choice.addItem(self.video3Name)
-        self.video3_choice.addItem(self.video4Name)
-        self.video3_choice.setCurrentIndex(self.video3_choice.findText(self.video3Name))
-        self.video3_choice.currentIndexChanged.connect(self.changeVideo3)
+        self.combo_video3.currentIndexChanged.disconnect(self.changeVideo3)
+        self.combo_video3.clear()
+        self.combo_video3.addItem(self.video1Name)
+        self.combo_video3.addItem(self.video2Name)
+        self.combo_video3.addItem(self.video3Name)
+        self.combo_video3.addItem(self.video4Name)
+        self.combo_video3.setCurrentIndex(self.combo_video3.findText(self.video3Name))
+        self.combo_video3.currentIndexChanged.connect(self.changeVideo3)
 
-        self.video4_choice.currentIndexChanged.disconnect(self.changeVideo4)
-        self.video4_choice.clear()
-        self.video4_choice.addItem(self.video1Name)
-        self.video4_choice.addItem(self.video2Name)
-        self.video4_choice.addItem(self.video3Name)
-        self.video4_choice.addItem(self.video4Name)
-        self.video4_choice.setCurrentIndex(self.video4_choice.findText(self.video4Name))
-        self.video4_choice.currentIndexChanged.connect(self.changeVideo4)
+        self.combo_video4.currentIndexChanged.disconnect(self.changeVideo4)
+        self.combo_video4.clear()
+        self.combo_video4.addItem(self.video1Name)
+        self.combo_video4.addItem(self.video2Name)
+        self.combo_video4.addItem(self.video3Name)
+        self.combo_video4.addItem(self.video4Name)
+        self.combo_video4.setCurrentIndex(self.combo_video4.findText(self.video4Name))
+        self.combo_video4.currentIndexChanged.connect(self.changeVideo4)
 
     def settings(self):
         self.setting = cfg.openSettings()

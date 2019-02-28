@@ -43,27 +43,27 @@ class SimpleStatus(QWidget):
         """ Creates the special labels and assigns them onto the grid """
         self.frontLeftWheel = ClickableLabel("frontLeftWheel")
         self.frontLeftWheel.clicked.connect(self.showWarning)
-        self.gridLayout.addWidget(self.frontLeftWheel, 0, 0)
+        self.grid_status.addWidget(self.frontLeftWheel, 0, 0)
         
         self.frontRightWheel = ClickableLabel("frontRightWheel")
         self.frontRightWheel.clicked.connect(self.showWarning)
-        self.gridLayout.addWidget(self.frontRightWheel, 0, 2)
+        self.grid_status.addWidget(self.frontRightWheel, 0, 2)
 
         self.middleLeftWheel = ClickableLabel("middleLeftWheel")
         self.middleLeftWheel.clicked.connect(self.showWarning)
-        self.gridLayout.addWidget(self.middleLeftWheel, 1, 0)
+        self.grid_status.addWidget(self.middleLeftWheel, 1, 0)
 
         self.middleRightWheel = ClickableLabel("middleRightWheel")
         self.middleRightWheel.clicked.connect(self.showWarning)
-        self.gridLayout.addWidget(self.middleRightWheel, 1, 2)
+        self.grid_status.addWidget(self.middleRightWheel, 1, 2)
 
         self.backLeftWheel = ClickableLabel("backLeftWheel")
         self.backLeftWheel.clicked.connect(self.showWarning)
-        self.gridLayout.addWidget(self.backLeftWheel, 2, 0)
+        self.grid_status.addWidget(self.backLeftWheel, 2, 0)
 
         self.backRightWheel = ClickableLabel("backRightWheel")
         self.backRightWheel.clicked.connect(self.showWarning)
-        self.gridLayout.addWidget(self.backRightWheel, 2, 2)
+        self.grid_status.addWidget(self.backRightWheel, 2, 2)
 
         grid = QGridLayout()
 
@@ -75,11 +75,11 @@ class SimpleStatus(QWidget):
         self.camera.clicked.connect(self.showWarning)
         grid.addWidget(self.camera, 0, 1)
 
-        self.gridLayout.addLayout(grid, 0, 1)
+        self.grid_status.addLayout(grid, 0, 1)
 
         self.main = ClickableLabel("main")
         self.main.clicked.connect(self.showWarning)
-        self.gridLayout.addWidget(self.main, 1, 1, 2, 1)
+        self.grid_status.addWidget(self.main, 1, 1, 2, 1)
 
     # NOTE: DO NOT STOP THE WINDOW UNDER THE ERROR FROM BEING CLICKED
     def showWarning(self, part):

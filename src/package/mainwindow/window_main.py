@@ -18,6 +18,7 @@ from widgets.gyroscope import GyroscopeWidget
 from widgets.simpleStatus import SimpleStatus
 from widgets.compass import CompassWidget
 from widgets.motionControl import MotionControlWidget
+from widgets.battery import BatteryWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -65,9 +66,11 @@ class MainWindow(QMainWindow):
         self.status = SimpleStatus()
         self.compass = CompassWidget()
         self.motionControl = MotionControlWidget()
+        self.battery = BatteryWidget()
         self.leftFrameGrid.addWidget(self.status, 0, 0)
         self.topFrameGrid.addWidget(self.compass, 0, 0)
         self.bottomFrameGrid.addWidget(self.gyro, 0, 0)
+        self.bottomFrameGrid.addWidget(self.battery, 0, 1)
         self.rightFrameGrid.addWidget(self.motionControl, 0, 0)
 
         # NOTE: Commented this out since it will be contained in its own widget

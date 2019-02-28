@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>form_main</class>
+ <widget class="QWidget" name="form_main">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
+  <layout class="QGridLayout" name="grid_main">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -32,85 +32,70 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <property name="spacing">
-    <number>0</number>
-   </property>
-   <item row="0" column="0">
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+   <item row="1" column="0">
+    <widget class="QComboBox" name="combo_manipulation">
+     <item>
+      <property name="text">
+       <string>Manual</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Relative Inverse Kinematic</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Absolute Reverse Kinematic</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="button_update">
+     <property name="text">
+      <string>Update</string>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0">
-       <widget class="QComboBox" name="manipMode">
-        <item>
-         <property name="text">
-          <string>Manual</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Relative Inverse Kinematic</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Absolute Reverse Kinematic</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="updateMotionButton">
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QFrame" name="frame_inputs">
+     <layout class="QGridLayout" name="grid_inputs">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_speed">
         <property name="text">
-         <string>Update</string>
+         <string>Speed</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QFrame" name="frame">
-        <layout class="QGridLayout" name="gridLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Speed</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="speedLineEdit">
-           <property name="placeholderText">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Turn</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="turnLineEdit"/>
-         </item>
-        </layout>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="lineedit_speed">
+        <property name="placeholderText">
+         <string/>
+        </property>
        </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_turn">
+        <property name="text">
+         <string>Turn</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineedit_turn"/>
       </item>
      </layout>
     </widget>
