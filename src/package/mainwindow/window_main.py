@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxL
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
-from controls import plot
-from controls import logger
+from widgets import plot
+from widgets import logger
 from communications import udp_conn
 from camera import window_video as wv
 from settings import settings as cfg
@@ -56,12 +56,6 @@ class MainWindow(QMainWindow):
         self.log.logData("Something is definitely wrong", 3)
         self.logSection.layout().addWidget(self.log)
 
-        # Assign measurement displays to the status TAB.
-        #statusTAB = self.tabSection.widget(0)
-        #statusTAB.layout().addStretch()
-
-        #self.speedMeter = QLCDNumber()
-        #self.speedMeter.setSegmentStyle(QLCDNumber.Flat)
         self.gyro = GyroscopeWidget()
         self.status = SimpleStatus()
         self.compass = CompassWidget()
@@ -71,20 +65,13 @@ class MainWindow(QMainWindow):
         self.topFrameGrid.addWidget(self.compass, 0, 0)
         self.bottomFrameGrid.addWidget(self.gyro, 0, 0)
         self.bottomFrameGrid.addWidget(self.battery, 0, 1)
-        self.rightFrameGrid.addWidget(self.motionControl, 0, 0)
+        self.rightFrameGrid.addWidget(self.motionControl, 0, 0)      
 
-        # NOTE: Commented this out since it will be contained in its own widget
-        #self.horizontalLayout.addWidget(QLabel("Speed"))
-        #self.horizontalLayout.addWidget(self.speedMeter)
-        #self.horizontalLayout.addWidget(QLabel("m/s"))
-        #self.setSpeedometerValue(12)           
-
-        # Make 1 row, 2 columns, 2 plots
+        # Make 1 row, 1 columns, 1 plot
         graphs1 = plot.PlotCanvas(None, 10)        
-        graphs1.plot("First Plot", [random.random() for i in range(75)], 121)
-        graphs1.plot("Second Plot", [random.random() for i in range(125)], 122)
+        graphs1.plot("", [random.random() for i in range(200)], 111)
 
-        self.measurementGrid.addWidget(graphs1, 0, 0)
+        self.gridPlotting.addWidget(graphs1, 0, 0)
 
     def closeEvent(self, event):
         super().closeEvent(event)
@@ -109,7 +96,8 @@ class MainWindow(QMainWindow):
         gp.GAMEPAD.initialize(int(id))
 
     def setSpeedometerValue(self, value):
-        self.speedMeter.display(value)
+        #self.speedMeter.display(value)
+        print(value)
 
     def settings(self):
         self.setting = cfg.openSettings()

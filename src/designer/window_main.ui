@@ -95,11 +95,234 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabMeasurements">
+      <widget class="QWidget" name="tabPlotting">
        <attribute name="title">
-        <string>Measurements</string>
+        <string>Plotting</string>
        </attribute>
-       <layout class="QGridLayout" name="measurementGrid"/>
+       <layout class="QGridLayout" name="gridPlotting" rowstretch="0,0" columnstretch="1,1">
+        <item row="0" column="0">
+         <widget class="QFrame" name="frameGraph">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="lineWidth">
+           <number>1</number>
+          </property>
+          <property name="midLineWidth">
+           <number>0</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QFrame" name="frameGraphSettings">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupPlotFilters">
+             <property name="title">
+              <string>Filters</string>
+             </property>
+             <layout class="QGridLayout" name="gridPlottSettings">
+              <item row="1" column="0">
+               <widget class="QGroupBox" name="groupPlotPriorities">
+                <property name="title">
+                 <string>Priorities</string>
+                </property>
+                <widget class="QCheckBox" name="checkPrioCommon">
+                 <property name="geometry">
+                  <rect>
+                   <x>20</x>
+                   <y>30</y>
+                   <width>70</width>
+                   <height>17</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Common</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+                <widget class="QCheckBox" name="checkPrioNotif">
+                 <property name="geometry">
+                  <rect>
+                   <x>100</x>
+                   <y>30</y>
+                   <width>91</width>
+                   <height>17</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Notification</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+                <widget class="QCheckBox" name="checkPrioWarn">
+                 <property name="geometry">
+                  <rect>
+                   <x>190</x>
+                   <y>30</y>
+                   <width>70</width>
+                   <height>17</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Warning</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+                <widget class="QCheckBox" name="checkPrioErr">
+                 <property name="geometry">
+                  <rect>
+                   <x>270</x>
+                   <y>30</y>
+                   <width>70</width>
+                   <height>17</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Error</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QGroupBox" name="groupPlotType">
+                <property name="title">
+                 <string>Type</string>
+                </property>
+                <widget class="QCheckBox" name="checkTypeSpeed">
+                 <property name="geometry">
+                  <rect>
+                   <x>20</x>
+                   <y>30</y>
+                   <width>70</width>
+                   <height>17</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Speed</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+                <widget class="QCheckBox" name="checkTypeTemp">
+                 <property name="geometry">
+                  <rect>
+                   <x>90</x>
+                   <y>30</y>
+                   <width>90</width>
+                   <height>17</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Temperature</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="groupPlotRange">
+             <property name="title">
+              <string>Range</string>
+             </property>
+             <layout class="QFormLayout" name="plotRangeForm">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Start</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QDateTimeEdit" name="plotTimeStart">
+                <property name="calendarPopup">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>End</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDateTimeEdit" name="plotTimeEnd">
+                <property name="showGroupSeparator" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="calendarPopup">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Min Value</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Max Value</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="fieldMinVal">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="fieldMaxVal">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="btnPlotter">
+             <property name="text">
+              <string>Plot Graph</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -143,9 +366,6 @@
     <property name="title">
      <string>Camera</string>
     </property>
-    <addaction name="actionLoad"/>
-    <addaction name="actionSave"/>
-    <addaction name="actionCapture"/>
     <addaction name="actionCamera_Window"/>
    </widget>
    <widget class="QMenu" name="menuHelp">

@@ -17,16 +17,24 @@ class MotionControlWidget(QWidget):
         self.combo_manipulation.currentIndexChanged.connect(self.disableInputs)
     
     def disableInputs(self, nr):
-        if nr != 0:
-            self.lineedit_speed.setEnabled(False)
-            self.lineedit_turn.setEnabled(False)
-        else:
-            self.lineedit_speed.setEnabled(True)
-            self.lineedit_turn.setEnabled(True)
+        self.lineedit_speed.setEnabled(not (nr != 0))
+        self.lineedit_turn.setEnabled(not (nr != 0))
 
     def setMode(self, mode):
         self.mode = int(mode)
         self.disableInputs(int(mode))
+
+    def getManualSpeed(self):
+        try:
+            return float(self.lineedit_speed.text())
+        except:
+            return 0.0
+
+    def getManualTurn(self):
+        try:
+            return float(self.lineedit_turn.text())
+        except:
+            return 0.0
 
     def updateMotion(self):
         modeText = self.combo_manipulation.currentText()
@@ -38,17 +46,11 @@ class MotionControlWidget(QWidget):
             self.mode = 2
         
         if self.mode == 0:
-            try:
-                self.speed = (float(self.lineedit_speed.text()))
-            except:
-                self.speed = 0.0
-                self.lineedit_speed.setText(str(0.0))
-            
-            try:
-                self.turn = (float(self.lineedit_turn.text()))
-            except:
-                self.turn = 0.0
-                self.lineedit_turn.setText(str(0.0))
+            self.speed = self.getManualSpeed()
+            self.lineedit_speed.setText(str(self.speed))
+
+            self.turn = self.getManualTurn()
+            self.lineedit_turn.setText(str(self.turn))
 
         control = {"speed" : self.speed if self.mode == 0 else 0, "turn" : self.turn if self.mode == 0 else 0}
         manip = {"mode" : self.mode}

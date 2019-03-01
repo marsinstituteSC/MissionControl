@@ -5,13 +5,15 @@ from PyQt5.QtWidgets import QApplication, QDialog, QWidget, QLabel
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QIcon
 from PyQt5.uic import loadUi
 
+
 class ClickableLabel(QLabel):
     clicked = pyqtSignal(str)
 
-    def __init__(self, color):
-        super(ClickableLabel, self).__init__()
-        self.setObjectName(color)
+    def __init__(self, name):
+        super().__init__()
+        self.setObjectName(name)
         self.setScaledContents(True)
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event):        
         self.clicked.emit(self.objectName())
+        super().mousePressEvent(event)
