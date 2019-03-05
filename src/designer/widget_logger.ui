@@ -35,7 +35,7 @@
      <property name="title">
       <string>Filters</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,1">
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
@@ -54,67 +54,89 @@
       <property name="spacing">
        <number>6</number>
       </property>
-      <item row="2" column="3">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Priority</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="checkFilterGUI">
-        <property name="text">
-         <string>GUI</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QCheckBox" name="checkFilterRover">
-        <property name="text">
-         <string>Rover</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="4">
-       <widget class="QComboBox" name="comboPriorities">
-        <item>
-         <property name="text">
-          <string>Any</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Common</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Notification</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Warning</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Error</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="5">
        <widget class="QLabel" name="labelStretchFix">
         <property name="text">
          <string/>
         </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QGroupBox" name="groupFilterPriorities">
+        <property name="title">
+         <string>Severity</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="checkPrioCommon">
+           <property name="text">
+            <string>Common</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="checkPrioNotif">
+           <property name="text">
+            <string>Notification</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QCheckBox" name="checkPrioWarn">
+           <property name="text">
+            <string>Warning</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QCheckBox" name="checkPrioErr">
+           <property name="text">
+            <string>Error</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QGroupBox" name="groupFilterSource">
+        <property name="title">
+         <string>Source</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="checkFilterGUI">
+           <property name="text">
+            <string>GUI</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="checkFilterRover">
+           <property name="text">
+            <string>Rover</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>

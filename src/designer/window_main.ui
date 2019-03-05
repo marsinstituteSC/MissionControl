@@ -99,7 +99,7 @@
        <attribute name="title">
         <string>Plotting</string>
        </attribute>
-       <layout class="QGridLayout" name="gridPlotting" rowstretch="0,0" columnstretch="1,1">
+       <layout class="QGridLayout" name="gridPlotting" rowstretch="0" columnstretch="1,1">
         <item row="0" column="0">
          <widget class="QFrame" name="frameGraph">
           <property name="frameShape">
