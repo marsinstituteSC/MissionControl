@@ -19,6 +19,7 @@ from widgets.simpleStatus import SimpleStatus
 from widgets.compass import CompassWidget
 from widgets.motionControl import MotionControlWidget
 from widgets.battery import BatteryWidget
+from widgets.controlStationStatus import ControlStatus
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
         self.menuGamepads.triggered.connect(self.initializeGamepad)
         self.refreshGamepad()
         self.populateGamepads()
+        gp.GAMEPAD.changedInitialization.connect(self.changeGamepadStatus)
 
         udp_conn.ROVERSERVER.onReceiveData.connect(self.receivedDataFromRover)
 
@@ -61,7 +63,9 @@ class MainWindow(QMainWindow):
         self.compass = CompassWidget()
         self.motionControl = MotionControlWidget()
         self.battery = BatteryWidget()
-        self.leftFrameGrid.addWidget(self.status, 0, 0)
+        self.controlStatus = ControlStatus()
+        self.leftFrameGrid.addWidget(self.status, 1, 0)
+        self.leftFrameGrid.addWidget(self.controlStatus, 0, 0)
         self.topFrameGrid.addWidget(self.compass, 0, 0)
         self.bottomFrameGrid.addWidget(self.gyro, 0, 0)
         self.bottomFrameGrid.addWidget(self.battery, 0, 1)
@@ -94,6 +98,9 @@ class MainWindow(QMainWindow):
     def initializeGamepad(self, gamepad):
         id, _ = gamepad.text().split(": ")
         gp.GAMEPAD.initialize(int(id))
+    
+    def changeGamepadStatus(self, status):
+        self.controlStatus.setControllerStatus(status)
 
     def setSpeedometerValue(self, value):
         #self.speedMeter.display(value)

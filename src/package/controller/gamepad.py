@@ -3,7 +3,7 @@
 import json
 
 from pygame import joystick, time, event, init, quit, JOYBUTTONDOWN, JOYAXISMOTION, JOYHATMOTION, JOYBUTTONUP
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal
 
 from communications import udp_conn as UDP
 
@@ -40,6 +40,7 @@ ROVER_MAPPING_BUTTONS = {
 
 class Gamepad(QThread):
     """Class for gamepad"""
+    changedInitialization = pyqtSignal(bool)
     # Init does not initialize the gamepad
     def __init__(self, deadzone=0.1):
         super().__init__()
@@ -72,6 +73,7 @@ class Gamepad(QThread):
         self.rover_buttons = ROVER_MAPPING_BUTTONS
 
         self.needRefresh = False
+        self.currentInitialization = False # Boolean to check if there has been a change in initialization of gamepads
         self.joystick = None
         self.deadzone = deadzone
         self.joystick_id = None
@@ -87,6 +89,8 @@ class Gamepad(QThread):
             self.joystick_id = id_joystick
             self.joystick = joystick.Joystick(id_joystick)
             self.joystick.init()
+            self.currentInitialization = True
+            self.changedInitialization.emit(True)
         except:
             print("Invalid joystick num/ID,", id_joystick, "!")
 
@@ -237,6 +241,15 @@ class Gamepad(QThread):
                     print(message)
                     UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
 
+            if not joystick.get_init() or not self.joystick.get_init():
+                if self.currentInitialization:
+                    self.changedInitialization.emit(False)
+                    self.currentInitialization = False
+            elif joystick.get_init() or self.joystick.get_init():
+                if not self.currentInitialization:
+                    self.changedInitialization.emit(True)
+                    self.currentInitialization = True
+            
             # Limit the clock rate to 30 ticks per second
             self.CLOCK.tick(30)
 

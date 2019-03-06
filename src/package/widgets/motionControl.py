@@ -55,4 +55,3 @@ class MotionControlWidget(QWidget):
         control = {"speed" : self.speed if self.mode == 0 else 0, "turn" : self.turn if self.mode == 0 else 0}
         manip = {"mode" : self.mode}
         output = {"manip" : manip, "control" : control}
-        #ROVERSERVER.writeToRover(output)
