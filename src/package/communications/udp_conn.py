@@ -101,8 +101,9 @@ class UDPRoverServer(QThread):
                     print("Received Sensor Data:", data.decode())
                     obj = json.loads(data)
                     self.onReceiveData.emit(obj)
-                    for k, v in obj.items(): # WIP!!! Could check incoming type here to decide what to do.
-                        database.Event.add("{} - {}".format(k, v), 0, 0, str(datetime.datetime.now()))
+                    for _, v in obj.items(): # WIP!!! Could check incoming type here to decide what to do.
+                        # handle message as value if type >= 0.
+                        database.Event.add(v, 0, 0, str(datetime.datetime.now()))
 
             # Fetch messages from a thread-safe queue, if empty, skip and wait
             # for TICK time.

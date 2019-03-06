@@ -14,6 +14,24 @@ import PyQt5.QtGui
 import datetime
 import cProfile
 
+def getPriorityText(priority):
+    if priority <= 0:
+        return "Common"
+    elif priority == 1:
+        return "Notification"
+    elif priority == 2:
+        return "Warning"
+    else:
+        return "Error"
+
+def getNameForRoverDataType(typ):
+    if typ == 0:
+        return "Speed"
+    elif typ == 1:
+        return "Temperature"
+
+    return "Message"
+
 # Log Item could be extended with SQL Alchemy to directly store the logged message to our sql database.
 class LogItem():
 
@@ -38,12 +56,7 @@ class ColorizedLogger(QWidget):
         super().__init__()
         self.setParent(parent)
         self.colorForPriority = [None, colorNotification, colorWarning, colorError]
-        self.data = {
-            "0": [],
-            "1": [],
-            "2": [],
-            "3": []
-        }
+        self.data = list()
         self.setupUi()
 
     def keyPressEvent(self, e):
@@ -78,16 +91,6 @@ class ColorizedLogger(QWidget):
     def getColorForPriority(self, priority):
         return self.colorForPriority[priority]
 
-    def getPriorityText(self, priority):
-        if priority <= 0:
-            return "Common"
-        elif priority == 1:
-            return "Notification"
-        elif priority == 2:
-            return "Warning"
-        else:
-            return "Error"
-
     def matchesCriteria(self, item, keyword):
         if len(keyword) <= 0:
             return True
@@ -100,7 +103,7 @@ class ColorizedLogger(QWidget):
         color = self.getColorForPriority(priority)
         tim = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         item = LogItem(text, priority, tim, color, type)
-        self.data.get(str(priority)).append(item)     
+        self.data.append(item)     
 
         # Check if we should add this data to the table right away:
         if (not self.checkFilterGUI.isChecked() and type is 0) or (not self.checkFilterRover.isChecked() and type is 1) or (not self.checkPrio[priority].isChecked()) or (not self.matchesCriteria(item, self.searchText.text())):
@@ -113,7 +116,7 @@ class ColorizedLogger(QWidget):
         index = self.loggerTable.rowCount()
         self.loggerTable.setRowCount(index + 1)      
         self.loggerTable.setItem(index, 0, item.getTableItem(item.text, item.priority))
-        self.loggerTable.setItem(index, 1, item.getTableItem(self.getPriorityText(item.priority), item.priority))
+        self.loggerTable.setItem(index, 1, item.getTableItem(getPriorityText(item.priority), item.priority))
         self.loggerTable.setItem(index, 2, item.getTableItem(item.timestamp, item.priority))  
         self.loggerTable.scrollToBottom()
 
@@ -122,9 +125,8 @@ class ColorizedLogger(QWidget):
         self.loggerTable.clearContents()
         self.loggerTable.setRowCount(0)
 
-        for p, _ in self.data.items():
-            for v in self.data[p]:
-                if (not self.checkFilterGUI.isChecked() and v.type is 0) or (not self.checkFilterRover.isChecked() and v.type is 1) or (not self.checkPrio[v.priority].isChecked()) or (not self.matchesCriteria(v, search)):
-                    continue
-                    
-                self.addNewRow(v)
+        for v in self.data:
+            if (not self.checkFilterGUI.isChecked() and v.type is 0) or (not self.checkFilterRover.isChecked() and v.type is 1) or (not self.checkPrio[v.priority].isChecked()) or (not self.matchesCriteria(v, search)):
+                continue
+                
+            self.addNewRow(v)

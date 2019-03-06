@@ -3,7 +3,7 @@
 import random, time
 import cProfile
 
-from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout, QPushButton
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
@@ -29,8 +29,7 @@ class MainWindow(QMainWindow):
 
         # Creates the video window as a child and links a button to open it later
         self.video_window = None
-        #self.openCameraWindow()
-        self.actionCamera_Window.triggered.connect(self.openCameraWindow)
+        self.actionCamera.triggered.connect(self.openCameraWindow)
 
         # Toolbar button to open settings
         self.actionSettings.triggered.connect(self.settings)
@@ -68,10 +67,11 @@ class MainWindow(QMainWindow):
         self.rightFrameGrid.addWidget(self.motionControl, 0, 0)      
 
         # Make 1 row, 1 columns, 1 plot
-        graphs1 = plot.PlotCanvas(None, 10)        
-        graphs1.plot("", [random.random() for i in range(200)], 111)
+        self.graph = plot.PlotCanvas(None, 10)        
+        self.graph.plot("", [random.random() for i in range(200)], 111)
 
-        self.gridPlotting.addWidget(graphs1, 0, 0)
+        self.gridPlotting.addWidget(self.graph, 0, 0)
+        self.frameGraphSettings.findChild(QPushButton, "btnPlotter").clicked.connect(self.plotGraph)
 
     def closeEvent(self, event):
         super().closeEvent(event)
@@ -112,12 +112,15 @@ class MainWindow(QMainWindow):
 
         self.video_window.activateWindow()
 
+    def plotGraph(self):
+        self.graph.plot("", [random.random() for i in range(200)], 111)
+
     @pyqtSlot('PyQt_PyObject')
     def receivedDataFromRover(self, data):
         # TODO Add more stuff here...
         if 'speed' in data:
             self.setSpeedometerValue(data['speed'])
-            self.log.logData("Now running at {} m/s.".format(data['speed']), 0)
+            self.log.logData("Speed {} m/s.".format(data['speed']), 1)
 
 def loadMainWindow():
     wndw = MainWindow()
