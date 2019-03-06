@@ -21,90 +21,60 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
-     <widget class="QTabWidget" name="tabCategories">
-      <property name="currentIndex">
-       <number>0</number>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="deleteSensorBtn">
+      <property name="text">
+       <string>Delete</string>
       </property>
-      <widget class="QWidget" name="tabSensors">
-       <attribute name="title">
-        <string>Sensors</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QTableWidget" name="sensorTable">
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <attribute name="horizontalHeaderVisible">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderCascadingSectionResizes">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <column>
-           <property name="text">
-            <string>Message</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Type</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Severity</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Time</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="deleteSensorBtn">
-          <property name="text">
-           <string>Delete</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabGui">
-       <attribute name="title">
-        <string>GUI</string>
-       </attribute>
-      </widget>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QTableWidget" name="sensorTable">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <attribute name="horizontalHeaderVisible">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Message / Value</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Type</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Severity</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Time</string>
+       </property>
+      </column>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>600</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

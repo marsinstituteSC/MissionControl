@@ -2,7 +2,7 @@
 
 import threading
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData
+from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData, desc
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 import settings
@@ -100,11 +100,11 @@ class Event(Base):
     def __repr__(self):
         return "Sensor.Event(msg={}, sev={}, typ={}, time={})".format(self.message, self.severity, self.type, self.time)
 
-    def add(msg, severity, type, time):
+    def add(msg, s, t, time):
         """
         Add a new event to the DB.
         """
-        add(Event(message=msg, severity=severity, type=type, time=time), "sensor")
+        add(Event(message=msg, severity=s, type=t, time=time), "sensor")
 
     def delete(id):
         """
@@ -112,18 +112,20 @@ class Event(Base):
         """
         delete(find(id, "sensor"), "sensor")
 
-    def findByType(type):
+    def findByType(t, reverse=False):
         output = list()    
         with LOCK:
             try:
                 s = Session()
                 if not USEMYSQL:
                     s.execute('set search_path=sensor')
-                for d in s.query(Event).filter_by(type=type).all():
+                for d in s.query(Event).filter_by(type=t).order_by(desc(Event.time)).all():
                     output.append(d)
             except Exception as e:
                 print(e)
             finally:
+                if reverse:
+                    output.reverse()
                 return output
 
 def deleteDataFromDatabase(schema):
