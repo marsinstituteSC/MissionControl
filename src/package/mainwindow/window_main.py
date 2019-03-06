@@ -68,7 +68,6 @@ class MainWindow(QMainWindow):
 
         # Make 1 row, 1 columns, 1 plot
         self.graph = plot.PlotCanvas(None, 10)        
-        self.graph.plot("", [random.random() for i in range(200)], 111)
 
         self.gridPlotting.addWidget(self.graph, 0, 0)
         self.frameGraphSettings.findChild(QPushButton, "btnPlotter").clicked.connect(self.plotGraph)
@@ -113,6 +112,7 @@ class MainWindow(QMainWindow):
         self.video_window.activateWindow()
 
     def plotGraph(self):
+        self.graph.clearGraph()
         self.graph.plot("", [random.random() for i in range(200)], 111)
 
     @pyqtSlot('PyQt_PyObject')

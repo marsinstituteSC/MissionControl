@@ -46,10 +46,11 @@ class PlotCanvas(FigureCanvas):
             ax.title.set_color(color)
         self.draw()
 
+    def clearGraph(self):
+        self.figure.clear()
 
     def plot(self, title, data, subplot):
         """Plot the graph given the title, data and subplot"""
-        self.figure.clear()
         ax = self.figure.add_subplot(subplot)
         ax.plot(data, 'r-')
         ax.set_title(title)
