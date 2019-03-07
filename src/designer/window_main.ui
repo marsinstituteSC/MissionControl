@@ -125,109 +125,6 @@
            <enum>QFrame::Sunken</enum>
           </property>
           <layout class="QGridLayout" name="gridGraphOptions">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupPlotFilters">
-             <property name="title">
-              <string>Filters</string>
-             </property>
-             <layout class="QGridLayout" name="gridPlottSettings">
-              <item row="1" column="0">
-               <widget class="QGroupBox" name="groupPlotPriorities">
-                <property name="title">
-                 <string>Priorities</string>
-                </property>
-                <widget class="QCheckBox" name="checkPrioCommon">
-                 <property name="geometry">
-                  <rect>
-                   <x>20</x>
-                   <y>30</y>
-                   <width>70</width>
-                   <height>17</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Common</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-                <widget class="QCheckBox" name="checkPrioNotif">
-                 <property name="geometry">
-                  <rect>
-                   <x>100</x>
-                   <y>30</y>
-                   <width>91</width>
-                   <height>17</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Notification</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-                <widget class="QCheckBox" name="checkPrioWarn">
-                 <property name="geometry">
-                  <rect>
-                   <x>190</x>
-                   <y>30</y>
-                   <width>70</width>
-                   <height>17</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Warning</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-                <widget class="QCheckBox" name="checkPrioErr">
-                 <property name="geometry">
-                  <rect>
-                   <x>270</x>
-                   <y>30</y>
-                   <width>70</width>
-                   <height>17</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Error</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QGroupBox" name="groupPlotType">
-                <property name="title">
-                 <string>Type</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_4">
-                 <item row="0" column="0">
-                  <widget class="QComboBox" name="comboBox">
-                   <item>
-                    <property name="text">
-                     <string>Speed</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Temperature</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QGroupBox" name="groupPlotRange">
              <property name="title">
@@ -265,32 +162,69 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
+              <item row="3" column="0">
                <widget class="QLabel" name="label_3">
                 <property name="text">
                  <string>Min Value</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
+              <item row="4" column="0">
                <widget class="QLabel" name="label_4">
                 <property name="text">
                  <string>Max Value</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
+              <item row="3" column="1">
                <widget class="QLineEdit" name="fieldMinVal">
                 <property name="text">
                  <string>0</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
+              <item row="4" column="1">
                <widget class="QLineEdit" name="fieldMaxVal">
                 <property name="text">
                  <string>0</string>
                 </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Use Value Range</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="plotCheckMinMax">
+                <property name="text">
+                 <string>Enable Min / Max Range</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupPlotType">
+             <property name="title">
+              <string>Type</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="0" column="0">
+               <widget class="QComboBox" name="plotDataType">
+                <item>
+                 <property name="text">
+                  <string>Speed</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Temperature</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>

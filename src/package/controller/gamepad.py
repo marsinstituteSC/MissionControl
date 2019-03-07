@@ -220,12 +220,6 @@ class Gamepad(QThread):
             changed = True
         return changed
 
-    def checkJoystickState(self):
-        """
-        Check if joystick is alive, report to UI.
-        """
-        self.refresh()        
-
     # NOTE create a local variable to hold the gamepad value for the functions
     # we
     # will use.
@@ -269,7 +263,7 @@ class Gamepad(QThread):
             
             ticks += 1
             if ticks >= GAMEPAD_TIMEOUT_TICK_TIME: # Check gamepad status regularly, DISCLAIMER: might break some button states?
-                self.checkJoystickState()
+                self.refresh()
                 ticks = 0
 
             # Limit the clock rate to 30 ticks per second

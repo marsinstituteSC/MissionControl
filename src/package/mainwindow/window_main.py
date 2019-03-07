@@ -1,11 +1,13 @@
 """ Main App Window, renders information from sensors, render graphs, etc... """
 
-import random, time
+import random
+import time
+import datetime
 import cProfile
 
-from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout, QPushButton
+from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout, QPushButton, QComboBox, QDateTimeEdit, QLineEdit, QCheckBox
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QDateTime
 
 from widgets import plot
 from widgets import logger
@@ -20,6 +22,15 @@ from widgets.compass import CompassWidget
 from widgets.motionControl import MotionControlWidget
 from widgets.battery import BatteryWidget
 from widgets.controlStationStatus import ControlStatus
+
+from utils.warning import showWarning
+from communications import database
+
+def getValueForDBEvent(e):
+    try:
+        return float(e.message)
+    except:
+        return None
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -72,9 +83,12 @@ class MainWindow(QMainWindow):
 
         # Make 1 row, 1 columns, 1 plot
         self.graph = plot.PlotCanvas(None, 10)        
-
         self.gridPlotting.addWidget(self.graph, 0, 0)
+
         self.frameGraphSettings.findChild(QPushButton, "btnPlotter").clicked.connect(self.plotGraph)
+        # Use current date for date pickers by def.
+        self.frameGraphSettings.findChild(QDateTimeEdit, "plotTimeStart").setDateTime(QDateTime.currentDateTime())
+        self.frameGraphSettings.findChild(QDateTimeEdit, "plotTimeEnd").setDateTime(QDateTime.currentDateTime())
 
     def closeEvent(self, event):
         super().closeEvent(event)
@@ -117,8 +131,33 @@ class MainWindow(QMainWindow):
         self.video_window.activateWindow()
 
     def plotGraph(self):
-        self.graph.clearGraph()
-        self.graph.plot("", [random.random() for i in range(200)], 111)
+        try:
+            selectedType = self.frameGraphSettings.findChild(QComboBox, "plotDataType").currentIndex()
+            startDate = datetime.datetime.fromtimestamp(self.frameGraphSettings.findChild(QDateTimeEdit, "plotTimeStart").dateTime().toMSecsSinceEpoch() / 1000)
+            endDate = datetime.datetime.fromtimestamp(self.frameGraphSettings.findChild(QDateTimeEdit, "plotTimeEnd").dateTime().toMSecsSinceEpoch() / 1000)
+            minValue = float(self.frameGraphSettings.findChild(QLineEdit, "fieldMinVal").text())
+            maxValue = float(self.frameGraphSettings.findChild(QLineEdit, "fieldMaxVal").text())
+            useValueRange = self.frameGraphSettings.findChild(QCheckBox, "plotCheckMinMax").isChecked()
+
+            data = database.Event.findTypeWithin(selectedType, startDate, endDate, True)
+            if len(data) <= 0:
+                showWarning("Error!", "No data available for the selected type or within the selected timespan!", self)
+                return
+
+            # Filter out 'broken' values.
+            values = list()
+            for d in data:
+                v = getValueForDBEvent(d)
+                if v:
+                    if useValueRange and not (v >= minValue and v <= maxValue):
+                        continue
+
+                    values.append(v)
+
+            self.graph.clearGraph()
+            self.graph.plot("", values, 111)
+        except:
+            showWarning("Error!", "Invalid input(s) inserted!", self)
 
     @pyqtSlot('PyQt_PyObject')
     def receivedDataFromRover(self, data):
