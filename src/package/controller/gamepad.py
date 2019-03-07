@@ -254,6 +254,7 @@ class Gamepad(QThread):
                         eventHappened = True
                 
                 if eventHappened:
+                    ticks = 0
                     message = {
                         "Axis" : self.rover_axis,
                         "Buttons" : self.rover_buttons
@@ -261,10 +262,7 @@ class Gamepad(QThread):
                     print(message)
                     UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
             
-            # Reset ticks when there has been activity from the controller
-            if eventHappened: ticks = 0
-            else: ticks += 1
-            
+            ticks += 1
             if ticks >= GAMEPAD_TIMEOUT_TICK_TIME: # Check gamepad status regularly, DISCLAIMER: might break some button states?
                 self.refresh()
                 ticks = 0
