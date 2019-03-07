@@ -110,6 +110,7 @@ class ColorizedLogger(QWidget):
             return
 
         self.addNewRow(item)  
+        self.loggerTable.scrollToBottom()
 
     def addNewRow(self, item):
         """Add a new item to the table itself"""
@@ -117,8 +118,7 @@ class ColorizedLogger(QWidget):
         self.loggerTable.setRowCount(index + 1)      
         self.loggerTable.setItem(index, 0, item.getTableItem(item.text, item.priority))
         self.loggerTable.setItem(index, 1, item.getTableItem(getPriorityText(item.priority), item.priority))
-        self.loggerTable.setItem(index, 2, item.getTableItem(item.timestamp, item.priority))  
-        self.loggerTable.scrollToBottom()
+        self.loggerTable.setItem(index, 2, item.getTableItem(item.timestamp, item.priority))          
 
     def display(self):
         search = self.searchText.text()
@@ -130,3 +130,5 @@ class ColorizedLogger(QWidget):
                 continue
                 
             self.addNewRow(v)
+
+        self.loggerTable.scrollToBottom()
