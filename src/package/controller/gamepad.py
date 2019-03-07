@@ -6,6 +6,7 @@ from pygame import joystick, time, event, init, quit, JOYBUTTONDOWN, JOYAXISMOTI
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from communications import udp_conn as UDP
+from utils.math import clamp
 
 # A lot of help from
 # https://github.com/joncoop/pygame-xbox360controller/blob/master/xbox360_controller.py
@@ -38,18 +39,21 @@ ROVER_MAPPING_BUTTONS = {
     10 : False
 }
 
+GAMEPAD_TIMEOUT_TICK_TIME = (30 * 30) # 30 TICKS = 1 SEC, 30 * 30 = 30 SEC. Check gamepad status every 30 sec.
+
 class Gamepad(QThread):
     """Class for gamepad"""
-    changedInitialization = pyqtSignal(bool)
+    statusChanged = pyqtSignal(bool)
+    refreshedGamepad = pyqtSignal(dict)
+
     # Init does not initialize the gamepad
     def __init__(self, deadzone=0.1):
         super().__init__()
         # Initializes pygame and creates a instance of a clock to control the
         # tick rate.
         init()
-        self.CLOCK = time.Clock()
-        self.shouldDestroy = False
 
+        self.shouldDestroy = False
         # Gamepad (pygame) mapping for Windows
         self.gamepad_mapping = {
             "A" : 0,
@@ -73,11 +77,10 @@ class Gamepad(QThread):
         self.rover_buttons = ROVER_MAPPING_BUTTONS
 
         self.needRefresh = False
-        self.currentInitialization = False # Boolean to check if there has been a change in initialization of gamepads
         self.joystick = None
-        self.deadzone = deadzone
-        self.joystick_id = None
-        self.refresh()
+        self.joystick_id = -1
+        self.joystick_id_switch = -1
+        self.deadzone = deadzone        
 
     def destroy(self):
         self.shouldDestroy = True
@@ -89,9 +92,8 @@ class Gamepad(QThread):
             self.joystick_id = id_joystick
             self.joystick = joystick.Joystick(id_joystick)
             self.joystick.init()
-            self.currentInitialization = True
-            self.changedInitialization.emit(True)
         except:
+            self.joystick_id = -1
             print("Invalid joystick num/ID,", id_joystick, "!")
 
     def get_all_gamepads(self):
@@ -113,9 +115,15 @@ class Gamepad(QThread):
         Finds all connected gamepads. Must be called at the start of the run loop if there has been a change.
         Will uninitialize and then initialize the joystick module
         """
+        if self.joystick:
+            self.joystick.quit()
+
         joystick.quit()
         joystick.init()
-        self.initialize(0)
+        joyDictList = self.get_all_gamepads() # Must be fetched before initializing the ID, since otherwise we delete that ID afterwards, apparently the objects here are global!
+        self.initialize(clamp(self.joystick_id, 0, joystick.get_count()))
+        self.refreshedGamepad.emit(joyDictList)
+        self.statusChanged.emit(self.joystick.get_init())
 
     def get_joystick_id(self):
         """
@@ -212,17 +220,35 @@ class Gamepad(QThread):
             changed = True
         return changed
 
+    def checkJoystickState(self):
+        """
+        Check if joystick is alive, report to UI.
+        """
+        self.refresh()        
+
     # NOTE create a local variable to hold the gamepad value for the functions
     # we
     # will use.
     # Initializes pygame and creates a instance of a clock to control the tick
     # rate.
     def run(self):
-        while self.shouldDestroy == False:
-	        # Go through the event list and find button, axis and hat events
-            if self.needRefresh:
+        CLOCK = time.Clock()
+        self.refresh() # Startup Gamepad.
+        ticks = 0
+ 
+        while self.shouldDestroy == False:	        
+            if self.needRefresh: # User wants to check for newly connected or disconnected gamepad, reinits list + gamepads stuff.
                 self.refresh()
                 self.needRefresh = False
+                ticks = 0
+                continue
+
+            if self.joystick_id_switch >= 0: # User wants to select a different gamepad!
+                self.initialize(self.joystick_id_switch)
+                self.joystick_id_switch = -1
+                continue
+                
+            # Go through the event list and find button, axis and hat events
             for EVENT in event.get():
                 eventHappened = False
                 if EVENT.type == JOYBUTTONDOWN or EVENT.type == JOYBUTTONUP:
@@ -240,18 +266,14 @@ class Gamepad(QThread):
                     }
                     print(message)
                     UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
-
-            if not joystick.get_init() or not self.joystick.get_init():
-                if self.currentInitialization:
-                    self.changedInitialization.emit(False)
-                    self.currentInitialization = False
-            elif joystick.get_init() or self.joystick.get_init():
-                if not self.currentInitialization:
-                    self.changedInitialization.emit(True)
-                    self.currentInitialization = True
             
+            ticks += 1
+            if ticks >= GAMEPAD_TIMEOUT_TICK_TIME: # Check gamepad status regularly, DISCLAIMER: might break some button states?
+                self.checkJoystickState()
+                ticks = 0
+
             # Limit the clock rate to 30 ticks per second
-            self.CLOCK.tick(30)
+            CLOCK.tick(30)
 
         quit()
 

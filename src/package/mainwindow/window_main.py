@@ -38,12 +38,12 @@ class MainWindow(QMainWindow):
 
         # Gamepad toolbar
         self.gamepadRefresh.triggered.connect(self.refreshGamepad)
-        self.menuGamepads.triggered.connect(self.initializeGamepad)
-        self.refreshGamepad()
-        self.populateGamepads()
-        gp.GAMEPAD.changedInitialization.connect(self.changeGamepadStatus)
+        self.menuGamepads.triggered.connect(self.initializeGamepad)        
+        gp.GAMEPAD.refreshedGamepad.connect(self.populateGamepads)
+        gp.GAMEPAD.statusChanged.connect(self.changeGamepadStatus)
+        self.refreshGamepad() # Re-init + fetch list of gamepads
 
-        udp_conn.ROVERSERVER.onReceiveData.connect(self.receivedDataFromRover)
+        udp_conn.ROVERSERVER.onReceiveData.connect(self.receivedDataFromRover)        
 
     def setupUi(self):
         """
@@ -86,17 +86,15 @@ class MainWindow(QMainWindow):
     def refreshGamepad(self):
         # Sets the refresh boolean to true for the gamepad class to check for new gamepads in the new iteration.
         gp.GAMEPAD.needRefresh = True
-        self.populateGamepads()
 
-    def populateGamepads(self):
+    def populateGamepads(self, joyDict):
         self.menuGamepads.clear()
-        gamepads = gp.GAMEPAD.get_all_gamepads()
-        for id, name in gamepads.items():
+        for id, name in joyDict.items():
             self.menuGamepads.addAction(str(id) + ": " + str(name))
 
     def initializeGamepad(self, gamepad):
         id, _ = gamepad.text().split(": ")
-        gp.GAMEPAD.initialize(int(id))
+        gp.GAMEPAD.joystick_id_switch = int(id)
     
     def changeGamepadStatus(self, status):
         self.controlStatus.setControllerStatus(status)
