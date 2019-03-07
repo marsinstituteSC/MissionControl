@@ -123,7 +123,7 @@ class Gamepad(QThread):
         joyDictList = self.get_all_gamepads() # Must be fetched before initializing the ID, since otherwise we delete that ID afterwards, apparently the objects here are global!
         self.initialize(clamp(self.joystick_id, 0, joystick.get_count()))
         self.refreshedGamepad.emit(joyDictList)
-        self.statusChanged.emit(self.joystick.get_init())
+        self.statusChanged.emit(self.joystick.get_init() if self.joystick else False)
 
     def get_joystick_id(self):
         """
