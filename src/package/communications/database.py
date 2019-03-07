@@ -2,7 +2,7 @@
 
 import threading
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData, desc
+from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData, desc, and_, or_
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 import settings
@@ -127,6 +127,23 @@ class Event(Base):
                 if reverse:
                     output.reverse()
                 return output
+
+    def findTypeWithin(t, start, end, reverse=False):
+        output = list()    
+        with LOCK:
+            try:
+                s = Session()
+                if not USEMYSQL:
+                    s.execute('set search_path=sensor')
+                for d in s.query(Event).filter(Event.time >= start, Event.time <= end, Event.type == t).order_by(desc(Event.time)).all():
+                    output.append(d)
+            except Exception as e:
+                print(e)
+            finally:
+                if reverse:
+                    output.reverse()
+                return output
+
 
 def deleteDataFromDatabase(schema):
     """Delete all data!"""
