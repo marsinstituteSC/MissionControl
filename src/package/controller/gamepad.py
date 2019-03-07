@@ -89,6 +89,9 @@ class Gamepad(QThread):
     def initialize(self, id_joystick):
         """Initializes the selected joystick"""
         try:
+            if self.joystick:
+                self.joystick.quit()
+
             self.joystick_id = id_joystick
             self.joystick = joystick.Joystick(id_joystick)
             self.joystick.init()
@@ -117,6 +120,7 @@ class Gamepad(QThread):
         """
         if self.joystick:
             self.joystick.quit()
+            self.joystick = None
 
         joystick.quit()
         joystick.init()
