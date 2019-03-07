@@ -16,9 +16,11 @@ from communications import database
 
 ROVERSERVER = None # Allow other files/pgks to easily access our udp server through this global.
 TICK = (50 / 1000) # How often in msec should we check inc / send outgoing msgs.
+TIMEOUT = 5 # How many seconds the control station will wait for a message before sending an error
 
 class UDPRoverServer(QThread):
     onReceiveData = pyqtSignal('PyQt_PyObject')
+    communicationTimeout = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -76,8 +78,10 @@ class UDPRoverServer(QThread):
     def destroy(self):
         self.shouldDestroy = True
 
-    def run(self):        
+    def run(self):
+        lastMessageTime = time.time()
         while self.shouldDestroy == False:
+            now = time.time()
             if self.reconnect:
                 self.reconnect = False
                 self.disconnect()
@@ -93,12 +97,14 @@ class UDPRoverServer(QThread):
             if self.gamepadSocket.hasPendingDatagrams():
                 data, _, _ = self.gamepadSocket.readDatagram(self.gamepadSocket.pendingDatagramSize())
                 if data is not None: # TODO Process incoming messages
-                    print(data.decode())                    
+                    lastMessageTime = now
+                    print(data.decode())
 
             if self.sensorpubSocket.hasPendingDatagrams():
                 data, _, _ = self.sensorpubSocket.readDatagram(self.sensorpubSocket.pendingDatagramSize())
                 if data is not None:
                     print("Received Sensor Data:", data.decode())
+                    lastMessageTime = now
                     obj = json.loads(data)
                     self.onReceiveData.emit(obj)
                     for _, v in obj.items(): # WIP!!! Could check incoming type here to decide what to do.
@@ -110,6 +116,13 @@ class UDPRoverServer(QThread):
             d = self.fetchMessageToSend()
             if d:
                 self.gamepadSocket.writeDatagram(d.encode(), self.serverAddress, self.serverPort)    
+
+            # Check if there has been an inactivity for as long as the timeout or if there has been an update this iteration.
+            if now - lastMessageTime > TIMEOUT:
+                self.communicationTimeout.emit(False)
+                lastMessageTime = now
+            elif now == lastMessageTime:
+                self.communicationTimeout.emit(True)
 
             time.sleep(TICK)   
 

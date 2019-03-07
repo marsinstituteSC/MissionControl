@@ -99,6 +99,9 @@ class MainWindow(QMainWindow):
     def changeGamepadStatus(self, status):
         self.controlStatus.setControllerStatus(status)
 
+    def changeRoverStatus(self, status):
+        self.controlStatus.setRoverStatus(status)
+
     def setSpeedometerValue(self, value):
         #self.speedMeter.display(value)
         print(value)
