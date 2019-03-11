@@ -1,8 +1,8 @@
 """ Reading the input from a game controller """
 
-import json
+import json, time
 
-from pygame import joystick, time, event, init, quit, JOYBUTTONDOWN, JOYAXISMOTION, JOYHATMOTION, JOYBUTTONUP
+from pygame import joystick, time as pygameTime, event, init, quit, JOYBUTTONDOWN, JOYAXISMOTION, JOYHATMOTION, JOYBUTTONUP
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from communications import udp_conn as UDP
@@ -39,7 +39,8 @@ ROVER_MAPPING_BUTTONS = {
     10 : False
 }
 
-GAMEPAD_TIMEOUT_TICK_TIME = (30 * 30) # 30 TICKS = 1 SEC, 30 * 30 = 30 SEC. Check gamepad status every 30 sec.
+GAMEPAD_TIMEOUT_TICK_TIME = (30 * 10) # 30 TICKS = 1 SEC, 30 * 30 = 30 SEC. Check gamepad status every 30 sec.
+GAMEPAD_TIMEOUT = 10
 
 class Gamepad(QThread):
     """Class for gamepad"""
@@ -125,7 +126,10 @@ class Gamepad(QThread):
         joystick.quit()
         joystick.init()
         joyDictList = self.get_all_gamepads() # Must be fetched before initializing the ID, since otherwise we delete that ID afterwards, apparently the objects here are global!
-        self.initialize(clamp(self.joystick_id, 0, joystick.get_count()))
+        if joystick.get_count() > 1:
+            self.initialize(clamp(self.joystick_id, 0, joystick.get_count()))
+        elif joystick.get_count() == 1:
+            self.initialize(0)
         self.refreshedGamepad.emit(joyDictList)
         self.statusChanged.emit(self.joystick.get_init() if self.joystick else False)
 
@@ -141,9 +145,17 @@ class Gamepad(QThread):
         created by joncoop at github see link at the top
         """
         if value > self.deadzone:
-            return (value - self.deadzone) / (1 - self.deadzone)
+            newValue = (value - self.deadzone) / (1 - self.deadzone)
+            if newValue > 0.95:
+                return 1
+            else:
+                return newValue
         elif value < -self.deadzone:
-            return (value + self.deadzone) / (1 - self.deadzone)
+            newValue = (value + self.deadzone) / (1 - self.deadzone)
+            if newValue < -0.95:
+                return -1
+            else:
+                return newValue
         else:
             return 0
 
@@ -194,20 +206,12 @@ class Gamepad(QThread):
         value = int(255 * self.axis_value(self.joystick.get_axis(self.gamepad_mapping["BUMPERS"])))
         # Left bumper
         if value > 0:
-            if value > 95:
-                self.rover_axis[2] = 255
-                changed = True
-            else:
-                self.rover_axis[2] = value
-                changed = True
+            self.rover_axis[2] = value
+            changed = True
         # Right bumper
         elif value < 0:
-            if value < -95:
-                self.rover_axis[5] = -255
-                changed = True
-            else:
-                self.rover_axis[5] = value
-                changed = True
+            self.rover_axis[5] = value
+            changed = True
 
         elif value == 0:
             self.rover_axis[2] = 0
@@ -230,15 +234,16 @@ class Gamepad(QThread):
     # Initializes pygame and creates a instance of a clock to control the tick
     # rate.
     def run(self):
-        CLOCK = time.Clock()
+        CLOCK = pygameTime.Clock()
         self.refresh() # Startup Gamepad.
-        ticks = 0
+        lastEventTime = time.time()
  
-        while self.shouldDestroy == False:	        
+        while self.shouldDestroy == False:
+            now = time.time()
             if self.needRefresh: # User wants to check for newly connected or disconnected gamepad, reinits list + gamepads stuff.
                 self.refresh()
                 self.needRefresh = False
-                ticks = 0
+                lastEventTime = now
                 continue
 
             if self.joystick_id_switch >= 0: # User wants to select a different gamepad!
@@ -258,7 +263,7 @@ class Gamepad(QThread):
                         eventHappened = True
                 
                 if eventHappened:
-                    ticks = 0
+                    lastEventTime = now
                     message = {
                         "Axis" : self.rover_axis,
                         "Buttons" : self.rover_buttons
@@ -266,10 +271,12 @@ class Gamepad(QThread):
                     print(message)
                     UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
             
-            ticks += 1
-            if ticks >= GAMEPAD_TIMEOUT_TICK_TIME: # Check gamepad status regularly, DISCLAIMER: might break some button states?
+            if now - lastEventTime >= GAMEPAD_TIMEOUT:
                 self.refresh()
-                ticks = 0
+                lastEventTime = now
+            # Force refresh when no gamepad is connected for quicker reconnect. It's a elif in order to not get double refresh's.
+            elif joystick.get_count() == 0:
+                self.refresh()
 
             # Limit the clock rate to 30 ticks per second
             CLOCK.tick(30)
