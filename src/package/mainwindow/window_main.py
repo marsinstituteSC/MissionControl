@@ -54,6 +54,9 @@ class MainWindow(QMainWindow):
         gp.GAMEPAD.statusChanged.connect(self.changeGamepadStatus)
         self.refreshGamepad() # Re-init + fetch list of gamepads
 
+        database.SIGNAL.signal.connect(self.changeDatabaseStatus)
+        udp_conn.ROVERSERVER.communicationTimeout.connect(self.changeRoverStatus)
+
         udp_conn.ROVERSERVER.onReceiveData.connect(self.receivedDataFromRover)        
 
     def setupUi(self):
@@ -115,6 +118,9 @@ class MainWindow(QMainWindow):
 
     def changeRoverStatus(self, status):
         self.controlStatus.setRoverStatus(status)
+
+    def changeDatabaseStatus(self, status):
+        self.controlStatus.setDatabaseStatus(status[0])
 
     def setSpeedometerValue(self, value):
         #self.speedMeter.display(value)

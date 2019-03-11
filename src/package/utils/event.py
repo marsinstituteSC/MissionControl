@@ -3,7 +3,6 @@ Simple event handler class. Events can be defined globally and can be raised by 
 When raised, the event will notify all listeners via calling their given function arguments.
 """
 
-
 class Event():
     def __init__(self, name=None):
         self.name = name
