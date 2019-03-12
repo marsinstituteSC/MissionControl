@@ -1,6 +1,6 @@
 """ SQLAlchemy Definitions + Session Creation (using PostgreSQL) """
 
-import threading
+import threading, time
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData, desc, and_, or_
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -21,25 +21,24 @@ Session = scoped_session(sessionmaker())
 
 LOCK = threading.Lock() # Only one thread can use a DB session at a time... SAD!
 
-class Signal(QObject):
-    """ Could add more types of signals, eg bool, string ..., but will see if it is needed in the future """
-    signal = pyqtSignal(tuple)
+STATUS_SIGNAL_RATE_LIMIT = 0.5 # Only emit every X sec.
+class DBStatusSignal(QObject):
+    status = pyqtSignal(tuple)
     def __init__(self):
         super().__init__()
-        # Boolean to reduce the amount of signals being passed.
-        self.state = False # False = Error, True = Ok
+        self.lastSignal = time.time()
     
-    def setOk(self):
-        if not self.state:
-            self.signal.emit((True, ""))
-            self.state = True
+    def dispatch(self, state, msg=""):
+        """
+        Notify UI that the DB has tried to execute a query.
+        """        
+        if (time.time() - self.lastSignal) <= STATUS_SIGNAL_RATE_LIMIT:
+            return
 
-    def setError(self, msg):
-        if self.state:
-            self.signal.emit((False, msg))
-            self.state = False
+        self.status.emit((state, msg))
+        self.lastSignal = time.time()
 
-SIGNAL = Signal()
+SIGNAL = DBStatusSignal()
 
 def onSettingsChanged(name, config): # Deals with reconnecting the engine for new db settings.
     global ADDRESS, PORT, DB, USERNAME, PASSWD, USEMYSQL, Session, engine
@@ -71,10 +70,10 @@ def add(el, schema):
                 s.execute('set search_path={}'.format(schema))
             s.add(el)
             s.commit()
-            SIGNAL.setOk()
+            SIGNAL.dispatch(True)
         except Exception as e:
             print(e)
-            SIGNAL.setError(e)
+            SIGNAL.dispatch(False, e)
             if s:
                 s.rollback()  
         finally:
@@ -91,10 +90,10 @@ def delete(el, schema):
                 s.execute('set search_path={}'.format(schema))
             s.delete(el)
             s.commit()
-            SIGNAL.setOk()
+            SIGNAL.dispatch(True)
         except Exception as e:
             print(e)
-            SIGNAL.setError(e)
+            SIGNAL.dispatch(False, e)
             if s:
                 s.rollback()    
         finally:
@@ -108,11 +107,9 @@ def find(id, schema):
             s = Session()
             if not USEMYSQL:
                 s.execute('set search_path={}'.format(schema))
-            SIGNAL.setOk()
             return s.query(Event).filter_by(id=id).first()
         except Exception as e:
             print(e)
-            SIGNAL.setError(e)
             return None
 
 class Event(Base):
@@ -185,10 +182,10 @@ def deleteDataFromDatabase(schema):
 
             # Commit changes!
             s.commit()
-            SIGNAL.setOk()
+            SIGNAL.dispatch(True)
         except Exception as e:
             print(e)
-            SIGNAL.setError(e)
+            SIGNAL.dispatch(False, e)
             if s:
                 s.rollback()    
         finally:

@@ -117,8 +117,8 @@ class UDPRoverServer(QThread):
             if d:
                 self.gamepadSocket.writeDatagram(d.encode(), self.serverAddress, self.serverPort)    
 
-            # Check if there has been an inactivity for as long as the timeout or if there has been an update this iteration.
-            if now - lastMessageTime > TIMEOUT:
+            # Check for inactivity, if no packet has been received within TIMEOUT sec, send signal to UI that we no longer have comms. with the rover.
+            if (now - lastMessageTime) > TIMEOUT:
                 self.communicationTimeout.emit(False)
                 lastMessageTime = now
             elif now == lastMessageTime:

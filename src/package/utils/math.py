@@ -9,9 +9,9 @@ def clamp(value, min, max):
     return value
 
 
-def max(a, b):
+def maxVal(a, b):
     return (a if a > b else b)
 
 
-def min(a, b):
+def minVal(a, b):
     return (a if a < b else b)

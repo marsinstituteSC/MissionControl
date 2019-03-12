@@ -30,6 +30,7 @@ class SpeedWidget(QWidget):
     
     def setSpeed(self, speed):
         self.speed = int(speed)
+        self.lcd_speed.display(self.speed)
         # Dont know what fast is in the context of the rover, using 1 as slow, 2 as medium and 3 as fast.
         if self.speed == 0:
             self.label_speed_image.setPixmap(self.speedIcons["stop"].pixmap(QSize(64,64)))

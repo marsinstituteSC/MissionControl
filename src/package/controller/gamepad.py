@@ -6,7 +6,7 @@ from pygame import joystick, time as pygameTime, event, init, quit, JOYBUTTONDOW
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from communications import udp_conn as UDP
-from utils.math import clamp
+from utils.math import clamp, maxVal
 
 # A lot of help from
 # https://github.com/joncoop/pygame-xbox360controller/blob/master/xbox360_controller.py
@@ -39,8 +39,8 @@ ROVER_MAPPING_BUTTONS = {
     10 : False
 }
 
-GAMEPAD_TIMEOUT_TICK_TIME = (30 * 10) # 30 TICKS = 1 SEC, 30 * 30 = 30 SEC. Check gamepad status every 30 sec.
-GAMEPAD_TIMEOUT = 10
+GAMEPAD_REFRESH_INTERVAL_CONNECTED = 10 # Time to wait between refreshes when at least one controller is connected.
+GAMEPAD_REFRESH_INTERVAL_DISCONNECTED = 1 # Time to wait between refreshes when no controller is connected at all.
 
 class Gamepad(QThread):
     """Class for gamepad"""
@@ -87,18 +87,18 @@ class Gamepad(QThread):
         self.shouldDestroy = True
 
     # Initializes the joystick
-    def initialize(self, id_joystick):
+    def initialize(self, id):
         """Initializes the selected joystick"""
         try:
             if self.joystick:
                 self.joystick.quit()
 
-            self.joystick_id = id_joystick
-            self.joystick = joystick.Joystick(id_joystick)
+            self.joystick_id = id
+            self.joystick = joystick.Joystick(id)
             self.joystick.init()
         except:
             self.joystick_id = -1
-            print("Invalid joystick num/ID,", id_joystick, "!")
+            print("Invalid joystick num/ID,", id, "!")
 
     def get_all_gamepads(self):
         """
@@ -119,7 +119,6 @@ class Gamepad(QThread):
         Finds all connected gamepads. Must be called at the start of the run loop if there has been a change.
         Will uninitialize and then initialize the joystick module
         """
-        print("Try refresh...")
         if self.joystick:
             self.joystick.quit()
             self.joystick = None
@@ -127,10 +126,7 @@ class Gamepad(QThread):
         joystick.quit()
         joystick.init()
         joyDictList = self.get_all_gamepads() # Must be fetched before initializing the ID, since otherwise we delete that ID afterwards, apparently the objects here are global!
-        if joystick.get_count() > 1:
-            self.initialize(clamp(self.joystick_id, 0, joystick.get_count()))
-        elif joystick.get_count() == 1:
-            self.initialize(0)
+        self.initialize(clamp(self.joystick_id, 0, maxVal((joystick.get_count() - 1), 0)))
         self.refreshedGamepad.emit(joyDictList)
         self.statusChanged.emit(self.joystick.get_init() if self.joystick else False)
 
@@ -272,12 +268,9 @@ class Gamepad(QThread):
                     print(message)
                     UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
             
-            if now - lastEventTime >= GAMEPAD_TIMEOUT:
+            if (now - lastEventTime) >= (GAMEPAD_REFRESH_INTERVAL_CONNECTED if (joystick and (joystick.get_count() > 0)) else GAMEPAD_REFRESH_INTERVAL_DISCONNECTED):
                 self.refresh()
                 lastEventTime = now
-            # Force refresh when no gamepad is connected for quicker reconnect. It's a elif in order to not get double refresh's.
-            # elif (joystick.get_count() == 0) and ((now - lastEventTime) >= 1):
-            #     self.refresh()
 
             # Limit the clock rate to 30 ticks per second
             CLOCK.tick(30)

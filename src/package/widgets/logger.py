@@ -14,20 +14,33 @@ import PyQt5.QtGui
 import datetime
 import cProfile
 
+# Constants, used instead of magic numbers.
+
+LOGGER_PRIORITY_COMMON = 0
+LOGGER_PRIORITY_NOTIFICATION = 1
+LOGGER_PRIORITY_WARNING = 2
+LOGGER_PRIORITY_ERROR = 3
+
+LOGGER_TYPE_GUI = 0
+LOGGER_TYPE_ROVER = 1
+
+LOGGER_DATA_TYPE_SPEED = 0
+LOGGER_DATA_TYPE_TEMPERATURE = 1
+
 def getPriorityText(priority):
-    if priority <= 0:
+    if priority <= LOGGER_PRIORITY_COMMON:
         return "Common"
-    elif priority == 1:
+    elif priority == LOGGER_PRIORITY_NOTIFICATION:
         return "Notification"
-    elif priority == 2:
+    elif priority == LOGGER_PRIORITY_WARNING:
         return "Warning"
     else:
         return "Error"
 
 def getNameForRoverDataType(typ):
-    if typ == 0:
+    if typ == LOGGER_DATA_TYPE_SPEED:
         return "Speed"
-    elif typ == 1:
+    elif typ == LOGGER_DATA_TYPE_TEMPERATURE:
         return "Temperature"
 
     return "Message"
@@ -84,10 +97,10 @@ class ColorizedLogger(QWidget):
         self.toggleFilter()
 
         self.checkPrio = {
-            0: self.checkPrioCommon,
-            1: self.checkPrioNotif,
-            2: self.checkPrioWarn,
-            3: self.checkPrioErr
+            LOGGER_PRIORITY_COMMON: self.checkPrioCommon,
+            LOGGER_PRIORITY_NOTIFICATION: self.checkPrioNotif,
+            LOGGER_PRIORITY_WARNING: self.checkPrioWarn,
+            LOGGER_PRIORITY_ERROR: self.checkPrioErr
         }
 
         self.show()
@@ -120,7 +133,7 @@ class ColorizedLogger(QWidget):
         self.data.append(item)     
 
         # Check if we should add this data to the table right away:
-        if (not self.checkFilterGUI.isChecked() and type is 0) or (not self.checkFilterRover.isChecked() and type is 1) or (not self.checkPrio[priority].isChecked()) or (not self.matchesCriteria(item, self.searchText.text())):
+        if (not self.checkFilterGUI.isChecked() and type is LOGGER_TYPE_GUI) or (not self.checkFilterRover.isChecked() and type is LOGGER_TYPE_ROVER) or (not self.checkPrio[priority].isChecked()) or (not self.matchesCriteria(item, self.searchText.text())):
             return
 
         self.addNewRow(item)  
@@ -140,7 +153,7 @@ class ColorizedLogger(QWidget):
         self.loggerTable.setRowCount(0)
 
         for v in self.data:
-            if (not self.checkFilterGUI.isChecked() and v.type is 0) or (not self.checkFilterRover.isChecked() and v.type is 1) or (not self.checkPrio[v.priority].isChecked()) or (not self.matchesCriteria(v, search)):
+            if (not self.checkFilterGUI.isChecked() and v.type is LOGGER_TYPE_GUI) or (not self.checkFilterRover.isChecked() and v.type is LOGGER_TYPE_ROVER) or (not self.checkPrio[v.priority].isChecked()) or (not self.matchesCriteria(v, search)):
                 continue
                 
             self.addNewRow(v)
