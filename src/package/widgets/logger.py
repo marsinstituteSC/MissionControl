@@ -54,6 +54,7 @@ class ColorizedLogger(QWidget):
 
     def __init__(self, parent=None, colorNotification=QColor(0, 255, 0), colorWarning=QColor(253, 106, 2), colorError=QColor(255, 0, 0)):
         super().__init__()
+        self.filterToggle = True
         self.setParent(parent)
         self.colorForPriority = [None, colorNotification, colorWarning, colorError]
         self.data = list()
@@ -79,6 +80,9 @@ class ColorizedLogger(QWidget):
         self.checkPrioWarn.stateChanged.connect(self.display)
         self.checkPrioErr.stateChanged.connect(self.display)
 
+        self.filterButton.clicked.connect(self.toggleFilter)
+        self.toggleFilter()
+
         self.checkPrio = {
             0: self.checkPrioCommon,
             1: self.checkPrioNotif,
@@ -87,6 +91,16 @@ class ColorizedLogger(QWidget):
         }
 
         self.show()
+
+    def toggleFilter(self):
+        if self.filterToggle:
+            self.filterToggle = False
+            self.filterBox.hide()
+            self.filterButton.setText("Show Filters")
+        else:
+            self.filterToggle = True
+            self.filterBox.show()
+            self.filterButton.setText("Hide Filters")
 
     def getColorForPriority(self, priority):
         return self.colorForPriority[priority]
