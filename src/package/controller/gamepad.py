@@ -119,6 +119,7 @@ class Gamepad(QThread):
         Finds all connected gamepads. Must be called at the start of the run loop if there has been a change.
         Will uninitialize and then initialize the joystick module
         """
+        print("Try refresh...")
         if self.joystick:
             self.joystick.quit()
             self.joystick = None
@@ -275,8 +276,8 @@ class Gamepad(QThread):
                 self.refresh()
                 lastEventTime = now
             # Force refresh when no gamepad is connected for quicker reconnect. It's a elif in order to not get double refresh's.
-            elif joystick.get_count() == 0:
-                self.refresh()
+            # elif (joystick.get_count() == 0) and ((now - lastEventTime) >= 1):
+            #     self.refresh()
 
             # Limit the clock rate to 30 ticks per second
             CLOCK.tick(30)

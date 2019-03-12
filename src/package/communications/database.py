@@ -71,10 +71,10 @@ def add(el, schema):
                 s.execute('set search_path={}'.format(schema))
             s.add(el)
             s.commit()
-            SIGNAL.setTrue()
+            SIGNAL.setOk()
         except Exception as e:
             print(e)
-            SIGNAL.setFalse(e)
+            SIGNAL.setError(e)
             if s:
                 s.rollback()  
         finally:
@@ -91,10 +91,10 @@ def delete(el, schema):
                 s.execute('set search_path={}'.format(schema))
             s.delete(el)
             s.commit()
-            SIGNAL.setTrue()
+            SIGNAL.setOk()
         except Exception as e:
             print(e)
-            SIGNAL.setFalse(e)
+            SIGNAL.setError(e)
             if s:
                 s.rollback()    
         finally:
@@ -108,11 +108,11 @@ def find(id, schema):
             s = Session()
             if not USEMYSQL:
                 s.execute('set search_path={}'.format(schema))
-            SIGNAL.setTrue()
+            SIGNAL.setOk()
             return s.query(Event).filter_by(id=id).first()
         except Exception as e:
             print(e)
-            SIGNAL.setFalse(e)
+            SIGNAL.setError(e)
             return None
 
 class Event(Base):
@@ -185,10 +185,10 @@ def deleteDataFromDatabase(schema):
 
             # Commit changes!
             s.commit()
-            SIGNAL.setTrue()
+            SIGNAL.setOk()
         except Exception as e:
             print(e)
-            SIGNAL.setFalse(e)
+            SIGNAL.setError(e)
             if s:
                 s.rollback()    
         finally:
