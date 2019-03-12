@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         gp.GAMEPAD.statusChanged.connect(self.changeGamepadStatus)
         self.refreshGamepad() # Re-init + fetch list of gamepads
 
-        database.SIGNAL.signal.connect(self.changeDatabaseStatus)
+        database.SIGNAL.status.connect(self.changeDatabaseStatus)
         udp_conn.ROVERSERVER.communicationTimeout.connect(self.changeRoverStatus)
 
         udp_conn.ROVERSERVER.onReceiveData.connect(self.receivedDataFromRover)        
@@ -66,10 +66,10 @@ class MainWindow(QMainWindow):
         """
         # Assign logger to group box in grid.
         self.log = logger.ColorizedLogger()
-        self.log.logData("Anything, especially stuff we normally don't care about", 0)
-        self.log.logData("Something normal happened", 1)
-        self.log.logData("Something might be wrong", 2) 
-        self.log.logData("Something is definitely wrong", 3)
+        self.log.logData("Anything, especially stuff we normally don't care about", logger.LOGGER_PRIORITY_COMMON)
+        self.log.logData("Something normal happened", logger.LOGGER_PRIORITY_NOTIFICATION)
+        self.log.logData("Something might be wrong", logger.LOGGER_PRIORITY_WARNING) 
+        self.log.logData("Something is definitely wrong", logger.LOGGER_PRIORITY_ERROR)
         self.logSection.layout().addWidget(self.log)
 
         self.gyro = GyroscopeWidget()
@@ -124,10 +124,11 @@ class MainWindow(QMainWindow):
 
     def changeDatabaseStatus(self, status):
         self.controlStatus.setDatabaseStatus(status[0])
+        if not status[0]: # Print error.
+            self.log.logData(str(status[1]), logger.LOGGER_PRIORITY_ERROR)
 
     def setSpeedometerValue(self, value):
-        #self.speedMeter.display(value)
-        print(value)
+        self.speed.setSpeed(value)
 
     def settings(self):
         self.setting = cfg.openSettings()
@@ -173,10 +174,14 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot('PyQt_PyObject')
     def receivedDataFromRover(self, data):
+        """
+        When a packet arrives from the rover, an event is triggered, the event is sent safely to the Qt GUI thread, the incoming data is a json
+        object, which can be parsed properly in this method.
+        """
         # TODO Add more stuff here...
         if 'speed' in data:
             self.setSpeedometerValue(data['speed'])
-            self.log.logData("Speed {} m/s.".format(data['speed']), 1)
+            self.log.logData("Speed {} m/s.".format(data['speed']), logger.LOGGER_PRIORITY_NOTIFICATION, logger.LOGGER_TYPE_ROVER)
 
 def loadMainWindow():
     wndw = MainWindow()
