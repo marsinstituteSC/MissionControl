@@ -26,7 +26,7 @@ class SpeedWidget(QWidget):
             "right" : QIcon("images/status icons/turn_right.png")
         }
         self.setSpeed(0)
-        self.setTurn(-5)
+        self.setTurn(0)
     
     def setSpeed(self, speed):
         self.speed = int(speed)
