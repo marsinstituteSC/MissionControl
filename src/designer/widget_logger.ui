@@ -32,15 +32,75 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="1" column="3">
-    <widget class="QGroupBox" name="filterBox">
-     <property name="title">
-      <string>Filters</string>
+   <item row="4" column="0" colspan="4">
+    <widget class="QTableWidget" name="loggerTable">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
      </property>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="gridStyle">
+      <enum>Qt::SolidLine</enum>
+     </property>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderHighlightSections">
+      <bool>false</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>Message</string>
       </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Priority</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Timestamp</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QPushButton" name="filterButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Show Filters</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="searchButton">
+     <property name="text">
+      <string>Search</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="searchText"/>
+   </item>
+   <item row="2" column="3">
+    <widget class="QFrame" name="filterBox">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -54,9 +114,9 @@
        <number>0</number>
       </property>
       <property name="spacing">
-       <number>6</number>
+       <number>3</number>
       </property>
-      <item row="2" column="2">
+      <item row="0" column="0">
        <widget class="QGroupBox" name="groupFilterSource">
         <property name="title">
          <string>Source</string>
@@ -97,7 +157,7 @@
         </layout>
        </widget>
       </item>
-      <item row="2" column="3">
+      <item row="0" column="1">
        <widget class="QGroupBox" name="groupFilterPriorities">
         <property name="title">
          <string>Severity</string>
@@ -160,66 +220,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="QTableWidget" name="loggerTable">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="gridStyle">
-      <enum>Qt::SolidLine</enum>
-     </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderHighlightSections">
-      <bool>false</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Message</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Priority</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Timestamp</string>
-      </property>
-     </column>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QPushButton" name="filterButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Show Filters</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="searchButton">
-     <property name="text">
-      <string>Search</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="searchText"/>
    </item>
   </layout>
  </widget>
