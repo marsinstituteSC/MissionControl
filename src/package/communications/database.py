@@ -48,7 +48,7 @@ def onSettingsChanged(name, config): # Deals with reconnecting the engine for ne
     USERNAME = config.get("database", "user")
     PASSWD = config.get("database", "passwd")    
     with LOCK: # Update connection itself... WAIT for other queries to finish via the lock.
-        USEMYSQL = (config.get("database", "type") == "mysql") # Must not be changed while other queries run, since postgres needs to set the schema!
+        USEMYSQL = (config.get("database", "type") == "mysql")
         if engine:
             engine.dispose()
             Session.remove()
@@ -58,16 +58,14 @@ def onSettingsChanged(name, config): # Deals with reconnecting the engine for ne
 
 def loadDatabase():
     settings.settings.SETTINGSEVENT.addListener(onSettingsChanged, onSettingsChanged)
-    onSettingsChanged(None, settings.settings.SETTINGS)    
+    onSettingsChanged(None, settings.settings.SETTINGS)          
 
-def add(el, schema):
+def add(el):
     """Generic Add"""
     s = None
     with LOCK:
         try:
             s = Session()
-            if not USEMYSQL:
-                s.execute('set search_path={}'.format(schema))
             s.add(el)
             s.commit()
             SIGNAL.dispatch(True)
@@ -80,14 +78,12 @@ def add(el, schema):
             if s:
                 s.close()
 
-def delete(el, schema):
+def delete(el):
     """Generic Delete"""
     s = None
     with LOCK:
         try:
             s = Session()
-            if not USEMYSQL:
-                s.execute('set search_path={}'.format(schema))
             s.delete(el)
             s.commit()
             SIGNAL.dispatch(True)
@@ -100,13 +96,11 @@ def delete(el, schema):
             if s:
                 s.close()
 
-def find(id, schema):
+def find(id):
     """Generic Find"""
     with LOCK:
         try:
             s = Session()
-            if not USEMYSQL:
-                s.execute('set search_path={}'.format(schema))
             return s.query(Event).filter_by(id=id).first()
         except Exception as e:
             print(e)
@@ -115,33 +109,31 @@ def find(id, schema):
 class Event(Base):
     __tablename__ = "event"
     id = Column(BIGINT, primary_key=True)
-    message = Column(String)
+    message = Column(String(128))
     severity = Column(SMALLINT)
     type = Column(SMALLINT)
     time = Column(TIMESTAMP)
 
     def __repr__(self):
-        return "Sensor.Event(msg={}, sev={}, typ={}, time={})".format(self.message, self.severity, self.type, self.time)
+        return "Event(msg={}, sev={}, typ={}, time={})".format(self.message, self.severity, self.type, self.time)
 
     def add(msg, s, t, time):
         """
         Add a new event to the DB.
         """
-        add(Event(message=msg, severity=s, type=t, time=time), "sensor")
+        add(Event(message=msg, severity=s, type=t, time=time))
 
     def delete(id):
         """
         Remove an event from the DB.
         """
-        delete(find(id, "sensor"), "sensor")
+        delete(find(id))
 
     def findByType(t, reverse=False):
         output = list()    
         with LOCK:
             try:
                 s = Session()
-                if not USEMYSQL:
-                    s.execute('set search_path=sensor')
                 for d in s.query(Event).filter_by(type=t).order_by(desc(Event.time)).all():
                     output.append(d)
             except Exception as e:
@@ -156,8 +148,6 @@ class Event(Base):
         with LOCK:
             try:
                 s = Session()
-                if not USEMYSQL:
-                    s.execute('set search_path=sensor')
                 for d in s.query(Event).filter(Event.time >= start, Event.time <= end, Event.type == t).order_by(desc(Event.time)).all():
                     output.append(d)
             except Exception as e:
@@ -168,14 +158,12 @@ class Event(Base):
                 return output
 
 
-def deleteDataFromDatabase(schema):
+def deleteDataFromDatabase():
     """Delete all data!"""
     s = None
     with LOCK:
         try:
-            s = Session()
-            if not USEMYSQL:
-                s.execute('set search_path={}'.format(schema))                    
+            s = Session()                 
             
             # Delete actual table data here:
             s.query(Event).delete() # Delete all events.
@@ -191,3 +179,35 @@ def deleteDataFromDatabase(schema):
         finally:
             if s:
                 s.close()
+
+def createDatabase(db):
+    """
+    Create a fully functional MySQL or PostgreSQL DB + table(s).
+    """
+    global ADDRESS, PORT, DB, USERNAME, PASSWD, USEMYSQL, Session, engine
+
+    with LOCK:
+        # Dispose of old DB connection + session.
+        DB = db
+        if engine:
+            engine.dispose()
+            Session.remove()
+            Session = scoped_session(sessionmaker())
+
+        # Connect to default / public DB -> Create new DB!
+        engine = create_engine("{}{}:{}@{}:{}/{}".format("mysql+pymysql://" if USEMYSQL else "postgresql://", USERNAME, PASSWD, ADDRESS, PORT,  "" if USEMYSQL else "postgres"))
+        conn = engine.connect()
+        conn.execute("commit")
+        conn.execute("CREATE DATABASE {}".format(db))
+        conn.close()       
+        engine.dispose()
+
+        # Connect to the new DB + create new tables.      
+        engine = create_engine("{}{}:{}@{}:{}/{}".format("mysql+pymysql://" if USEMYSQL else "postgresql://", USERNAME, PASSWD, ADDRESS, PORT, db))
+        Base.metadata.create_all(engine, tables=[Event.__table__])
+        time.sleep(1)
+        engine.dispose()
+
+        # Establish new session + refresh.
+        engine = create_engine("{}{}:{}@{}:{}/{}".format("mysql+pymysql://" if USEMYSQL else "postgresql://", USERNAME, PASSWD, ADDRESS, PORT, DB))
+        Session.configure(bind=engine)

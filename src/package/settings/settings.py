@@ -139,6 +139,7 @@ class OptionWindow(QDialog):
         self.button_ok.clicked.connect(self.close)
         self.button_apply.clicked.connect(self.saveSettings)
         self.button_dbDropAll.clicked.connect(self.dropDatabaseTable)
+        self.button_dbCreateDB.clicked.connect(self.createDatabase)
 
         # Fetch settings
         global SETTINGS
@@ -312,7 +313,14 @@ class OptionWindow(QDialog):
 
     def dropDatabaseTable(self):
         if warning.showPrompt("Disclaimer!", "This will delete all the data from the database, the structure will still be in tact. Do you want to proceed?", self) == QMessageBox.Yes:
-            database.deleteDataFromDatabase("sensor")
+            database.deleteDataFromDatabase()
+
+    def createDatabase(self):
+        if warning.showPrompt("Disclaimer!", "Create a new database? You may have to restart the program!", self) == QMessageBox.Yes:
+            try:
+                database.createDatabase(self.databaseDB.text())
+            except Exception as e:
+                warning.showWarning("Error!", str(e), self)
 
 def updateResolutionOnCamera(name, mode):
     """
