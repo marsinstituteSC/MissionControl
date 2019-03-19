@@ -97,11 +97,9 @@ class MainWindow(QMainWindow):
         self.frameGraphSettings.findChild(QDateTimeEdit, "plotTimeEnd").setDateTime(QDateTime.currentDateTime())
 
         self.splitter.setStyleSheet("QSplitter::handle:horisontal {\n"
-        "color: black;\n"
-        "background-color:  rgb(229, 229, 229);\n"
         "border-width: 0px 0px 2px 0px;\n"
         "border-style: dotted;\n"
-        "border-color: black;\n"
+        "border-color: grey;\n"
         "}")
 
     def closeEvent(self, event):
