@@ -23,6 +23,7 @@ from widgets.motionControl import MotionControlWidget
 from widgets.battery import BatteryWidget
 from widgets.controlStationStatus import ControlStatus
 from widgets.speed import SpeedWidget
+from widgets.message import CustomMessageWidget
 
 from utils.warning import showWarning
 from communications import database
@@ -79,13 +80,15 @@ class MainWindow(QMainWindow):
         self.battery = BatteryWidget()
         self.controlStatus = ControlStatus()
         self.speed = SpeedWidget()
+        self.message = CustomMessageWidget()
         self.leftFrameGrid.addWidget(self.status, 1, 0)
         self.leftFrameGrid.addWidget(self.controlStatus, 0, 0)
         self.topFrameGrid.addWidget(self.compass, 0, 0)
         self.bottomFrameGrid.addWidget(self.gyro, 1, 0)
         self.bottomFrameGrid.addWidget(self.speed, 0, 0)
         self.bottomFrameGrid.addWidget(self.battery, 0, 1, 2, 1)
-        self.rightFrameGrid.addWidget(self.motionControl, 0, 0)      
+        self.rightFrameGrid.addWidget(self.message, 0, 0)  
+        self.rightFrameGrid.addWidget(self.motionControl, 1, 0)      
 
         # Make 1 row, 1 columns, 1 plot
         self.graph = plot.PlotCanvas(None, 10)        

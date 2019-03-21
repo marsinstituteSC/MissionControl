@@ -338,7 +338,7 @@ def updateResolutionOnCamera(name, mode):
         "Camera" : msg
     }
     # Send to udp
-    UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
+    #UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
 
 def openSettings():
     """Open global settings"""

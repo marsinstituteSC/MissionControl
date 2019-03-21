@@ -12,7 +12,7 @@ class SimpleStatus(QWidget):
         loadUi("designer/widget_simpleStatus.ui", self)
 
         # List of wheel names for easy search later
-        self.wheelNames = ["frontLeftWheel", "frontRightWheel", "middleLeftWheel", "middleRightWheel", "backLeftWheel", "backRightWheel"]
+        self.wheelNames = ["top-left-wheel", "top-right-wheel", "middle-left-wheel", "middle-right-wheel", "back-left-wheel", "back-right-wheel"]
         self.statusIcons = {
             "wheelok" : QPixmap("images/status icons/small_wheel_ok.png"),
             "wheelfault" : QPixmap("images/status icons/small_wheel_fault.png"),
@@ -25,15 +25,16 @@ class SimpleStatus(QWidget):
         }
         # Contains the messages
         self.status = {
-            "frontLeftWheel" : None,
-            "frontRightWheel" : None,
-            "middleLeftWheel" : None,
-            "middleRightWheel" : None,
-            "backLeftWheel" : None,
-            "backRightWheel" : None,
+            "top-left-wheel" : None,
+            "top-right-wheel" : None,
+            "middle-left-wheel" : None,
+            "middle-right-wheel" : None,
+            "back-left-wheel" : None,
+            "back-right-wheel" : None,
             "camera" : None,
             "manipulator" : None,
-            "main" : None
+            "sensormast" : None,
+            "battery" : None
         }
 
         self.createLabels()
@@ -103,17 +104,17 @@ class SimpleStatus(QWidget):
 
     def setWheelStatus(self, error, wheel):
         """ Changes the displayed image of the wheels, depending on the error status """
-        if wheel == "frontLeftWheel":
+        if wheel == "top-left-wheel":
             self.frontLeftWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
-        elif wheel == "frontRightWheel":
+        elif wheel == "top-right-wheel":
             self.frontRightWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
-        elif wheel == "middleLeftWheel":
+        elif wheel == "middle-left-wheel":
             self.middleLeftWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
-        elif wheel == "middleRightWheel":
+        elif wheel == "middle-right-wheel":
             self.middleRightWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
-        elif wheel == "backLeftWheel":
+        elif wheel == "back-left-wheel":
             self.backLeftWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
-        elif wheel == "backRightWheel":
+        elif wheel == "back-reft-wheel":
             self.backRightWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
 
     def setCameraStatus(self, error):
@@ -148,11 +149,11 @@ class SimpleStatus(QWidget):
             
             if part in self.wheelNames:
                 self.setWheelStatus(err, part)                
-            elif part == "camera":
+            elif part == "camera" or part == "sensormast":
                 self.setCameraStatus(err)
             elif part == "manipulator":
                 self.setManipulatorStatus(err)
-            elif part == "main":
+            elif part == "battery":
                 self.setBodyStatus(err)
             else:
                 continue
