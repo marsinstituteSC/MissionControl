@@ -33,8 +33,10 @@ class SimpleStatus(QWidget):
             "back-right-wheel" : None,
             "camera" : None,
             "manipulator" : None,
-            "sensormast" : None,
-            "battery" : None
+            "body" : {
+                "battery" : None,
+                "sensormast" : None
+                }
         }
 
         self.createLabels()
@@ -42,27 +44,27 @@ class SimpleStatus(QWidget):
 
     def createLabels(self):
         """ Creates the special labels and assigns them onto the grid """
-        self.frontLeftWheel = ClickableLabel("frontLeftWheel")
+        self.frontLeftWheel = ClickableLabel("top-left-wheel")
         self.frontLeftWheel.clicked.connect(self.showWarning)
         self.grid_status.addWidget(self.frontLeftWheel, 0, 0)
         
-        self.frontRightWheel = ClickableLabel("frontRightWheel")
+        self.frontRightWheel = ClickableLabel("top-right-wheel")
         self.frontRightWheel.clicked.connect(self.showWarning)
         self.grid_status.addWidget(self.frontRightWheel, 0, 2)
 
-        self.middleLeftWheel = ClickableLabel("middleLeftWheel")
+        self.middleLeftWheel = ClickableLabel("middle-left-wheel")
         self.middleLeftWheel.clicked.connect(self.showWarning)
         self.grid_status.addWidget(self.middleLeftWheel, 1, 0)
 
-        self.middleRightWheel = ClickableLabel("middleRightWheel")
+        self.middleRightWheel = ClickableLabel("middle-right-wheel")
         self.middleRightWheel.clicked.connect(self.showWarning)
         self.grid_status.addWidget(self.middleRightWheel, 1, 2)
 
-        self.backLeftWheel = ClickableLabel("backLeftWheel")
+        self.backLeftWheel = ClickableLabel("back-left-wheel")
         self.backLeftWheel.clicked.connect(self.showWarning)
         self.grid_status.addWidget(self.backLeftWheel, 2, 0)
 
-        self.backRightWheel = ClickableLabel("backRightWheel")
+        self.backRightWheel = ClickableLabel("back-right-wheel")
         self.backRightWheel.clicked.connect(self.showWarning)
         self.grid_status.addWidget(self.backRightWheel, 2, 2)
 
@@ -78,17 +80,26 @@ class SimpleStatus(QWidget):
 
         self.grid_status.addLayout(grid, 0, 1)
 
-        self.main = ClickableLabel("main")
+        self.main = ClickableLabel("body")
         self.main.clicked.connect(self.showWarning)
         self.grid_status.addWidget(self.main, 1, 1, 2, 1)
 
     # NOTE: DO NOT STOP THE WINDOW UNDER THE ERROR FROM BEING CLICKED
     def showWarning(self, part):
-        if self.status[part]:
+        if part == "body":
             text = ""
-            for txt in self.status[part]:
-                text += txt + "\n"
-            showWarning("Issues", text)
+            if self.status["body"]["battery"]:
+                text += self.status["body"]["battery"] + "\n"
+            elif self.status["body"]["sensormast"]:
+                text += self.status["body"]["sensormast"] + "\n"
+            if text != "":
+                showWarning("Issues", text)
+        else:
+            if self.status[part]:
+                text = ""
+                for txt in self.status[part]:
+                    text += txt + "\n"
+                showWarning("Issues", text)
 
     def resetImages(self):
         """ Resets the images """
@@ -114,7 +125,7 @@ class SimpleStatus(QWidget):
             self.middleRightWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
         elif wheel == "back-left-wheel":
             self.backLeftWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
-        elif wheel == "back-reft-wheel":
+        elif wheel == "back-right-wheel":
             self.backRightWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
 
     def setCameraStatus(self, error):
@@ -125,12 +136,19 @@ class SimpleStatus(QWidget):
         """ Sets the status image for the manipulator """
         self.manipulator.setPixmap(self.statusIcons["manipulatorfault" if error else "manipulatorok"])
         
-    def setBodyStatus(self, error):
+    def setBodyStatus(self, part, error, msg):
         """
-        Sets the status image and text for the body
+        Sets the status image
         Body will be affected by every error that has not a specific area in the grid, ex wheels.
         """
-        self.main.setPixmap(self.statusIcons["mainfault" if error else "mainok"])
+        if part == "battery":
+            self.status["body"]["battery"] = msg
+        elif part == "sensormast":
+            self.status["body"]["sensormast"] = msg
+        if self.status["body"]["sensormast"] or self.status["body"]["battery"]:
+            self.main.setPixmap(self.statusIcons["mainfault"])
+        else:
+            self.main.setPixmap(self.statusIcons["mainok"])
 
     def statusHandler(self, status):
         """
@@ -149,21 +167,55 @@ class SimpleStatus(QWidget):
             
             if part in self.wheelNames:
                 self.setWheelStatus(err, part)                
-            elif part == "camera" or part == "sensormast":
+            elif part == "camera":
                 self.setCameraStatus(err)
             elif part == "manipulator":
                 self.setManipulatorStatus(err)
-            elif part == "battery":
-                self.setBodyStatus(err)
+            elif part == "battery" or part == "sensormast":
+                self.setBodyStatus(part, err, message["messages"])
             else:
                 continue
 
             self.status[part] = message["messages"] if err else None
-
+        self.setToolTips()
+        
+    def setToolTips(self):
+        for part, status in self.status.items():
+            text = ""
+            if status:
+                for t in status:
+                    text += t + "\n"
+            if part == "top-left-wheel":
+                self.frontLeftWheel.setToolTip(text)
+            elif part == "top-right-wheel":
+                self.frontRightWheel.setToolTip(text)
+            elif part == "middle-left-wheel":
+                self.middleLeftWheel.setToolTip(text)
+            elif part == "middle-right-wheel":
+                self.middleRightWheel.setToolTip(text)
+            elif part == "back-left-wheel":
+                self.backLeftWheel.setToolTip(text)
+            elif part == "back-right-wheel":
+                self.backRightWheel.setToolTip(text)
+            elif part == "camera":
+                self.camera.setToolTip(text)
+            elif part == "manipulator":
+                self.manipulator.setToolTip(text)
+        if self.status["body"]["sensormast"] and self.status["body"]["battery"]:
+            self.main.setToolTip(self.status["body"]["sensormast"][0] + " " + self.status["body"]["battery"][0])
+        elif self.status["body"]["sensormast"] and not self.status["body"]["battery"]:
+            self.main.setToolTip(self.status["body"]["sensormast"][0])
+        elif not self.status["body"]["sensormast"] and self.status["body"]["battery"]:
+            self.main.setToolTip(self.status["body"]["battery"][0])
+    
+    def testWidget(self):
+        self.statusHandler(exampleData())
+                
+            
 def exampleData():
     flw = {
-        "error" : False,
-        "messages" : None
+        "error" : True,
+        "messages" : ["ERROR"]
     }
     frw = { # Front Right Wheel
         "error" : False,
@@ -193,19 +245,19 @@ def exampleData():
         "error" : False,
         "messages" : None
     }
-    body = {
-        "error" : False,
-        "messages" : None
+    mast = {
+        "error" : True,
+        "messages" : ["NOOOO"]
     }
     status = {
-            "frontLeftWheel" : flw,
-            "frontRightWheel" : frw,
-            "middleLeftWheel" : mlw,
-            "middleRightWheel" : mrw,
-            "backLeftWheel" : blw,
-            "backRightWheel" : brw,
+            "top-left-wheel" : flw,
+            "top-right-wheel" : frw,
+            "middle-left-wheel" : mlw,
+            "middle-right-wheel" : mrw,
+            "back-left-wheel" : blw,
+            "back-right-wheel" : brw,
             "camera" : camera,
             "manipulator" : arm,
-            "main" : body
+            "sensormast" : mast
         }
     return status

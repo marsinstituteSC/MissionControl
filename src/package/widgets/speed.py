@@ -8,8 +8,8 @@ class SpeedWidget(QWidget):
     def __init__(self):
         super().__init__()
         loadUi("designer/widget_speed.ui", self)
-        self.speed = 0
-        self.turn = 0
+        self.speed = 0.0
+        self.turn = 0.0
 
         self.speedIcons = {
             "stop" : QIcon("images/status icons/speed_stop.png"),
@@ -25,30 +25,30 @@ class SpeedWidget(QWidget):
             "left" : QIcon("images/status icons/turn_left.png"),
             "right" : QIcon("images/status icons/turn_right.png")
         }
-        self.setSpeed(0)
-        self.setTurn(0)
+        self.setSpeed(0.0)
+        self.setTurn(0.0)
     
     def setSpeed(self, speed):
-        self.speed = int(speed)
+        self.speed = speed
         self.lcd_speed.display(self.speed)
-        # Dont know what fast is in the context of the rover, using 1 as slow, 2 as medium and 3 as fast.
+        # Max speed for the rovers on the competition is 0.5 m/s.
         if self.speed == 0:
             self.label_speed_image.setPixmap(self.speedIcons["stop"].pixmap(QSize(64,64)))
-        elif self.speed > 0 and self.speed <= 1:
+        elif self.speed > 0 and self.speed <= 0.2:
             self.label_speed_image.setPixmap(self.speedIcons["fwd_slow"].pixmap(QSize(64,64)))
-        elif self.speed > 1 and self.speed <= 2:
+        elif self.speed > 0.2 and self.speed <= 0.4:
             self.label_speed_image.setPixmap(self.speedIcons["fwd_med"].pixmap(QSize(64,64)))
-        elif self.speed > 2:
+        elif self.speed > 0.4:
             self.label_speed_image.setPixmap(self.speedIcons["fwd_fast"].pixmap(QSize(64,64)))
-        elif self.speed < 0 and self.speed >= -1:
+        elif self.speed < 0 and self.speed >= -0.2:
             self.label_speed_image.setPixmap(self.speedIcons["bck_slow"].pixmap(QSize(64,64)))
-        elif self.speed < -1 and self.speed >= -2:
+        elif self.speed < -0.2 and self.speed >= -0.4:
             self.label_speed_image.setPixmap(self.speedIcons["bck_med"].pixmap(QSize(64,64)))
-        elif self.speed < -2:
+        elif self.speed < -0.4:
             self.label_speed_image.setPixmap(self.speedIcons["bck_fast"].pixmap(QSize(64,64)))
     
     def setTurn(self, turn):
-        self.turn = int(turn)
+        self.turn = turn
         if self.turn == 0:
             self.label_turn_image.setPixmap(self.turnIcons["fwd"].pixmap(QSize(64,64)))
         elif self.turn > 0:
