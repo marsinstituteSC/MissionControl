@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.uic import loadUi
 import sys
 
@@ -47,61 +47,65 @@ class SimpleStatus(QWidget):
     def createLabels(self):
         """ Creates the special labels and assigns them onto the grid """
         self.frontLeftWheel = ClickableLabel("top-left-wheel")
-        self.frontLeftWheel.clicked.connect(self.showWarning)
+        self.frontLeftWheel.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.frontLeftWheel, 0, 0)
         
         self.frontRightWheel = ClickableLabel("top-right-wheel")
-        self.frontRightWheel.clicked.connect(self.showWarning)
+        self.frontRightWheel.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.frontRightWheel, 0, 2)
 
         self.middleLeftWheel = ClickableLabel("middle-left-wheel")
-        self.middleLeftWheel.clicked.connect(self.showWarning)
+        self.middleLeftWheel.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.middleLeftWheel, 1, 0)
 
         self.middleRightWheel = ClickableLabel("middle-right-wheel")
-        self.middleRightWheel.clicked.connect(self.showWarning)
+        self.middleRightWheel.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.middleRightWheel, 1, 2)
 
         self.backLeftWheel = ClickableLabel("back-left-wheel")
-        self.backLeftWheel.clicked.connect(self.showWarning)
+        self.backLeftWheel.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.backLeftWheel, 2, 0)
 
         self.backRightWheel = ClickableLabel("back-right-wheel")
-        self.backRightWheel.clicked.connect(self.showWarning)
+        self.backRightWheel.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.backRightWheel, 2, 2)
 
         grid = QGridLayout()
 
         self.manipulator = ClickableLabel("manipulator")
-        self.manipulator.clicked.connect(self.showWarning)
+        self.manipulator.clicked.connect(self.showLabelWarning)
         grid.addWidget(self.manipulator, 0, 0)
 
         self.camera = ClickableLabel("camera")
-        self.camera.clicked.connect(self.showWarning)
+        self.camera.clicked.connect(self.showLabelWarning)
         grid.addWidget(self.camera, 0, 1)
 
         self.grid_status.addLayout(grid, 0, 1)
 
         self.main = ClickableLabel("body")
-        self.main.clicked.connect(self.showWarning)
+        self.main.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.main, 1, 1, 2, 1)
 
-    # NOTE: DO NOT STOP THE WINDOW UNDER THE ERROR FROM BEING CLICKED
-    def showWarning(self, part):
+    def showLabelWarning(self,part):
         if part == "body":
             text = ""
             for part, status in self.status["body"].items():
                 if status:
                     for t in status:
-                        text += part + " -> " + t + "\n"
+                        # Remove trailing newline
+                        text += part + " -> " + t if text == "" else "\n" + part + " -> " + t
             if text != "":
-                showWarning("Issues", text)
+                self.label_status.setText(text)
+            else:
+                self.label_status.setText("")
         else:
             if self.status[part]:
                 text = ""
                 for txt in self.status[part]:
-                    text += txt + "\n"
-                showWarning("Issues", text)
+                    text += txt if text == "" else "\n" + txt
+                self.label_status.setText(text)
+            else:
+                self.label_status.setText("")
 
     def resetImages(self):
         """ Resets the images """
@@ -183,7 +187,7 @@ class SimpleStatus(QWidget):
             text = ""
             if status:
                 for t in status:
-                    text += t + "\n"
+                    text += t if text == "" else "\n" + t
             if part == "top-left-wheel":
                 self.frontLeftWheel.setToolTip(text)
             elif part == "top-right-wheel":
@@ -206,7 +210,7 @@ class SimpleStatus(QWidget):
         for part, status in self.status["body"].items():
             if status:
                 for t in status:
-                    text += part + " -> " + t + "\n"
+                    text += part + " -> " + t if text == "" else "\n" + part + " -> " + t
         self.main.setToolTip(text)
     
     def testWidget(self):
