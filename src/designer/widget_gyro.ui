@@ -12,8 +12,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>389</width>
-    <height>300</height>
+    <width>16777215</width>
+    <height>16777215</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -37,7 +37,7 @@
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>60</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="frameShape">
@@ -61,6 +61,12 @@
       </property>
       <item row="0" column="7">
        <widget class="QLCDNumber" name="lcd_yaw">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -81,6 +87,12 @@
       </item>
       <item row="0" column="4">
        <widget class="QLCDNumber" name="lcd_pitch">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -98,6 +110,12 @@
       </item>
       <item row="0" column="1">
        <widget class="QLCDNumber" name="lcd_roll">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>

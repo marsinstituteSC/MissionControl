@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import QSize
 from PyQt5.uic import loadUi
 import sys
 
@@ -13,17 +14,18 @@ class SimpleStatus(QWidget):
 
         # List of wheel names for easy search later
         self.wheelNames = ["top-left-wheel", "top-right-wheel", "middle-left-wheel", "middle-right-wheel", "back-left-wheel", "back-right-wheel"]
+        # List of images used for the status widget, QIcon for scaling down images nicely
         self.statusIcons = {
-            "wheelok" : QPixmap("images/status icons/small_wheel_ok.png"),
-            "wheelfault" : QPixmap("images/status icons/small_wheel_fault.png"),
-            "cameraok" : QPixmap("images/status icons/camera_ok.png"),
-            "camerafault" : QPixmap("images/status icons/camera_fault.png"),
-            "manipulatorok" : QPixmap("images/status icons/manipulator_ok.png"),
-            "manipulatorfault" : QPixmap("images/status icons/manipulator_fault.png"),
-            "mainok" : QPixmap("images/status icons/main_ok.png"),
-            "mainfault" : QPixmap("images/status icons/main_fault.png")
+            "wheelok" : QIcon("images/status icons/small_wheel_ok.png").pixmap(QSize(64,64)),
+            "wheelfault" : QIcon("images/status icons/small_wheel_fault.png").pixmap(QSize(64,64)),
+            "cameraok" : QIcon("images/status icons/camera_ok.png").pixmap(QSize(64,64)),
+            "camerafault" : QIcon("images/status icons/camera_fault.png").pixmap(QSize(64,64)),
+            "manipulatorok" : QIcon("images/status icons/manipulator_ok.png").pixmap(QSize(64,64)),
+            "manipulatorfault" : QIcon("images/status icons/manipulator_fault.png").pixmap(QSize(64,64)),
+            "bodyok" : QIcon("images/status icons/main_ok.png").pixmap(QSize(64,64)),
+            "bodyfault" : QIcon("images/status icons/main_fault.png").pixmap(QSize(64,64))
         }
-        # Contains the messages
+        # Contains the messages about the status
         self.status = {
             "top-left-wheel" : None,
             "top-right-wheel" : None,
@@ -88,10 +90,10 @@ class SimpleStatus(QWidget):
     def showWarning(self, part):
         if part == "body":
             text = ""
-            if self.status["body"]["battery"]:
-                text += self.status["body"]["battery"] + "\n"
-            elif self.status["body"]["sensormast"]:
-                text += self.status["body"]["sensormast"] + "\n"
+            for part, status in self.status["body"].items():
+                if status:
+                    for t in status:
+                        text += part + " -> " + t + "\n"
             if text != "":
                 showWarning("Issues", text)
         else:
@@ -111,9 +113,9 @@ class SimpleStatus(QWidget):
         self.backRightWheel.setPixmap(self.statusIcons["wheelok"])
         self.manipulator.setPixmap(self.statusIcons["manipulatorok"])
         self.camera.setPixmap(self.statusIcons["cameraok"])
-        self.main.setPixmap(self.statusIcons["mainok"])
+        self.main.setPixmap(self.statusIcons["bodyok"])
 
-    def setWheelStatus(self, error, wheel):
+    def setWheelStatus(self, error, wheel, msg):
         """ Changes the displayed image of the wheels, depending on the error status """
         if wheel == "top-left-wheel":
             self.frontLeftWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
@@ -127,59 +129,56 @@ class SimpleStatus(QWidget):
             self.backLeftWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
         elif wheel == "back-right-wheel":
             self.backRightWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
+        self.status[wheel] = msg if error else None 
 
-    def setCameraStatus(self, error):
+    def setCameraStatus(self, error, msg):
         """ Sets the status image for the camera """
         self.camera.setPixmap(self.statusIcons["camerafault" if error else "cameraok"])
+        self.status["camera"] = msg if error else None 
 
-    def setManipulatorStatus(self, error):
-        """ Sets the status image for the manipulator """
+    def setManipulatorStatus(self, error, msg):
+        """ Sets the status image and text for the manipulator """
         self.manipulator.setPixmap(self.statusIcons["manipulatorfault" if error else "manipulatorok"])
+        self.status["manipulator"] = msg if error else None 
         
-    def setBodyStatus(self, part, error, msg):
+    def setBodyStatus(self, error, part, msg):
         """
         Sets the status image
         Body will be affected by every error that has not a specific area in the grid, ex wheels.
         """
-        if part == "battery":
-            self.status["body"]["battery"] = msg
-        elif part == "sensormast":
-            self.status["body"]["sensormast"] = msg
-        if self.status["body"]["sensormast"] or self.status["body"]["battery"]:
-            self.main.setPixmap(self.statusIcons["mainfault"])
-        else:
-            self.main.setPixmap(self.statusIcons["mainok"])
+        # Need to add the message first
+        self.status["body"][part] = msg if error else None
+
+        # Then check if there has been a stored message, meaning there is something wrong, and set fault if there is an error.
+        for _, m in self.status["body"].items():
+            if m:
+                self.main.setPixmap(self.statusIcons["bodyfault"])
+                break
+            else:
+                self.main.setPixmap(self.statusIcons["bodyok"])
 
     def statusHandler(self, status):
         """
         Handler to set the correct image and messages from the incoming dictionary
-
-        Expected status dictionary:
-        key - see key names in exampleData's status dictionary
-        status - Boolean to quckly tell if there is an error, false will reset the state.
-        messages - list of error messages from the rover on that part.
+        Will send each entry in the incoming dictionary to the correct function.
         """
         if not status:
             return
 
         for part, message in status.items():
             err = bool(message["error"])
-            
             if part in self.wheelNames:
-                self.setWheelStatus(err, part)                
+                self.setWheelStatus(err, part, message["messages"])       
             elif part == "camera":
-                self.setCameraStatus(err)
+                self.setCameraStatus(err, message["messages"])
             elif part == "manipulator":
-                self.setManipulatorStatus(err)
-            elif part == "battery" or part == "sensormast":
-                self.setBodyStatus(part, err, message["messages"])
+                self.setManipulatorStatus(err, message["messages"])
             else:
-                continue
-
-            self.status[part] = message["messages"] if err else None
+                self.setBodyStatus(err, part, message["messages"])
         self.setToolTips()
         
     def setToolTips(self):
+        # Iterate through each main part, except the body
         for part, status in self.status.items():
             text = ""
             if status:
@@ -201,12 +200,14 @@ class SimpleStatus(QWidget):
                 self.camera.setToolTip(text)
             elif part == "manipulator":
                 self.manipulator.setToolTip(text)
-        if self.status["body"]["sensormast"] and self.status["body"]["battery"]:
-            self.main.setToolTip(self.status["body"]["sensormast"][0] + " " + self.status["body"]["battery"][0])
-        elif self.status["body"]["sensormast"] and not self.status["body"]["battery"]:
-            self.main.setToolTip(self.status["body"]["sensormast"][0])
-        elif not self.status["body"]["sensormast"] and self.status["body"]["battery"]:
-            self.main.setToolTip(self.status["body"]["battery"][0])
+        
+        # Iterate through the body
+        text = ""
+        for part, status in self.status["body"].items():
+            if status:
+                for t in status:
+                    text += part + " -> " + t + "\n"
+        self.main.setToolTip(text)
     
     def testWidget(self):
         self.statusHandler(exampleData())
@@ -238,8 +239,8 @@ def exampleData():
         "messages" : None
     }
     camera = {
-        "error" : False,
-        "messages" : None
+        "error" : True,
+        "messages" : ["YEEEES"]
     }
     arm = {
         "error" : False,
@@ -247,7 +248,11 @@ def exampleData():
     }
     mast = {
         "error" : True,
-        "messages" : ["NOOOO"]
+        "messages" : ["NOOOO", "YES"]
+    }
+    bat = {
+        "error" : True,
+        "messages" : ["YEEEES"]
     }
     status = {
             "top-left-wheel" : flw,
@@ -258,6 +263,7 @@ def exampleData():
             "back-right-wheel" : brw,
             "camera" : camera,
             "manipulator" : arm,
-            "sensormast" : mast
+            "sensormast" : mast,
+            "battery" : bat
         }
     return status

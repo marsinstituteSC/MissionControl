@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1104</width>
-    <height>853</height>
+    <height>851</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,7 +62,7 @@
          <item row="0" column="2" rowspan="2">
           <widget class="QFrame" name="rightFrame">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -75,17 +75,36 @@
            </property>
            <layout class="QGridLayout" name="rightFrameGrid">
             <property name="leftMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
             <property name="topMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
             <property name="rightMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
             <property name="bottomMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
+            <property name="horizontalSpacing">
+             <number>6</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>64</number>
+            </property>
+            <item row="0" column="0">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </widget>
          </item>
@@ -116,6 +135,9 @@
             <property name="bottomMargin">
              <number>3</number>
             </property>
+            <property name="spacing">
+             <number>6</number>
+            </property>
            </layout>
           </widget>
          </item>
@@ -133,7 +155,7 @@
            <property name="frameShadow">
             <enum>QFrame::Sunken</enum>
            </property>
-           <layout class="QGridLayout" name="topFrameGrid">
+           <layout class="QGridLayout" name="topFrameGrid" rowstretch="0" rowminimumheight="0">
             <property name="leftMargin">
              <number>3</number>
             </property>
@@ -146,13 +168,16 @@
             <property name="bottomMargin">
              <number>3</number>
             </property>
+            <property name="spacing">
+             <number>6</number>
+            </property>
            </layout>
           </widget>
          </item>
          <item row="0" column="0" rowspan="2">
           <widget class="QFrame" name="leftFrame">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -164,6 +189,9 @@
             <enum>QFrame::Sunken</enum>
            </property>
            <layout class="QGridLayout" name="leftFrameGrid">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
             <property name="leftMargin">
              <number>3</number>
             </property>
@@ -175,6 +203,12 @@
             </property>
             <property name="bottomMargin">
              <number>3</number>
+            </property>
+            <property name="horizontalSpacing">
+             <number>6</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>64</number>
             </property>
            </layout>
           </widget>

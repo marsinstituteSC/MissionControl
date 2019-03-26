@@ -5,7 +5,7 @@ import time
 import datetime
 import cProfile
 
-from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout, QPushButton, QComboBox, QDateTimeEdit, QLineEdit, QCheckBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout, QPushButton, QComboBox, QDateTimeEdit, QLineEdit, QCheckBox, QSpacerItem, QSizePolicy
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QDateTime
 
@@ -81,14 +81,14 @@ class MainWindow(QMainWindow):
         self.controlStatus = ControlStatus()
         self.speed = SpeedWidget()
         self.message = CustomMessageWidget()
-        self.leftFrameGrid.addWidget(self.status, 1, 0)
         self.leftFrameGrid.addWidget(self.controlStatus, 0, 0)
+        self.leftFrameGrid.addWidget(self.status, 1, 0)
         self.topFrameGrid.addWidget(self.compass, 0, 0)
-        self.bottomFrameGrid.addWidget(self.gyro, 1, 0)
+        self.topFrameGrid.addWidget(self.gyro, 1, 0)
         self.bottomFrameGrid.addWidget(self.speed, 0, 0)
-        self.bottomFrameGrid.addWidget(self.battery, 0, 1, 2, 1)
-        self.rightFrameGrid.addWidget(self.message, 0, 0)  
-        self.rightFrameGrid.addWidget(self.motionControl, 1, 0)      
+        self.bottomFrameGrid.addWidget(self.battery, 0, 1)
+        self.rightFrameGrid.addWidget(self.message, 1, 0)  
+        self.rightFrameGrid.addWidget(self.motionControl, 2, 0)
 
         # Make 1 row, 1 columns, 1 plot
         self.graph = plot.PlotCanvas(None, 10)        
@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
         "border-style: dotted;\n"
         "border-color: grey;\n"
         "}")
-        #self.status.testWidget()
+        self.status.testWidget()
 
     def closeEvent(self, event):
         super().closeEvent(event)

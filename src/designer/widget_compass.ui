@@ -12,8 +12,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>300</width>
-    <height>300</height>
+    <width>16777215</width>
+    <height>16777215</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -30,8 +30,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>30</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="frameShape">
@@ -91,8 +91,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>300</width>
-       <height>300</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="frameShape">
