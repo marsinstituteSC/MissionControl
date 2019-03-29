@@ -59,3 +59,9 @@ def showEventLog():
     EVENTLOG.show()
     EVENTLOG.activateWindow()
     return EVENTLOG
+
+def closeEventLog():
+    global EVENTLOG
+    if EVENTLOG:
+        EVENTLOG.close()
+        EVENTLOG = None
