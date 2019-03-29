@@ -37,6 +37,9 @@ class CameraStreamWindow(QMainWindow):
             vm.setWindowForVideo(self.id, None)
 
     def record(self):
+        self.recording = not self.recording
+        self.btnRecord.setText("Stop Recording" if self.recording else "Start Recording")
+
         if vm.VIDEO_MULTI_THREAD:
             pass
         else:
@@ -44,7 +47,9 @@ class CameraStreamWindow(QMainWindow):
 
     @pyqtSlot(str)
     def finished(self, id):
-        pass
+        if self.id == id:
+            self.recording = False
+            self.btnRecord.setText("Start Recording")
 
     @pyqtSlot(dict)
     def receiveFrame(self, frames):

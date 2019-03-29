@@ -45,7 +45,7 @@
        <item row="4" column="1">
         <widget class="QPushButton" name="btnRecord">
          <property name="text">
-          <string>Record Video</string>
+          <string>Start Recording</string>
          </property>
         </widget>
        </item>
