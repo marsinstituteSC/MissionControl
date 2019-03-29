@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         self.status.testWidget()
 
     def closeEvent(self, event):
+        window_eventlog.closeEventLog()
         cfg.closeSettings()
         vm.shutdown()
         super().closeEvent(event)
