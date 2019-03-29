@@ -24,14 +24,12 @@ class Compass(QWidget):
             270 : "W",
             315 : "NW"
         }
-        self.activated = False
 
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        if not self.activated:
-            self.drawDirections(painter)
+        self.drawDirections(painter)
         self.drawNeedle(painter)
         painter.end()
 

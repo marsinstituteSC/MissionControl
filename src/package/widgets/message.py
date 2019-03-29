@@ -18,7 +18,6 @@ class CustomMessageWidget(QWidget):
 
         self.checkMessagesFile()
         self.populateMessageButtons()
-        #self.label_error.hide()
         self.show()
 
     def sendMessage(self, key = None, value = None):
@@ -28,9 +27,7 @@ class CustomMessageWidget(QWidget):
             value = str(self.lineEdit_value.text())
             if not key or not value:
                 self.label_error.setText("Missing key or value")
-                #self.label_error.show()
                 return
-        #self.label_error.hide()
         self.label_error.setText("")
         
         # TODO: Send to rover
@@ -81,10 +78,8 @@ class CustomMessageWidget(QWidget):
 
         if not key or not value or not name:
             self.label_error.setText("Missing key, value and/or name")
-            #self.label_error.show()
             return
         else:
-            #self.label_error.hide()
             self.label_error.setText("")
 
         kvPair = str(key) + "___" + str(value)
@@ -97,7 +92,6 @@ class CustomMessageWidget(QWidget):
             # Delete the message if it exists, else raise a message
             if not self.config.remove_option("messages", name):
                 self.label_error.setText("No button with that name")
-                #self.label_error.show()
                 return
             
             # Null the line edits
@@ -110,12 +104,9 @@ class CustomMessageWidget(QWidget):
             self.populateMessageButtons()
         else:
             self.label_error.setText("Type the name of button to delete")
-            #self.label_error.show()
             return
-        #self.label_error.hide()
         self.label_error.setText("")
 
-    # Methods for checking and updating the ini file status
     def checkMessagesFile(self):
         """ Checks if the file exists, else creates one """
         try:
@@ -126,7 +117,10 @@ class CustomMessageWidget(QWidget):
                     self.config.write(configfile)
         except Exception as e:
             print(e)
+    
     def updateMessageFile(self):
+        """ Updates the message ini file with new information """
+        # Check if the file exists and then write the new information to the file
         self.checkMessagesFile()
         try:
             with open("messages.ini", "w") as configfile:

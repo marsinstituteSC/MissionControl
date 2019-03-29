@@ -9,6 +9,7 @@ class BatteryWidget(QWidget):
         super().__init__()
         loadUi("designer/widget_battery.ui", self)
 
+        # Contain all status images of battery in dictionary for ease of use.
         self.batteryStatus = {
             "full": QPixmap("images/status icons/battery_full.png"),
             "threequarter": QPixmap("images/status icons/battery_quarter.png"),
@@ -18,11 +19,10 @@ class BatteryWidget(QWidget):
         }
 
         # Battery state is to prevent redrawing the image if there has been no change
-        # 4 = Full, 3 = Three Quarter, 2 = Half, 1 = One Quarter, 0 = Empty
         self.batteryState = "full"
 
         self.voltage = "0"
-        self.capacity = "100"
+        self.capacity = "0"
         self.label_voltage.setText(self.voltage + "V")
         self.label_capacity.setText(self.capacity + "%")
         self.label_battery.setPixmap(self.batteryStatus["full"])
