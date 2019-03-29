@@ -399,9 +399,14 @@
     <property name="title">
      <string>View</string>
     </property>
+    <widget class="QMenu" name="menuCamera">
+     <property name="title">
+      <string>Camera</string>
+     </property>
+    </widget>
     <addaction name="actionSettings"/>
     <addaction name="actionLog"/>
-    <addaction name="actionCamera"/>
+    <addaction name="menuCamera"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -480,9 +485,9 @@
     <string>test</string>
    </property>
   </action>
-  <action name="actionCamera">
+  <action name="actiondd">
    <property name="text">
-    <string>Camera</string>
+    <string>dd</string>
    </property>
   </action>
  </widget>
