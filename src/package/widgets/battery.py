@@ -25,7 +25,7 @@ class BatteryWidget(QWidget):
         self.capacity = "0"
         self.label_voltage.setText(self.voltage + "V")
         self.label_capacity.setText(self.capacity + "%")
-        self.label_battery.setPixmap(self.batteryStatus["full"])
+        self.label_battery.setPixmap(self.batteryStatus["empty"])
 
     def setVoltage(self, voltage):
         self.voltage = str(voltage)

@@ -23,6 +23,7 @@ class CameraStreamWindow(QMainWindow):
         self.btnRecord.clicked.connect(self.record)
         self.colorChoices.currentIndexChanged.connect(self.propertyChange)
         self.scaleChoices.currentIndexChanged.connect(self.propertyChange)
+        self.btnToggleFunctions.clicked.connect(self.toggleFunctions)
 
         vt.THREADING_EVENTS.pixmap.connect(self.receiveFrame)
         vt.THREADING_EVENTS.finished.connect(self.finished)
@@ -50,6 +51,8 @@ class CameraStreamWindow(QMainWindow):
         if bounds[2] > 0 and bounds[3] > 0:
             self.resize(bounds[2], bounds[3])
             self.move(bounds[0], bounds[1])
+        
+        self.groupFunctions.hide()
 
     def closeEvent(self, event):        
         self.cameraObject["bounds"] = (self.pos().x(), self.pos().y(), self.size().width(), self.size().height())
@@ -93,6 +96,15 @@ class CameraStreamWindow(QMainWindow):
     def receiveFrame(self, frames):
         if frames and (self.id in frames):
             self.pixmap.setPixmap(frames[self.id])
+
+    def toggleFunctions(self):
+        """ Toggle to show/hide video functions, record will be unaffected """
+        if self.groupFunctions.isHidden():
+            self.groupFunctions.show()
+            self.btnToggleFunctions.setText("Hide Functions")
+        else:
+            self.groupFunctions.hide()
+            self.btnToggleFunctions.setText("Show Functions")
 
 def displayVideoWindow(name):
     if not (name in vm.VIDEO_LIST):

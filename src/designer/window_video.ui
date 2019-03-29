@@ -6,21 +6,36 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>360</height>
+    <width>598</width>
+    <height>511</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Camera</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout" rowstretch="1,0">
-    <item row="1" column="0">
-     <widget class="QGroupBox" name="groupFunctions">
-      <property name="title">
-       <string>Functions</string>
-      </property>
+   <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,0">
+    <property name="leftMargin">
+     <number>3</number>
+    </property>
+    <property name="topMargin">
+     <number>3</number>
+    </property>
+    <property name="rightMargin">
+     <number>3</number>
+    </property>
+    <property name="bottomMargin">
+     <number>3</number>
+    </property>
+    <item row="2" column="0">
+     <widget class="QFrame" name="groupFunctions">
       <layout class="QFormLayout" name="formLayout">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item row="1" column="0">
         <widget class="QLabel" name="lbl1">
          <property name="text">
@@ -32,20 +47,6 @@
         <widget class="QLineEdit" name="sourceField">
          <property name="text">
           <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QPushButton" name="btnUpdate">
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QPushButton" name="btnRecord">
-         <property name="text">
-          <string>Start Recording</string>
          </property>
         </widget>
        </item>
@@ -112,7 +113,28 @@
          </item>
         </widget>
        </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="btnUpdate">
+         <property name="text">
+          <string>Update</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="btnRecord">
+         <property name="text">
+          <string>Start Recording</string>
+         </property>
+        </widget>
+       </item>
       </layout>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="btnToggleFunctions">
+      <property name="text">
+       <string>Show Functions</string>
+      </property>
      </widget>
     </item>
     <item row="0" column="0">
