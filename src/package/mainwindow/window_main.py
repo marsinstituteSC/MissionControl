@@ -1,13 +1,10 @@
 """ Main App Window, renders information from sensors, render graphs, etc... """
 
-import random
-import time
 import datetime
-import cProfile
 
-from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout, QPushButton, QComboBox, QDateTimeEdit, QLineEdit, QCheckBox, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QComboBox, QDateTimeEdit, QLineEdit, QCheckBox
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QDateTime
+from PyQt5.QtCore import Qt, pyqtSlot, QDateTime
 
 from widgets import plot
 from widgets import logger
@@ -108,8 +105,9 @@ class MainWindow(QMainWindow):
         self.status.testWidget()
 
     def closeEvent(self, event):
-        super().closeEvent(event)
+        cfg.closeSettings()
         vm.shutdown()
+        super().closeEvent(event)
 
     def refreshGamepad(self):
         # Sets the refresh boolean to true for the gamepad class to check for new gamepads in the new iteration.
@@ -121,6 +119,7 @@ class MainWindow(QMainWindow):
         for id in camList:
             self.menuCamera.addAction(str(id))
 
+    @pyqtSlot(dict)
     def populateGamepads(self, joyDict):
         self.menuGamepads.clear()
         for id, name in joyDict.items():
@@ -133,12 +132,15 @@ class MainWindow(QMainWindow):
     def showCameraWindow(self, id):
         vw.displayVideoWindow(id.text())
     
+    @pyqtSlot(bool)
     def changeGamepadStatus(self, status):
         self.controlStatus.setControllerStatus(status)
 
+    @pyqtSlot(bool)
     def changeRoverStatus(self, status):
         self.controlStatus.setRoverStatus(status)
 
+    @pyqtSlot(tuple)
     def changeDatabaseStatus(self, status):
         self.controlStatus.setDatabaseStatus(status[0])
         if not status[0]: # Print error.
@@ -148,10 +150,10 @@ class MainWindow(QMainWindow):
         self.speed.setSpeed(value)
 
     def settings(self):
-        self.setting = cfg.openSettings()
+        self.setting = cfg.openSettings(self)
     
     def openCameraWindow(self):
-        pass # todo, show all cams on startup at saved pos, size?
+        vw.displayAllVideoWindows()
 
     def plotGraph(self):
         try:

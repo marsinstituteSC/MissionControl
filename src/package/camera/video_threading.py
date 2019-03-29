@@ -28,7 +28,7 @@ class CameraEvents(QObject):
         self.finished.emit(str(v))
 
 THREADING_EVENTS = CameraEvents()
-THREADING_SUSPEND_TIME = 1.25 # How long to wait during inactivity? (prevent thread starvation)
+THREADING_SUSPEND_TIME = 1.0 # How long to wait during inactivity? (prevent thread starvation)
 THREADING_SHUTDOWN = False
 THREADING_SYNC = None
 
@@ -41,6 +41,7 @@ class CameraStreamObject(QObject):
         self.finished = False
         self.rec = False
         self.recorder = None
+        self.refresh = False
 
     def __del__(self):
         self.closeStream()
@@ -88,12 +89,6 @@ class CameraStreamObject(QObject):
         self.closeStream()
         THREADING_EVENTS.dispatchFinishedEvent(self.id)    
 
-    def record(self):
-        """
-        UI thread sat record state.
-        """
-        self.rec = not self.rec
-
     def createVideoForRecording(self):
         """
         Create recorder object, folder path + file!
@@ -136,6 +131,15 @@ class CameraStreamObject(QObject):
         """
         Render one frame, return the result frame.
         """
+        # If user wants to refresh, clear capture obj.
+        if self.refresh:
+            if self.stream:
+                self.stream.release()
+            self.stream = None
+            self.refresh = False
+            self.finished = False
+            
+        # Finished or no source? Don't care.
         if self.finished or (len(self.obj["source"]) <= 0):
             return None
 
@@ -173,6 +177,11 @@ class CameraSync(QObject):
         self.items = dict()
         self.lock = threading.Lock()
 
+    def __del__(self):
+        self.items.clear()
+        self.thread.quit()
+        self.thread = None
+
     def add(self, id, obj):
         with self.lock:
             self.items[id] = CameraStreamObject(id, obj)
@@ -186,7 +195,12 @@ class CameraSync(QObject):
     def record(self, id):
         with self.lock:        
             if id in self.items:
-                self.items[id].record()
+                self.items[id].rec = not self.items[id].rec
+
+    def refresh(self, id):
+        with self.lock:        
+            if id in self.items:
+                self.items[id].refresh = True
 
     def run(self):
         global THREADING_SHUTDOWN, THREADING_EVENTS, THREADING_SUSPEND_TIME
@@ -206,5 +220,7 @@ def initialize(val):
     """
     Determine threading mode!
     """
-    global THREADING_SYNC
-    THREADING_SYNC = CameraSync()
+    global THREADING_SYNC, THREADING_SHUTDOWN
+    THREADING_SHUTDOWN = False
+    THREADING_SYNC = (CameraSync() if (not val) else None)
+    

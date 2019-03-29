@@ -8,13 +8,14 @@ import json
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QTabWidget, QMessageBox
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidgetItem, QDialog, QMainWindow, QTabWidget, QMessageBox
 from PyQt5.uic import loadUi
 
 # Package imports
 from utils import warning, event
 from communications import database
 from communications import udp_conn as UDP
+from camera import video_manager as vm
 
 SETTINGSEVENT = event.Event("SettingsChangedEvent")
 RESTARTEVENT = event.Event("RestartAppEvent")
@@ -90,10 +91,16 @@ def saveSettings():
 class OptionWindow(QDialog):
     """Window class for settings"""
 
-    def __init__(self):
+    def __init__(self, mainwndw):
         super().__init__()
         loadUi("designer/settings.ui", self)
+
+        self.mainwindow = mainwndw
         self.properties_tab.setCurrentIndex(0)
+        header = self.cameraList.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        self.populateCameraList()
 
         # Button connections
         self.button_cancel.clicked.connect(self.close)
@@ -102,6 +109,8 @@ class OptionWindow(QDialog):
         self.button_apply.clicked.connect(self.saveSettings)
         self.button_dbDropAll.clicked.connect(self.dropDatabaseTable)
         self.button_dbCreateDB.clicked.connect(self.createDatabase)
+        self.btnAddCamera.clicked.connect(self.addNewCamera)
+        self.btnRemoveCamera.clicked.connect(self.removeSelectedCamera)
 
         # Fetch settings
         global SETTINGS
@@ -171,6 +180,7 @@ class OptionWindow(QDialog):
         self.databasePort.setText("3306") if self.checkMySQL.isChecked() else self.databasePort.setText("5432")
         
     def closeEvent(self, event):
+        self.mainwindow = None
         super().closeEvent(event)
         global SETTINGSWINDOW
         SETTINGSWINDOW = None
@@ -186,12 +196,52 @@ class OptionWindow(QDialog):
             except Exception as e:
                 warning.showWarning("Error!", str(e), self)
 
-def openSettings():
+    def populateCameraList(self):
+        self.cameraList.clearContents()
+        self.cameraList.setRowCount(0)
+        for k, v in vm.VIDEO_LIST.items():
+            idx = self.cameraList.rowCount()
+            self.cameraList.insertRow(idx)
+            self.cameraList.setItem(idx, 0, QTableWidgetItem(k))
+            self.cameraList.setItem(idx, 1, QTableWidgetItem(v["source"]))            
+            
+    def addNewCamera(self):
+        name = self.fieldCameraName.text()
+        src = self.fieldCameraSource.text()
+
+        if len(name) <= 0 or len(src) <= 0:
+            warning.showWarning("Fatal Error", "Invalid or missing input(s)!", self)
+            return
+
+        idx = self.cameraList.rowCount()
+        self.cameraList.insertRow(idx)
+        self.cameraList.setItem(idx, 0, QTableWidgetItem(name))
+        self.cameraList.setItem(idx, 1, QTableWidgetItem(src))
+        vm.addVideo(name, src)
+        self.mainwindow.populateCameraMenu()
+
+    def removeSelectedCamera(self):
+        row = self.cameraList.currentRow()
+        if row < 0:
+            return
+
+        id = self.cameraList.item(row, 0).text()
+        self.cameraList.removeRow(row)
+        vm.removeVideo(id)
+        self.mainwindow.populateCameraMenu()
+
+def openSettings(mainwndw):
     """Open global settings"""
     global SETTINGSWINDOW
     if SETTINGSWINDOW is None:
-        SETTINGSWINDOW = OptionWindow()
+        SETTINGSWINDOW = OptionWindow(mainwndw)
 
     SETTINGSWINDOW.show()
     SETTINGSWINDOW.activateWindow()
     return SETTINGSWINDOW
+
+def closeSettings():
+    global SETTINGSWINDOW
+    if SETTINGSWINDOW:
+        SETTINGSWINDOW.close()
+        SETTINGSWINDOW = None
