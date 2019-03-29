@@ -1,18 +1,14 @@
 """ Main App Window, renders information from sensors, render graphs, etc... """
 
-import random
-import time
 import datetime
-import cProfile
 
-from PyQt5.QtWidgets import QMainWindow, QWidget, QTabWidget, QLCDNumber, QHBoxLayout, QLabel, QGridLayout, QPushButton, QComboBox, QDateTimeEdit, QLineEdit, QCheckBox, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QComboBox, QDateTimeEdit, QLineEdit, QCheckBox
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QDateTime
+from PyQt5.QtCore import Qt, pyqtSlot, QDateTime
 
 from widgets import plot
 from widgets import logger
 from communications import udp_conn
-from camera import window_video as wv
 from settings import settings as cfg
 from mainwindow import window_eventlog
 from controller import gamepad as gp
@@ -27,6 +23,8 @@ from widgets.message import CustomMessageWidget
 
 from utils.warning import showWarning
 from communications import database
+from camera import video_window as vw
+from camera import video_manager as vm
 
 def getValueForDBEvent(e):
     try:
@@ -41,9 +39,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("JARL Viking III")    
         self.setupUi()
 
-        # Creates the video window as a child and links a button to open it later
-        self.video_window = None
-        self.actionCamera.triggered.connect(self.openCameraWindow)
+        # Creates the video window as a child and links a button to open it later.
+        self.menuCamera.triggered.connect(self.showCameraWindow)
+        self.populateCameraMenu()
 
         # Toolbar button to open settings
         self.actionSettings.triggered.connect(self.settings)
@@ -107,16 +105,21 @@ class MainWindow(QMainWindow):
         self.status.testWidget()
 
     def closeEvent(self, event):
+        cfg.closeSettings()
+        vm.shutdown()
         super().closeEvent(event)
-        if self.video_window:
-            self.video_window.close()
-            
-        self.video_window = None
 
     def refreshGamepad(self):
         # Sets the refresh boolean to true for the gamepad class to check for new gamepads in the new iteration.
         gp.GAMEPAD.needRefresh = True
 
+    def populateCameraMenu(self):
+        self.menuCamera.clear()
+        camList = [k for k,_ in vm.VIDEO_LIST.items()]
+        for id in camList:
+            self.menuCamera.addAction(str(id))
+
+    @pyqtSlot(dict)
     def populateGamepads(self, joyDict):
         self.menuGamepads.clear()
         for id, name in joyDict.items():
@@ -125,13 +128,19 @@ class MainWindow(QMainWindow):
     def initializeGamepad(self, gamepad):
         id, _ = gamepad.text().split(": ")
         gp.GAMEPAD.joystick_id_switch = int(id)
+
+    def showCameraWindow(self, id):
+        vw.displayVideoWindow(id.text())
     
+    @pyqtSlot(bool)
     def changeGamepadStatus(self, status):
         self.controlStatus.setControllerStatus(status)
 
+    @pyqtSlot(bool)
     def changeRoverStatus(self, status):
         self.controlStatus.setRoverStatus(status)
 
+    @pyqtSlot(tuple)
     def changeDatabaseStatus(self, status):
         self.controlStatus.setDatabaseStatus(status[0])
         if not status[0]: # Print error.
@@ -141,17 +150,10 @@ class MainWindow(QMainWindow):
         self.speed.setSpeed(value)
 
     def settings(self):
-        self.setting = cfg.openSettings()
+        self.setting = cfg.openSettings(self)
     
     def openCameraWindow(self):
-        if self.video_window is None:
-            self.video_window = wv.loadCameraWindow()
-        elif self.video_window.isHidden():
-            self.video_window.show()
-        else:
-            self.video_window.setWindowState(Qt.WindowActive)
-
-        self.video_window.activateWindow()
+        vw.displayAllVideoWindows()
 
     def plotGraph(self):
         try:

@@ -14,6 +14,7 @@ from controller import gamepad as gp
 from mainwindow import window_main as wm
 from utils import event
 from settings import settings as cfg
+from camera import video_manager
 
 APP_RESTART_CODE = -2500
 
@@ -76,6 +77,7 @@ if __name__ == "__main__":
         app = MarsRoverApp()
         udp_conn.connectToRoverServer()
         gp.loadGamepad()
+        video_manager.load()
         mainwnd = wm.loadMainWindow()
         code = app.exec_()
         mainwnd.close()

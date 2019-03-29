@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, pyqtSlot
 from PyQt5.uic import loadUi
 import sys
 
@@ -89,6 +89,7 @@ class SimpleStatus(QWidget):
         self.main.clicked.connect(self.showLabelWarning)
         self.grid_status.addWidget(self.main, 1, 1, 2, 1)
 
+    @pyqtSlot(str)
     def showLabelWarning(self,part):
         """ 
         Slot for the signals from clicking the labels 

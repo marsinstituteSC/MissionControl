@@ -8,14 +8,14 @@ import json
 
 # PyQT5 imports, ignore pylint errors
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QTabWidget, QMessageBox
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTableWidgetItem, QDialog, QMainWindow, QTabWidget, QMessageBox
 from PyQt5.uic import loadUi
 
 # Package imports
 from utils import warning, event
-from camera import window_video as vid
 from communications import database
 from communications import udp_conn as UDP
+from camera import video_manager as vm
 
 SETTINGSEVENT = event.Event("SettingsChangedEvent")
 RESTARTEVENT = event.Event("RestartAppEvent")
@@ -24,41 +24,11 @@ RESTARTEVENT = event.Event("RestartAppEvent")
 SETTINGS = ConfigParser()
 SETTINGSWINDOW = None
 
-DEFAULT_SECTIONS = ("main", "video", "database", "communication")
+DEFAULT_SECTIONS = ("main", "database", "communication")
 DEFAULT_MAIN_SETTINGS = {
     # Empty means no stylesheet, default look
     "stylesheet" : "False",
-    "threadmode" : "True"
-}
-DEFAULT_VIDEO_SETTINGS = {
-    "url1": "videos/demo.mp4",
-    "url2": "videos/demo2.mp4",
-    "url3" : "",
-    "url4" : "",
-    "port1": "",
-    "port2": "",
-    "port3": "",
-    "port4": "",
-    "color1": "False",
-    "color2": "False",
-    "color3": "False",
-    "color4": "False",
-    "scaling1" : "Source",
-    "scaling2" : "Source",
-    "scaling3" : "Source",
-    "scaling4" : "Source",
-    "resolution1" : 1,
-    "resolution2" : 1,
-    "resolution3" : 1,
-    "resolution4" : 1,
-    "name1" : "Video1",
-    "name2" : "Video2",
-    "name3" : "Video3",
-    "name4" : "Video4",
-    "enable1" : True,
-    "enable2" : True,
-    "enable3" : True,
-    "enable4" : True
+    "multithread" : "False"
 }
 DEFAULT_DATABASE_SETTINGS = {
     "address": "127.0.0.1",
@@ -92,9 +62,6 @@ def loadSettings():
             for key, value in DEFAULT_MAIN_SETTINGS.items():
                 SETTINGS.set(str("main"), str(key), str(value))
 
-            for key, value in DEFAULT_VIDEO_SETTINGS.items():
-                SETTINGS.set(str("video"), str(key), str(value))
-
             for key, value in DEFAULT_DATABASE_SETTINGS.items():
                 SETTINGS.set(str("database"), str(key), str(value))
 
@@ -106,32 +73,34 @@ def loadSettings():
         else:
             SETTINGS.read("settings.ini")
     except:
-        warning.showWarning(
-            "Fatal Error", "Unable to read/create settings.ini", None)
+        warning.showWarning("Fatal Error", "Unable to read/create settings.ini", None)
 
 def saveSettings():
     """
     Save global settings to settings.ini
     """
-    global SETTINGS
-    global SETTINGSEVENT
+    global SETTINGS, SETTINGSEVENT
     try:
         with open("settings.ini", "w") as configfile:
             SETTINGS.write(configfile)
 
         SETTINGSEVENT.raiseEvent(SETTINGS)
     except Exception as e:
-        print(e)
-        warning.showWarning(
-            "Fatal Error", "Unable to write settings.ini", None)
+        warning.showWarning("Fatal Error", "Unable to write settings.ini", None)
 
 class OptionWindow(QDialog):
     """Window class for settings"""
 
-    def __init__(self):
+    def __init__(self, mainwndw):
         super().__init__()
         loadUi("designer/settings.ui", self)
+
+        self.mainwindow = mainwndw
         self.properties_tab.setCurrentIndex(0)
+        header = self.cameraList.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        self.populateCameraList()
 
         # Button connections
         self.button_cancel.clicked.connect(self.close)
@@ -140,62 +109,18 @@ class OptionWindow(QDialog):
         self.button_apply.clicked.connect(self.saveSettings)
         self.button_dbDropAll.clicked.connect(self.dropDatabaseTable)
         self.button_dbCreateDB.clicked.connect(self.createDatabase)
+        self.btnAddCamera.clicked.connect(self.addNewCamera)
+        self.btnRemoveCamera.clicked.connect(self.removeSelectedCamera)
 
         # Fetch settings
         global SETTINGS
 
-        # Video source and port
-        self.video1_ip.setText(SETTINGS.get("video", "url1"))
-        self.video2_ip.setText(SETTINGS.get("video", "url2"))
-        self.video3_ip.setText(SETTINGS.get("video", "url3"))
-        self.video4_ip.setText(SETTINGS.get("video", "url4"))
-        self.video1_port.setText(SETTINGS.get("video", "port1"))
-        self.video2_port.setText(SETTINGS.get("video", "port2"))
-        self.video3_port.setText(SETTINGS.get("video", "port3"))
-        self.video4_port.setText(SETTINGS.get("video", "port4"))
-
-        # Color settings
-        self.video1_color_on.setChecked((SETTINGS.get("video", "color1") == "True"))
-        self.video1_color_off.setChecked(not (SETTINGS.get("video", "color1") == "True"))
-        self.video2_color_on.setChecked((SETTINGS.get("video", "color2") == "True"))
-        self.video2_color_off.setChecked(not (SETTINGS.get("video", "color2") == "True"))
-        self.video3_color_on.setChecked((SETTINGS.get("video", "color3") == "True"))
-        self.video3_color_off.setChecked(not (SETTINGS.get("video", "color3") == "True"))
-        self.video4_color_on.setChecked((SETTINGS.get("video", "color4") == "True"))
-        self.video4_color_off.setChecked(not (SETTINGS.get("video", "color4") == "True"))
-
-        # Scaling
-        self.video1_scaling.setCurrentIndex(self.video1_scaling.findText(SETTINGS.get("video", "scaling1")))
-        self.video2_scaling.setCurrentIndex(self.video2_scaling.findText(SETTINGS.get("video", "scaling2")))
-        self.video3_scaling.setCurrentIndex(self.video3_scaling.findText(SETTINGS.get("video", "scaling3")))
-        self.video4_scaling.setCurrentIndex(self.video4_scaling.findText(SETTINGS.get("video", "scaling4")))
-
-        """
-        # Resolution, NOTE this is for camera resolution from rover
-        self.video1_resolution.setCurrentIndex(self.video1_resolution.findText("Mode: " + SETTINGS.get("video", "resolution1")))
-        self.video2_resolution.setCurrentIndex(self.video2_resolution.findText("Mode: " + SETTINGS.get("video", "resolution2")))
-        self.video3_resolution.setCurrentIndex(self.video3_resolution.findText("Mode: " + SETTINGS.get("video", "resolution3")))
-        self.video4_resolution.setCurrentIndex(self.video4_resolution.findText("Mode: " + SETTINGS.get("video", "resolution4")))
-        """
-
-        # Name
-        self.video1_name.setText(SETTINGS.get("video", "name1"))
-        self.video2_name.setText(SETTINGS.get("video", "name2"))
-        self.video3_name.setText(SETTINGS.get("video", "name3"))
-        self.video4_name.setText(SETTINGS.get("video", "name4"))
-
-        # Enable
-        self.video1_enable.setChecked((SETTINGS.get("video", "enable1") == "True"))
-        self.video2_enable.setChecked((SETTINGS.get("video", "enable2") == "True"))
-        self.video3_enable.setChecked((SETTINGS.get("video", "enable3") == "True"))
-        self.video4_enable.setChecked((SETTINGS.get("video", "enable4") == "True"))
-
         # Dark Mode
         self.checkBox_dark.setChecked((SETTINGS.get("main", "stylesheet") == "True"))
 
-        # Threadmode
-        self.threadSync.setChecked((SETTINGS.get("main", "threadmode") == "True"))
-        self.threadAsync.setChecked(not (SETTINGS.get("main", "threadmode") == "True"))
+        # Threadmode - Multi threaded camera streams or synced on a single unique thread.
+        self.threadSync.setChecked(not (SETTINGS.get("main", "multithread") == "True"))
+        self.threadAsync.setChecked((SETTINGS.get("main", "multithread") == "True"))
 
         # Database
         self.databaseAddress.setText(SETTINGS.get("database", "address"))
@@ -228,61 +153,9 @@ class OptionWindow(QDialog):
         """
         global SETTINGS
 
-        # Video
-        SETTINGS.set("video", "url1", self.video1_ip.text())
-        SETTINGS.set("video", "url2", self.video2_ip.text())
-        SETTINGS.set("video", "url3", self.video3_ip.text())
-        SETTINGS.set("video", "url4", self.video4_ip.text())
-        SETTINGS.set("video", "port1", self.video1_port.text())
-        SETTINGS.set("video", "port2", self.video2_port.text())
-        SETTINGS.set("video", "port3", self.video3_port.text())
-        SETTINGS.set("video", "port4", self.video4_port.text())
-        SETTINGS.set("video", "color1", str(self.video1_color_on.isChecked()))
-        SETTINGS.set("video", "color2", str(self.video2_color_on.isChecked()))
-        SETTINGS.set("video", "color3", str(self.video3_color_on.isChecked()))
-        SETTINGS.set("video", "color4", str(self.video4_color_on.isChecked()))
-        SETTINGS.set("video", "scaling1", self.video1_scaling.currentText())
-        SETTINGS.set("video", "scaling2", self.video2_scaling.currentText())
-        SETTINGS.set("video", "scaling3", self.video3_scaling.currentText())
-        SETTINGS.set("video", "scaling4", self.video4_scaling.currentText())
-        SETTINGS.set("video", "name1", self.video1_name.text())
-        SETTINGS.set("video", "name2", self.video2_name.text())
-        SETTINGS.set("video", "name3", self.video3_name.text())
-        SETTINGS.set("video", "name4", self.video4_name.text())
-        SETTINGS.set("video", "enable1", str(self.video1_enable.isChecked()))
-        SETTINGS.set("video", "enable2", str(self.video2_enable.isChecked()))
-        SETTINGS.set("video", "enable3", str(self.video3_enable.isChecked()))
-        SETTINGS.set("video", "enable4", str(self.video4_enable.isChecked()))
-        
-        """
-        OLD CODE, NO NEED FOR IT
-        # Need to check if there has been a change to the resolution, if so it needs to send that info to the rover
-        oldRes1 = SETTINGS.get("video", "resolution1")
-        oldRes2 = SETTINGS.get("video", "resolution2")
-        oldRes3 = SETTINGS.get("video", "resolution3")
-        oldRes4 = SETTINGS.get("video", "resolution4")
-        newRes1 = self.video1_resolution.currentText().split(": ")[1]
-        newRes2 = self.video2_resolution.currentText().split(": ")[1]
-        newRes3 = self.video3_resolution.currentText().split(": ")[1]
-        newRes4 = self.video4_resolution.currentText().split(": ")[1]
-       
-        if oldRes1 != newRes1:
-            SETTINGS.set("video", "resolution1", newRes1)
-            updateResolutionOnCamera(SETTINGS.get("video", "name1"), newRes1)
-        if oldRes2 != newRes2:
-            SETTINGS.set("video", "resolution2", newRes2)
-            updateResolutionOnCamera(SETTINGS.get("video", "name2"), newRes2)
-        if oldRes3 != newRes3:
-            SETTINGS.set("video", "resolution3", newRes3)
-            updateResolutionOnCamera(SETTINGS.get("video", "name3"), newRes3)
-        if oldRes4 != newRes4:
-            SETTINGS.set("video", "resolution4", newRes4)
-            updateResolutionOnCamera(SETTINGS.get("video", "name4"), newRes4)
-        """
-
         # Main
         SETTINGS.set("main", "stylesheet", str(self.checkBox_dark.isChecked()))
-        SETTINGS.set("main", "threadmode", str(self.threadSync.isChecked()))
+        SETTINGS.set("main", "multithread", str(not self.threadSync.isChecked()))
 
         # Database
         SETTINGS.set("database", "address", str(self.databaseAddress.text()))
@@ -307,6 +180,7 @@ class OptionWindow(QDialog):
         self.databasePort.setText("3306") if self.checkMySQL.isChecked() else self.databasePort.setText("5432")
         
     def closeEvent(self, event):
+        self.mainwindow = None
         super().closeEvent(event)
         global SETTINGSWINDOW
         SETTINGSWINDOW = None
@@ -322,30 +196,52 @@ class OptionWindow(QDialog):
             except Exception as e:
                 warning.showWarning("Error!", str(e), self)
 
-def updateResolutionOnCamera(name, mode):
-    """
-    Creates and sends an update to the rover with the new resoltion
-    Inputs:
-        Name: The name of the camera, needs to be the same as the one on the rover
-        Mode: Arbitrary mode ranging from 1-4 to change resolution
-    """
-    # This will change to the json specification
-    msg = {
-            "cameraName" : name,
-            "cameraMode" : mode
-        }
-    message = {
-        "Camera" : msg
-    }
-    # Send to udp
-    #UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
+    def populateCameraList(self):
+        self.cameraList.clearContents()
+        self.cameraList.setRowCount(0)
+        for k, v in vm.VIDEO_LIST.items():
+            idx = self.cameraList.rowCount()
+            self.cameraList.insertRow(idx)
+            self.cameraList.setItem(idx, 0, QTableWidgetItem(k))
+            self.cameraList.setItem(idx, 1, QTableWidgetItem(v["source"]))            
+            
+    def addNewCamera(self):
+        name = self.fieldCameraName.text()
+        src = self.fieldCameraSource.text()
 
-def openSettings():
+        if len(name) <= 0 or len(src) <= 0:
+            warning.showWarning("Fatal Error", "Invalid or missing input(s)!", self)
+            return
+
+        idx = self.cameraList.rowCount()
+        self.cameraList.insertRow(idx)
+        self.cameraList.setItem(idx, 0, QTableWidgetItem(name))
+        self.cameraList.setItem(idx, 1, QTableWidgetItem(src))
+        vm.addVideo(name, src)
+        self.mainwindow.populateCameraMenu()
+
+    def removeSelectedCamera(self):
+        row = self.cameraList.currentRow()
+        if row < 0:
+            return
+
+        id = self.cameraList.item(row, 0).text()
+        self.cameraList.removeRow(row)
+        vm.removeVideo(id)
+        self.mainwindow.populateCameraMenu()
+
+def openSettings(mainwndw):
     """Open global settings"""
     global SETTINGSWINDOW
     if SETTINGSWINDOW is None:
-        SETTINGSWINDOW = OptionWindow()
+        SETTINGSWINDOW = OptionWindow(mainwndw)
 
     SETTINGSWINDOW.show()
     SETTINGSWINDOW.activateWindow()
     return SETTINGSWINDOW
+
+def closeSettings():
+    global SETTINGSWINDOW
+    if SETTINGSWINDOW:
+        SETTINGSWINDOW.close()
+        SETTINGSWINDOW = None
