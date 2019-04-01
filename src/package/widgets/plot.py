@@ -37,14 +37,7 @@ class PlotCanvas(FigureCanvas):
         """
         Settings updated/loaded, set the correct colors!
         """
-        color = 'black' if (config.get("main", "stylesheet") == "False") else 'white'
-        for ax in self.figure.axes:
-            ax.tick_params(axis='x', colors=color)
-            ax.tick_params(axis='y', colors=color)
-            ax.yaxis.label.set_color(color)
-            ax.xaxis.label.set_color(color)
-            ax.title.set_color(color)
-        self.draw()
+        self.setAxisColor('black' if (config.get("main", "stylesheet") == "False") else 'white')
 
     def clearGraph(self):
         self.figure.clear()
@@ -58,12 +51,24 @@ class PlotCanvas(FigureCanvas):
         ax.patch.set_alpha(0.5)
         self.loadSettings(SETTINGS)
 
+    def setAxisColor(self, color):
+        """Set color for all axises + labels"""
+        for ax in self.figure.axes:
+            ax.tick_params(axis='x', colors=color)
+            ax.tick_params(axis='y', colors=color)
+            ax.yaxis.label.set_color(color)
+            ax.xaxis.label.set_color(color)
+            ax.title.set_color(color)
+        self.draw()
+
     def save(self):
         """Save plot as a transparent png file."""
         # Have to use self.window() rather than just self, due to QFileDialog will inherit stylesheet, making the dialog transparent and buggy...
         fileName, _ = QFileDialog.getSaveFileName(self.window(),"Save plot(s)","","All Files (*);;PNG Files (*.png)", options=(QFileDialog.Options() | QFileDialog.DontUseNativeDialog))
         if fileName:
-            self.figure.savefig(fileName, facecolor=self.figure.get_facecolor(), edgecolor='none', transparent=True)        
+            self.setAxisColor('black')
+            self.figure.savefig(fileName, facecolor=self.figure.get_facecolor(), edgecolor='none', transparent=True)
+            self.loadSettings(SETTINGS)
 
     def contextMenuEvent(self, event):
         """Handle right-click context menu event"""
