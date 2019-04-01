@@ -194,7 +194,7 @@ class OptionWindow(QDialog):
             try:
                 database.createDatabase(self.databaseDB.text())
             except Exception as e:
-                warning.showWarning("Error!", str(e), self)
+                warning.showWarning("Fatal Error", str(e), self)
 
     def populateCameraList(self):
         self.cameraList.clearContents()
@@ -213,11 +213,14 @@ class OptionWindow(QDialog):
             warning.showWarning("Fatal Error", "Invalid or missing input(s)!", self)
             return
 
+        if not vm.addVideo(name, src):
+            warning.showWarning("Fatal Error", "This camera ID already exist!", self)
+            return
+
         idx = self.cameraList.rowCount()
         self.cameraList.insertRow(idx)
         self.cameraList.setItem(idx, 0, QTableWidgetItem(name))
-        self.cameraList.setItem(idx, 1, QTableWidgetItem(src))
-        vm.addVideo(name, src)
+        self.cameraList.setItem(idx, 1, QTableWidgetItem(src))        
         self.mainwindow.populateCameraMenu()
 
     def removeSelectedCamera(self):

@@ -46,13 +46,14 @@ def addVideo(name, source):
     """
     global VIDEO_LIST, VIDEO_CONFIG
     if name in VIDEO_LIST:
-        return
+        return False
 
     obj = createVideoDict(source)
     VIDEO_LIST[name] = obj
     VIDEO_CONFIG[name] = dict()
     update(name, obj)
     save()
+    return True
 
 def removeVideo(name):
     """
@@ -72,15 +73,6 @@ def removeVideo(name):
         return obj
 
     return None
-
-def setWindowForVideo(name, obj):
-    """
-    Set which window to use for which video stream!
-    The video thread will send its frames to the selected window.
-    """
-    global VIDEO_LIST
-    if name in VIDEO_LIST:
-        VIDEO_LIST[name]["window"] = obj
 
 def load():
     """
@@ -114,12 +106,13 @@ def update(id, obj):
     """
     global VIDEO_CONFIG
     if (obj is None) or not (id in VIDEO_CONFIG):
-        return
+        return False
 
     VIDEO_CONFIG[id]["source"] = str(obj["source"])
     VIDEO_CONFIG[id]["color"] = str(obj["color"])
     VIDEO_CONFIG[id]["scaling"] = str(obj["scaling"])
     VIDEO_CONFIG[id]["bounds"] = str(obj["bounds"])
+    return True
 
 def save():
     """

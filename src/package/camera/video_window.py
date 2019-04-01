@@ -60,9 +60,8 @@ class CameraStreamWindow(QMainWindow):
         
         self.syncObject.remove(self.id)
         self.syncObject = None
+        self.cameraObject["window"] = None
         self.cameraObject = None
-        if not vt.THREADING_SHUTDOWN:
-            vm.setWindowForVideo(self.id, None)
 
         super().closeEvent(event)
 
