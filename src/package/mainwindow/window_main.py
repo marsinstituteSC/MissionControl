@@ -102,7 +102,6 @@ class MainWindow(QMainWindow):
         "border-style: dotted;\n"
         "border-color: grey;\n"
         "}")
-        self.status.testWidget()
 
     def closeEvent(self, event):
         window_eventlog.closeEventLog()

@@ -29,7 +29,11 @@ class SpeedWidget(QWidget):
         self.setTurn(0.0)
     
     def setSpeed(self, speed):
-        self.speed = speed
+        try:
+            self.speed = float(speed)
+        except:
+            # Do something, signal to the logger maybe...
+            return
         self.lcd_speed.display(self.speed)
         # Max speed for the rovers on the competition is 0.5 m/s.
         if self.speed == 0:
@@ -48,10 +52,14 @@ class SpeedWidget(QWidget):
             self.label_speed_image.setPixmap(self.speedIcons["bck_fast"].pixmap(QSize(64,64)))
     
     def setTurn(self, turn):
-        self.turn = turn
-        if self.turn == 0:
+        try:
+            self.turn = float(turn)
+        except:
+            # Do something, signal to the logger maybe...
+            return
+        if self.turn == 0.0:
             self.label_turn_image.setPixmap(self.turnIcons["fwd"].pixmap(QSize(64,64)))
-        elif self.turn > 0:
+        elif self.turn > 0.0:
             self.label_turn_image.setPixmap(self.turnIcons["left"].pixmap(QSize(64,64)))
-        elif self.turn < 0:
+        elif self.turn < 0.0:
             self.label_turn_image.setPixmap(self.turnIcons["right"].pixmap(QSize(64,64)))

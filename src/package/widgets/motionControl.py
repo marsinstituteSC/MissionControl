@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.uic import loadUi
-import sys, random, time
-from communications.udp_conn import ROVERSERVER
+import sys, random, time, json
+from communications import udp_conn as UDP
 
 class MotionControlWidget(QWidget):
     def __init__(self):
@@ -54,4 +54,5 @@ class MotionControlWidget(QWidget):
 
         control = {"speed" : self.speed if self.mode == 0 else 0, "turn" : self.turn if self.mode == 0 else 0}
         manip = {"mode" : self.mode}
-        output = {"manip" : manip, "control" : control}
+        message = {"manip" : manip, "control" : control}
+        UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))    

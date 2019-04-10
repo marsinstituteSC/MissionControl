@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout
+from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QSize, Qt, pyqtSlot
 from PyQt5.uic import loadUi
@@ -35,12 +35,7 @@ class SimpleStatus(QWidget):
             "middle-right-wheel" : None,
             "back-left-wheel" : None,
             "back-right-wheel" : None,
-            "camera" : None,
-            "manipulator" : None,
-            "body" : {
-                "battery" : None,
-                "sensormast" : None
-                }
+            "body" : { }
         }
 
         self.createLabels()
@@ -49,45 +44,43 @@ class SimpleStatus(QWidget):
     def createLabels(self):
         """ Creates the special clickable labels and assigns them onto the grid """
 
-        # Create wheel labels
+        # Create layout boxes
+        self.vBox_leftWheels = QVBoxLayout()
+        self.vBox_rightWheels = QVBoxLayout()
+
+        # Create wheel labels, and place them into their respectable vboxes
         self.frontLeftWheel = ClickableLabel("top-left-wheel")
         self.frontLeftWheel.clicked.connect(self.showLabelWarning)
-        self.grid_status.addWidget(self.frontLeftWheel, 0, 0)
+        self.vBox_leftWheels.addWidget(self.frontLeftWheel)
         
         self.frontRightWheel = ClickableLabel("top-right-wheel")
         self.frontRightWheel.clicked.connect(self.showLabelWarning)
-        self.grid_status.addWidget(self.frontRightWheel, 0, 2)
+        self.vBox_rightWheels.addWidget(self.frontRightWheel)
 
         self.middleLeftWheel = ClickableLabel("middle-left-wheel")
         self.middleLeftWheel.clicked.connect(self.showLabelWarning)
-        self.grid_status.addWidget(self.middleLeftWheel, 1, 0)
+        self.vBox_leftWheels.addWidget(self.middleLeftWheel)
 
         self.middleRightWheel = ClickableLabel("middle-right-wheel")
         self.middleRightWheel.clicked.connect(self.showLabelWarning)
-        self.grid_status.addWidget(self.middleRightWheel, 1, 2)
+        self.vBox_rightWheels.addWidget(self.middleRightWheel)
 
         self.backLeftWheel = ClickableLabel("back-left-wheel")
         self.backLeftWheel.clicked.connect(self.showLabelWarning)
-        self.grid_status.addWidget(self.backLeftWheel, 2, 0)
+        self.vBox_leftWheels.addWidget(self.backLeftWheel)
 
         self.backRightWheel = ClickableLabel("back-right-wheel")
         self.backRightWheel.clicked.connect(self.showLabelWarning)
-        self.grid_status.addWidget(self.backRightWheel, 2, 2)
-
-        # Labels for the manipulator and camera in its own grid
-        grid = QGridLayout()
-        self.manipulator = ClickableLabel("manipulator")
-        self.manipulator.clicked.connect(self.showLabelWarning)
-        grid.addWidget(self.manipulator, 0, 0)
-        self.camera = ClickableLabel("camera")
-        self.camera.clicked.connect(self.showLabelWarning)
-        grid.addWidget(self.camera, 0, 1)
-        self.grid_status.addLayout(grid, 0, 1)
+        self.vBox_rightWheels.addWidget(self.backRightWheel)
 
         # Label for body
         self.main = ClickableLabel("body")
         self.main.clicked.connect(self.showLabelWarning)
-        self.grid_status.addWidget(self.main, 1, 1, 2, 1)
+
+        # Place the labels onto the status grid
+        self.grid_status.addLayout(self.vBox_leftWheels, 0, 0)
+        self.grid_status.addWidget(self.main, 0, 1, 1, 3)
+        self.grid_status.addLayout(self.vBox_rightWheels, 0, 4)
 
     @pyqtSlot(str)
     def showLabelWarning(self,part):
@@ -125,8 +118,6 @@ class SimpleStatus(QWidget):
         self.middleRightWheel.setPixmap(self.statusIcons["wheelok"])
         self.backLeftWheel.setPixmap(self.statusIcons["wheelok"])
         self.backRightWheel.setPixmap(self.statusIcons["wheelok"])
-        self.manipulator.setPixmap(self.statusIcons["manipulatorok"])
-        self.camera.setPixmap(self.statusIcons["cameraok"])
         self.main.setPixmap(self.statusIcons["bodyok"])
 
     def setWheelStatus(self, error, wheel, msg):
@@ -147,23 +138,13 @@ class SimpleStatus(QWidget):
         elif wheel == "back-right-wheel":
             self.backRightWheel.setPixmap(self.statusIcons["wheelfault" if error else "wheelok"])
         self.status[wheel] = msg if error else None 
-
-    def setCameraStatus(self, error, msg):
-        """ Sets the status image for the camera and message to the dictionary """
-        self.camera.setPixmap(self.statusIcons["camerafault" if error else "cameraok"])
-        self.status["camera"] = msg if error else None 
-
-    def setManipulatorStatus(self, error, msg):
-        """ Sets the status image and text for the manipulator and message to the dictionary """
-        self.manipulator.setPixmap(self.statusIcons["manipulatorfault" if error else "manipulatorok"])
-        self.status["manipulator"] = msg if error else None 
         
     def setBodyStatus(self, error, part, msg):
         """
         Sets the status image
         Body will be affected by every error that has not a specific area in the grid, ex wheels.
         """
-        # Need to add the message first in order to check if there exists an error
+        # Need to add the message first in order to check if there exists an error, could be moved to the status handler
         self.status["body"][part] = msg if error else None
 
         # Then check if there has been a stored message, meaning there is something wrong, and set fault if there is an error.
@@ -186,19 +167,17 @@ class SimpleStatus(QWidget):
             err = bool(message["error"])
             if part in self.wheelNames:
                 self.setWheelStatus(err, part, message["messages"])       
-            elif part == "camera":
-                self.setCameraStatus(err, message["messages"])
-            elif part == "manipulator":
-                self.setManipulatorStatus(err, message["messages"])
             else:
                 self.setBodyStatus(err, part, message["messages"])
         self.setToolTips()
         
     def setToolTips(self):
-        """Iterate through each main part, except the body"""
+        """ Iterate through each part to create tooltips for the parts """
         # Start with the parts that has a specific label for the part.
         for part, status in self.status.items():
             text = ""
+            # If there is a status message, then it means that there is an error
+            # Iterate over the status message to create the tooltip text
             if status:
                 for t in status:
                     text += t if text == "" else "\n" + t
@@ -214,10 +193,6 @@ class SimpleStatus(QWidget):
                 self.backLeftWheel.setToolTip(text)
             elif part == "back-right-wheel":
                 self.backRightWheel.setToolTip(text)
-            elif part == "camera":
-                self.camera.setToolTip(text)
-            elif part == "manipulator":
-                self.manipulator.setToolTip(text)
         
         # Iterate through the body separately because of the way the data is stored
         text = ""
@@ -228,10 +203,12 @@ class SimpleStatus(QWidget):
         self.main.setToolTip(text)
     
     def testWidget(self):
+        """ Sends the example data to test the widget """
         self.statusHandler(exampleData())
                 
             
 def exampleData():
+    """ Example data for testing purposes """
     flw = {
         "error" : True,
         "messages" : ["ERROR"]

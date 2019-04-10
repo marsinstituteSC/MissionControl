@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QPushButton
 from PyQt5.uic import loadUi
-import sys, random, time, os, math
+import sys, random, time, os, math, json
 from configparser import ConfigParser
+from communications import udp_conn as UDP
 
 class CustomMessageWidget(QWidget):
     def __init__(self):
@@ -16,40 +17,51 @@ class CustomMessageWidget(QWidget):
         self.pushButton_addButton.clicked.connect(self.createNewMessageButton)
         self.pushButton_deleteButton.clicked.connect(self.deleteMessage)
 
+        # Initialization
         self.checkMessagesFile()
         self.populateMessageButtons()
         self.show()
 
     def sendMessage(self, key = None, value = None):
-        """ Sends the key value pair as a message to the rover """
+        """ 
+        Fetch the values in the input boxes, if no key or value is sent with the method
+        else it will take the incoming key and value
+        Sends the key value pair as a message to the rover 
+        """
         if not key or not value:
             key = str(self.lineEdit_keyword.text())
             value = str(self.lineEdit_value.text())
+            message = {key : value}
             if not key or not value:
                 self.label_error.setText("Missing key or value")
                 return
         self.label_error.setText("")
         
-        # TODO: Send to rover
+        UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
         
 
     def populateMessageButtons(self):
-        """ Clear and populate the button box from the messages.ini """
+        """ Clear and populate the button box from the messages.ini in order """
 
+        # Remove every button
         for i in reversed(range(self.gridLayout_buttons.count())): 
             self.gridLayout_buttons.itemAt(i).widget().setParent(None)
         
         sortedList = []
 
+        # Checks if there exists any entries in the ini file
         if self.config.options("messages"):
+            # Appends every item in the ini file to a list and sort them
             for key, _ in self.config.items("messages"):
                 sortedList.append(key)
             sortedList.sort()
 
+            # Create a button, in sorted order, and make the name to be the button text and connect each button to the buttonClicked method
             for key in sortedList:
                 button = QPushButton()
                 button.setText(key)
                 button.clicked.connect(self.buttonClicked)
+                # Make the buttons follow a nx3 grid, where 3 is column count and n is row count.
                 self.gridLayout_buttons.addWidget(button, math.floor(self.gridLayout_buttons.count() / 3), self.gridLayout_buttons.count() % 3)
             self.frame_buttons.show()
         else:
@@ -60,9 +72,13 @@ class CustomMessageWidget(QWidget):
         self.populateMessageButtons()
 
     def buttonClicked(self):
+        """ Function for the custom buttons to send or populate it's contained information """
+        # Retrieve the button that was activated to retrieve it's name (text)
         btn = self.sender()
         text = self.config.get("messages", btn.text())
         key, value = text.split("___")[0], text.split("___")[1]
+        
+        # Checks if the checkbox is checked for sending the message on button click or by filling out the input fields
         if self.checkBox_quickMessage.isChecked():
             self.sendMessage(key, value)
         else:
@@ -71,7 +87,7 @@ class CustomMessageWidget(QWidget):
             self.lineEdit_name.setText(btn.text())
 
     def saveNewMessage(self):
-        """ Saves the message """
+        """ Saves the message to the ini file """
         key = self.lineEdit_keyword.text()
         value = self.lineEdit_value.text()
         name = self.lineEdit_name.text()
@@ -87,6 +103,10 @@ class CustomMessageWidget(QWidget):
         self.updateMessageFile()
     
     def deleteMessage(self):
+        """
+        Retrieves the name of the should be deleted button from the name input
+        Deletes the button and refreshes the list if a button with the name exists
+        """
         name = self.lineEdit_name.text()
         if name:
             # Delete the message if it exists, else raise a message
