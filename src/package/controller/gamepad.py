@@ -81,10 +81,14 @@ class Gamepad(QThread):
         self.joystick = None
         self.joystick_id = -1
         self.joystick_id_switch = -1
-        self.deadzone = deadzone        
+        self.deadzone = deadzone
+
+    def __del__(self):
+        self.destroy()    
 
     def destroy(self):
         self.shouldDestroy = True
+        self.wait()
 
     # Initializes the joystick
     def initialize(self, id):

@@ -169,7 +169,8 @@ class CameraStreamObject(QObject):
 
 class CameraSync(QObject):
     def __init__(self):
-        super().__init__()        
+        super().__init__()
+        self.shutdown = False  
         self.thread = QThread()
         self.moveToThread(self.thread)
         self.thread.started.connect(self.run)
@@ -178,8 +179,9 @@ class CameraSync(QObject):
         self.lock = threading.Lock()
 
     def __del__(self):
-        self.items.clear()
-        self.thread.quit()
+        self.shutdown = True
+        if not self.thread.wait(100):
+            self.thread.terminate()
         self.thread = None
 
     def add(self, id, obj):
@@ -205,7 +207,7 @@ class CameraSync(QObject):
     def run(self):
         global THREADING_SHUTDOWN, THREADING_EVENTS, THREADING_SUSPEND_TIME
         frames = dict()
-        while not THREADING_SHUTDOWN:
+        while not THREADING_SHUTDOWN and not self.shutdown:
             with self.lock:
                 for id, obj in self.items.items():
                     frame = obj.render()
@@ -215,6 +217,7 @@ class CameraSync(QObject):
             # Send pixmap to ui thread, suspend otherwise, if nothing else to do!
             THREADING_EVENTS.dispatchPixmapEvent(frames.copy()) if len(frames) > 0 else time.sleep(THREADING_SUSPEND_TIME) 
             frames.clear()
+        self.items.clear()
 
 def initialize(val):
     """

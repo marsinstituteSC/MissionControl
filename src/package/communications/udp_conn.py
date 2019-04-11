@@ -30,7 +30,10 @@ class UDPRoverServer(QThread):
         self.gamepadSocket = None
         self.sensorpubSocket = None
         self.lastSensorBroadcastAddress = None
-        self.loadSettings(cfg.SETTINGS)    
+        self.loadSettings(cfg.SETTINGS)
+    
+    def __del__(self):
+        self.destroy()
 
     def connectToGamepadServer(self):
         self.gamepadSocket = QUdpSocket()
@@ -77,6 +80,7 @@ class UDPRoverServer(QThread):
 
     def destroy(self):
         self.shouldDestroy = True
+        self.wait()
 
     def run(self):
         lastMessageTime = time.time()

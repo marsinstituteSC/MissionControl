@@ -80,7 +80,6 @@ if __name__ == "__main__":
         video_manager.load()
         mainwnd = wm.loadMainWindow()
         code = app.exec_()
-        mainwnd.close()
         app = None
         mainwnd = None
         if code == APP_RESTART_CODE:
