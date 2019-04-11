@@ -1,7 +1,7 @@
 """ Video Cam Stream Window """
 
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot, QObject, QRect, QPoint
-from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QSizePolicy
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.uic import loadUi
 
@@ -18,6 +18,8 @@ class CameraStreamWindow(QMainWindow):
         self.setWindowTitle(id)
         self.id = id
         self.recording = False
+
+        self.pixmap.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
         self.btnUpdate.clicked.connect(self.update)
         self.btnRecord.clicked.connect(self.record)
