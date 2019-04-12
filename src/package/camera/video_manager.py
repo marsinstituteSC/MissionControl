@@ -130,6 +130,9 @@ def shutdown():
     Shutdown gracefully, release all openCV stuff. 
     Tell camera windows to close.
     """    
+    if cam_thread_mngr.THREADING_SHUTDOWN:
+        return
+        
     global VIDEO_LIST
     cam_thread_mngr.THREADING_SHUTDOWN = True    
     for _, v in VIDEO_LIST.items():
