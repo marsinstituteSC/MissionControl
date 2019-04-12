@@ -13,28 +13,40 @@
   <property name="windowTitle">
    <string>Camera</string>
   </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,0">
     <property name="leftMargin">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="topMargin">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>3</number>
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
     </property>
     <item row="2" column="0">
      <widget class="QFrame" name="groupFunctions">
       <layout class="QFormLayout" name="formLayout">
+       <property name="verticalSpacing">
+        <number>6</number>
+       </property>
        <property name="topMargin">
-        <number>0</number>
+        <number>3</number>
        </property>
        <property name="bottomMargin">
-        <number>0</number>
+        <number>3</number>
        </property>
        <item row="1" column="0">
         <widget class="QLabel" name="lbl1">
@@ -45,6 +57,9 @@
        </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="sourceField">
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
          <property name="text">
           <string/>
          </property>

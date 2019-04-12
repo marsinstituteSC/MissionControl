@@ -20,6 +20,7 @@ from widgets.battery import BatteryWidget
 from widgets.controlStationStatus import ControlStatus
 from widgets.speed import SpeedWidget
 from widgets.message import CustomMessageWidget
+from widgets.temperature import TemperatureWidget
 
 from utils.warning import showWarning
 from communications import database
@@ -79,12 +80,14 @@ class MainWindow(QMainWindow):
         self.controlStatus = ControlStatus()
         self.speed = SpeedWidget()
         self.message = CustomMessageWidget()
+        self.temperature = TemperatureWidget()
         self.leftFrameGrid.addWidget(self.controlStatus, 0, 0)
         self.leftFrameGrid.addWidget(self.status, 1, 0)
         self.topFrameGrid.addWidget(self.compass, 0, 0)
         self.topFrameGrid.addWidget(self.gyro, 1, 0)
         self.bottomFrameGrid.addWidget(self.speed, 0, 0)
-        self.bottomFrameGrid.addWidget(self.battery, 0, 1)
+        self.bottomFrameGrid.addWidget(self.temperature, 0, 1)
+        self.bottomFrameGrid.addWidget(self.battery, 0, 2)
         self.rightFrameGrid.addWidget(self.message, 1, 0)  
         self.rightFrameGrid.addWidget(self.motionControl, 2, 0)
 
@@ -146,9 +149,6 @@ class MainWindow(QMainWindow):
         if not status[0]: # Print error.
             self.log.logData(str(status[1]), logger.LOGGER_PRIORITY_ERROR)
 
-    def setSpeedometerValue(self, value):
-        self.speed.setSpeed(value)
-
     def settings(self):
         self.setting = cfg.openSettings(self)
     
@@ -191,9 +191,21 @@ class MainWindow(QMainWindow):
         object, which can be parsed properly in this method.
         """
         # TODO Add more stuff here...
-        if 'speed' in data:
-            self.setSpeedometerValue(data['speed'])
+        if 'drive' in data:
+            self.speed.setSpeed(data['drive']['speed'])
+            self.speed.setTurn(data['drive']['turn'])
             self.log.logData("Speed {} m/s.".format(data['speed']), logger.LOGGER_PRIORITY_NOTIFICATION, logger.LOGGER_TYPE_ROVER)
+        if 'temperature' in data:
+            self.temperature.setTemperature(data['temperature'])
+        if 'compass' in data:
+            self.compass.setAngleCompass(data['compass'])
+        if 'battery' in data:
+            self.battery.setVoltage(data['battery']['voltage'])
+            self.battery.setCapacity(data['battery']['capacity'])
+        if 'rotation' in data:
+            self.gyro.setValues(data['rotation']['roll'], data['rotation']['pitch'], data['rotation']['yaw'])
+        if 'status' in data:
+            self.status.statusHandler(data['status'])
 
 def loadMainWindow():
     wndw = MainWindow()

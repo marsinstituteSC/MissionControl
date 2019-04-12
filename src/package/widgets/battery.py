@@ -28,13 +28,19 @@ class BatteryWidget(QWidget):
         self.label_battery.setPixmap(self.batteryStatus["empty"])
 
     def setVoltage(self, voltage):
-        self.voltage = str(voltage)
-        self.label_voltage.setText(self.voltage + "V")
+        try:
+            self.voltage = str(voltage)
+            self.label_voltage.setText(self.voltage + "V")
+        except:
+            print("Voltage Error")
 
     def setCapacity(self, capacity):
-        capacity = int(capacity)
-        self.capacity = str(capacity)
-        self.label_capacity.setText(self.capacity + "%")
+        try:
+            capacity = int(capacity)
+            self.capacity = str(capacity)
+            self.label_capacity.setText(self.capacity + "%")
+        except:
+            print("Capacity Error")
 
         img = "empty"
         if capacity > 75:

@@ -26,6 +26,7 @@ class CameraStreamWindow(QMainWindow):
         self.colorChoices.currentIndexChanged.connect(self.propertyChange)
         self.scaleChoices.currentIndexChanged.connect(self.propertyChange)
         self.btnToggleFunctions.clicked.connect(self.toggleFunctions)
+        self.btnToggleFunctions.hide()
 
         vt.THREADING_EVENTS.pixmap.connect(self.receiveFrame)
         vt.THREADING_EVENTS.finished.connect(self.finished)
@@ -66,6 +67,12 @@ class CameraStreamWindow(QMainWindow):
         self.cameraObject = None
 
         super().closeEvent(event)
+
+    def enterEvent(self, event):
+        self.btnToggleFunctions.show()
+
+    def leaveEvent(self, event):
+        self.btnToggleFunctions.hide()
 
     def record(self):
         self.recording = not self.recording
