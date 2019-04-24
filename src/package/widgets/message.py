@@ -22,24 +22,23 @@ class CustomMessageWidget(QWidget):
         self.populateMessageButtons()
         self.show()
 
-    def sendMessage(self, key = None, value = None):
+    def sendMessage(self, key=None, value=None):
         """ 
         Fetch the values in the input boxes, if no key or value is sent with the method
         else it will take the incoming key and value
         Sends the key value pair as a message to the rover 
         """
-        if not key or not value:
+        if not (key and value):
             key = str(self.lineEdit_keyword.text())
             value = str(self.lineEdit_value.text())
-            message = {key : value}
-            if not key or not value:
-                self.label_error.setText("Missing key or value")
-                return
-        self.label_error.setText("")
-        
-        UDP.ROVERSERVER.writeToRover(json.dumps(message, separators=(',', ':')))
-        
 
+        if len(key) <= 0 or len(value) <= 0:
+            self.label_error.setText("Missing key or value")
+            return
+
+        self.label_error.setText("")
+        UDP.ROVERSERVER.writeToRover(json.dumps({key: value}, separators=(',', ':')))
+        
     def populateMessageButtons(self):
         """ Clear and populate the button box from the messages.ini in order """
 
