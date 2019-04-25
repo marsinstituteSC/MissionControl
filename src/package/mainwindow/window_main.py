@@ -194,7 +194,6 @@ class MainWindow(QMainWindow):
         if 'drive' in data:
             self.speed.setSpeed(data['drive']['speed'])
             self.speed.setTurn(data['drive']['turn'])
-            self.log.logData("Speed {} m/s.".format(data['speed']), logger.LOGGER_PRIORITY_NOTIFICATION, logger.LOGGER_TYPE_ROVER)
         if 'temperature' in data:
             self.temperature.setTemperature(data['temperature'])
         if 'compass' in data:

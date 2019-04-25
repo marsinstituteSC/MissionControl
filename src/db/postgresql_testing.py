@@ -1,58 +1,69 @@
-""" Testing SQLAlchemy with PostgreSQL """
+""" 
+PostgreSQL testing, using:
+SQLAlchemy (ORM) and psycopg2 (NON-ORM)
+
+The purpose of this script is to roughly demonstrate the differences between the ORM and traditional SQL connector technique.
+"""
 
 import psycopg2
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column, Integer, BIGINT, String, SMALLINT, TIMESTAMP, MetaData, desc, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, BIGINT, String
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("postgresql://postgres:booty@localhost/sensors")
+engine = create_engine("postgresql://postgres:xys@localhost/db")
 Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
-
-class Temperature(Base):
-    __tablename__ = "temperature" # Required!!!
+class Event(Base):
+    __tablename__ = "event" # Required
     id = Column(BIGINT, primary_key=True)
-    message = Column(String)
-    value = Column(Integer)
+    message = Column(String(128))
+    severity = Column(SMALLINT)
+    type = Column(SMALLINT)
+    time = Column(TIMESTAMP)
 
-    def __repr__(self): # Used for printing!
-        return "<Temperature(id={}, message={}, value={})>".format(self.id, self.message, self.value)
+    def __repr__(self): # For printing, x = Event() : print(x)
+        return "Event(msg={}, sev={}, type={}, time={})".format(self.message, self.severity, self.type, self.time)
 
-
-def testPostgreSQLManually():
-    """Non-ORM way, a lot more verbose!!!"""
-    conn = psycopg2.connect("dbname=sensors user=postgres password=booty")
+def readAllManually():
+    conn = psycopg2.connect("dbname=db user=postgres password=xyz")
     try:
         cur = conn.cursor()
-        #cur.execute("INSERT INTO temperature (id, message, value) VALUES(3, 'woop', 25)")
-        cur.execute("SELECT * FROM temperature")
+        cur.execute("SELECT * FROM event")
         for data in cur:
             print(data)
-        #conn.commit()
         cur.close()
     except Exception as e:
         print(str(e))
     finally:
         conn.close()
 
+def insertManually():
+    conn = psycopg2.connect("dbname=db user=postgres password=xyz")
+    try:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO event (id, message, severity, type, time) VALUES(1, 'xyz', 0, 0, '2019-05-15 14:00:00')")
+        conn.commit()
+        cur.close()
+    except Exception as e:
+        print(str(e))
+    finally:
+        conn.close()
 
-def printTemperatureTable(s):
-    for data in s.query(Temperature):
+def readAllORM(session):
+    for data in session.query(Event):
         print(data)
 
-
-def addNewItemToTemperatureTable(s, idx, msg, val):
-    newTempMeasurement = Temperature(id=idx, message=msg, value=val)
-    s.add(newTempMeasurement)
-    s.commit()
-    print("\n")
-
+def insertORM(session):
+    newEvent = Event(id=2, message='xyz', severity=0, type=0, time='2019-05-15 14:00:00')
+    session.add(newEvent) # Cache new row until committed.
+    session.commit() # Flush + Commit change to DB.
 
 if __name__ == "__main__":
+    insertManually()
+    readAllManually()    
+
     session = Session()
-    printTemperatureTable(session)
-    addNewItemToTemperatureTable(session, 6, "hello world", 45)
-    printTemperatureTable(session)
+    insertORM()
+    readAllORM()
     session.close()

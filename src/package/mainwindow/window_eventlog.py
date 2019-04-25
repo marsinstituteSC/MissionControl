@@ -22,7 +22,7 @@ class EventLogWindow(QMainWindow):
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
 
-        data = database.Event.findByType(0, True)
+        data = database.Event.findAll(True)
         if data:
             for row in data:
                 idx = self.sensorTable.rowCount()

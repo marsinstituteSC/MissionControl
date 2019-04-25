@@ -115,20 +115,38 @@ class Event(Base):
     time = Column(TIMESTAMP)
 
     def __repr__(self):
-        return "Event(msg={}, sev={}, typ={}, time={})".format(self.message, self.severity, self.type, self.time)
+        return "Event(msg={}, sev={}, type={}, time={})".format(self.message, self.severity, self.type, self.time)
 
+    @staticmethod
     def add(msg, s, t, time):
         """
         Add a new event to the DB.
         """
         add(Event(message=msg, severity=s, type=t, time=time))
 
+    @staticmethod
     def delete(id):
         """
         Remove an event from the DB.
         """
         delete(find(id))
 
+    @staticmethod
+    def findAll(reverse=False):
+        output = list()    
+        with LOCK:
+            try:
+                s = Session()
+                for d in s.query(Event).order_by(desc(Event.time)).all():
+                    output.append(d)
+            except Exception as e:
+                print(e)
+            finally:
+                if reverse:
+                    output.reverse()
+                return output
+
+    @staticmethod
     def findByType(t, reverse=False):
         output = list()    
         with LOCK:
@@ -143,6 +161,7 @@ class Event(Base):
                     output.reverse()
                 return output
 
+    @staticmethod
     def findTypeWithin(t, start, end, reverse=False):
         output = list()    
         with LOCK:
@@ -156,7 +175,6 @@ class Event(Base):
                 if reverse:
                     output.reverse()
                 return output
-
 
 def deleteDataFromDatabase():
     """Delete all data!"""
@@ -211,3 +229,40 @@ def createDatabase(db):
         # Establish new session + refresh.
         engine = create_engine("{}{}:{}@{}:{}/{}".format("mysql+pymysql://" if USEMYSQL else "postgresql://", USERNAME, PASSWD, ADDRESS, PORT, DB))
         Session.configure(bind=engine)
+
+#
+# Definitions for the UDP con multicast json msgs.
+#
+
+DB_INTERESTED_IN = {
+    "drive": {"type": 0, "value": "speed"},
+    "temperature": {"type": 1, "value": ""}
+}
+
+def shouldStoreData(key):
+    """
+    Returns true if we're interested in storing the value for the desired key in the DB.
+    """
+    global DB_INTERESTED_IN
+    return (key in DB_INTERESTED_IN)
+
+def getTypeForData(key):
+    """
+    Return the numeric type associated to the key in the received dict @ multicast address.
+    """
+    global DB_INTERESTED_IN
+    if key in DB_INTERESTED_IN:
+        return int(DB_INTERESTED_IN[key]["type"])
+
+    return -1 # Assume that the data is just an ASCII message.
+
+def getValueForData(key, value):
+    """
+    Return the right value for a specific key.
+    """
+    global DB_INTERESTED_IN
+    data = DB_INTERESTED_IN[key]
+    if data["value"]:
+        return value[data["value"]]
+
+    return value

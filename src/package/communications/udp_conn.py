@@ -97,23 +97,24 @@ class UDPRoverServer(QThread):
                 time.sleep(TICK)   
                 continue
 
-            # I don't think the gamepad server on the rover will send replies, so this IF check can probably be removed!
-            if self.gamepadSocket.hasPendingDatagrams():
-                data, _, _ = self.gamepadSocket.readDatagram(self.gamepadSocket.pendingDatagramSize())
-                if data is not None: # TODO Process incoming messages
-                    lastMessageTime = now
-                    print(data.decode())
+            # The rover's gamepad server shouldn't send any packets to the control station, if this changes, uncomment this code and process the incoming packet.
+            # if self.gamepadSocket.hasPendingDatagrams():
+            #     data, _, _ = self.gamepadSocket.readDatagram(self.gamepadSocket.pendingDatagramSize())
+            #     if data:
+            #         lastMessageTime = now
+            #         print(data.decode())
 
             if self.sensorpubSocket.hasPendingDatagrams():
                 data, _, _ = self.sensorpubSocket.readDatagram(self.sensorpubSocket.pendingDatagramSize())
-                if data is not None:
-                    print("Received Sensor Data:", data.decode())
+                if data:
                     lastMessageTime = now
                     obj = json.loads(data)
                     self.onReceiveData.emit(obj)
-                    for _, v in obj.items(): # WIP!!! Could check incoming type here to decide what to do.
-                        # handle message as value if type >= 0.
-                        database.Event.add(v, 0, 0, str(datetime.datetime.now()))
+                    # Process incoming packets, measurements may be stored in the database.
+                    severity = int(obj.get("severity", "0"))
+                    for k, v in obj.items():
+                        if k and database.shouldStoreData(k):
+                            database.Event.add(database.getValueForData(k, v), severity, database.getTypeForData(k), str(datetime.datetime.now()))
 
             # Fetch messages from a thread-safe queue, if empty, skip and wait
             # for TICK time.
