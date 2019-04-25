@@ -171,12 +171,12 @@ class CameraSync(QObject):
     def __init__(self):
         super().__init__()
         self.shutdown = False  
+        self.items = dict()
+        self.lock = threading.Lock()
         self.thread = QThread()
         self.moveToThread(self.thread)
         self.thread.started.connect(self.run)
         self.thread.start()
-        self.items = dict()
-        self.lock = threading.Lock()
 
     def __del__(self):
         self.shutdown = True
