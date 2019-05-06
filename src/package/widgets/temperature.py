@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.uic import loadUi
+from widgets import logger as log
 
 class TemperatureWidget(QWidget):
     def __init__(self):
@@ -12,7 +13,8 @@ class TemperatureWidget(QWidget):
         try:
             self.temperature = float(temp)
         except:
-            print("Temperature Error")
+            log.LOGGER_EVENTS.dispatchDirectLogEvent("TemperatureWidget received invalid temperature, '{}'.".format(temp), log.LOGGER_PRIORITY_WARNING)
+            self.temperature = None
         
         if self.temperature:
             self.show()

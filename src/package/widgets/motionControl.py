@@ -1,6 +1,6 @@
+import json
 from PyQt5.QtWidgets import QWidget
 from PyQt5.uic import loadUi
-import sys, random, time, json
 from communications import udp_conn as UDP
 
 class MotionControlWidget(QWidget):

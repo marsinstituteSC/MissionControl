@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.uic import loadUi
-import sys
 
 class GyroscopeWidget(QWidget):
     def __init__(self):

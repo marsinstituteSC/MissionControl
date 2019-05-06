@@ -1,8 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout
 from PyQt5.QtGui import QPixmap
 from PyQt5.uic import loadUi
-import sys
-
+from widgets import logger as log
 
 class BatteryWidget(QWidget):
     def __init__(self):
@@ -32,29 +31,29 @@ class BatteryWidget(QWidget):
             self.voltage = str(voltage)
             self.label_voltage.setText(self.voltage + "V")
         except:
-            print("Voltage Error")
+            log.LOGGER_EVENTS.dispatchDirectLogEvent("BatteryWidget received invalid voltage, '{}'.".format(voltage), log.LOGGER_PRIORITY_WARNING)
 
     def setCapacity(self, capacity):
         try:
             capacity = int(capacity)
             self.capacity = str(capacity)
             self.label_capacity.setText(self.capacity + "%")
+
+            img = "empty"
+            if capacity > 75:
+                img = "full"
+            elif capacity > 50:
+                img = "threequarter"
+            elif capacity > 25:
+                img = "half"
+            elif capacity > 0:
+                img = "onequarter"
+
+            if img not in self.batteryState:
+                self.label_battery.setPixmap(self.batteryStatus[img])
+                self.batteryState = img
         except:
-            print("Capacity Error")
-
-        img = "empty"
-        if capacity > 75:
-            img = "full"
-        elif capacity > 50:
-            img = "threequarter"
-        elif capacity > 25:
-            img = "half"
-        elif capacity > 0:
-            img = "onequarter"
-
-        if img not in self.batteryState:
-            self.label_battery.setPixmap(self.batteryStatus[img])
-            self.batteryState = img
+            log.LOGGER_EVENTS.dispatchDirectLogEvent("BatteryWidget received invalid capacity, '{}'.".format(capacity), log.LOGGER_PRIORITY_WARNING)
 
     def getVoltage(self):
         return self.voltage

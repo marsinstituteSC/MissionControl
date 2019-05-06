@@ -7,7 +7,6 @@ import time
 import json
 import random
 import signal
-import sys
 
 from PyQt5.QtNetwork import QUdpSocket, QHostAddress, QNetworkInterface
 

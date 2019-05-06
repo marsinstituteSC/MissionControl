@@ -13,6 +13,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QObject, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from camera import video_manager as vm
 from camera import video_window as vw
+from widgets import logger as log
 
 class CameraEvents(QObject):
     pixmap = pyqtSignal(dict) # Send a dict of pixmaps.
@@ -58,6 +59,7 @@ class CameraStreamObject(QObject):
             self.stream = cv2.VideoCapture(None)
             return self.stream.open(self.obj["source"])            
         except Exception as e:
+            log.LOGGER_EVENTS.dispatchLogEvent(e, log.LOGGER_PRIORITY_ERROR)
             print(e)
             return False
 
@@ -75,6 +77,7 @@ class CameraStreamObject(QObject):
 
             res = True
         except Exception as e:
+            log.LOGGER_EVENTS.dispatchLogEvent(e, log.LOGGER_PRIORITY_ERROR)
             print(e)
         finally:
             self.stream = None
@@ -111,6 +114,7 @@ class CameraStreamObject(QObject):
 
             return cv2.VideoWriter(vid, cv2.VideoWriter_fourcc('M','J','P','G'), 60, (int(self.stream.get(3)), int(self.stream.get(4))))
         except Exception as e:
+            log.LOGGER_EVENTS.dispatchLogEvent(e, log.LOGGER_PRIORITY_ERROR)
             print(e)
             return None
 
@@ -163,6 +167,7 @@ class CameraStreamObject(QObject):
             else:
                 self.finish()
         except Exception as e:
+            log.LOGGER_EVENTS.dispatchLogEvent(e, log.LOGGER_PRIORITY_ERROR)
             print(e)
         finally:
             return result

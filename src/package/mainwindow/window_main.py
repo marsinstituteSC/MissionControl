@@ -106,6 +106,10 @@ class MainWindow(QMainWindow):
         "border-color: grey;\n"
         "}")
 
+        self.lastRoverStatus = False
+        self.lastGamepadStatus = False
+        self.lastDBStatus = (False, "")
+
     def closeEvent(self, event):
         window_eventlog.closeEventLog()
         cfg.closeSettings()
@@ -138,16 +142,23 @@ class MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def changeGamepadStatus(self, status):
         self.controlStatus.setControllerStatus(status)
+        if not status and not (self.lastGamepadStatus == status):
+            self.log.logData("No gamepad is active!", logger.LOGGER_PRIORITY_NOTIFICATION)
+        self.lastGamepadStatus = status
 
     @pyqtSlot(bool)
     def changeRoverStatus(self, status):
         self.controlStatus.setRoverStatus(status)
+        if not status and not (self.lastRoverStatus == status):
+            self.log.logData("Lost connection to the rover!", logger.LOGGER_PRIORITY_WARNING)
+        self.lastRoverStatus = status
 
     @pyqtSlot(tuple)
     def changeDatabaseStatus(self, status):
         self.controlStatus.setDatabaseStatus(status[0])
-        if not status[0]: # Print error.
+        if not status[0] and not ((status[0] == self.lastDBStatus[0]) and (str(status[1]) == self.lastDBStatus[1])):
             self.log.logData(str(status[1]), logger.LOGGER_PRIORITY_ERROR)
+        self.lastDBStatus = (status[0], str(status[1]))
 
     def settings(self):
         self.setting = cfg.openSettings(self)

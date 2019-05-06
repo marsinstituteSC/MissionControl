@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QWidget, QGridLayout
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QSize
 from PyQt5.uic import loadUi
-import sys
 
 class ControlStatus(QWidget):
     def __init__(self):

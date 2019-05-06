@@ -2,7 +2,6 @@ from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPalette, QFont, QFontMetricsF, QPen, QPolygon, QColor
 from PyQt5.uic import loadUi
-import sys, random, time
 
 class Compass(QWidget):
     def __init__(self):

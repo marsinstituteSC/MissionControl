@@ -5,7 +5,7 @@
 
 from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QWidget, QTableWidget, QTableWidgetItem, QHeaderView
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QObject
 from PyQt5.uic import loadUi
 
 from utils.math import clamp
@@ -45,9 +45,37 @@ def getNameForRoverDataType(typ):
 
     return "Message"
 
+class LoggerEvents(QObject):
+    """
+    Dispatches cross-thread log events, directly to the logger.
+    Can also be used to log directly on the same thread using dispatchDirectLogEvent.
+    """
+    logMessage = pyqtSignal(str, int, int)
+
+    def __init__(self):
+        super().__init__()
+        self.logger = None
+
+    def __del__(self):
+        self.logger = None
+
+    def dispatchLogEvent(self, msg, priority, typ=0):
+        self.logMessage.emit(str(msg), int(priority), int(typ))
+
+    def dispatchDirectLogEvent(self, msg, priority, typ=0):
+        if self.logger:
+            self.logger.logData(str(msg), int(priority), int(typ))
+
+    def bind(self, obj):
+        """
+        Bind this global to the actual logger object.
+        """
+        self.logger = obj
+
+LOGGER_EVENTS = LoggerEvents()
+
 # Log Item could be extended with SQL Alchemy to directly store the logged message to our sql database.
 class LogItem():
-
     def __init__(self, text, priority, timestamp, color, type):
         super().__init__()
         self.text = text
@@ -80,10 +108,14 @@ class ColorizedLogger(QWidget):
 
     def setupUi(self):
         loadUi("designer/widget_logger.ui", self)
+
         header = self.loggerTable.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)       
+
+        LOGGER_EVENTS.logMessage.connect(self.logData)
+        LOGGER_EVENTS.bind(self)
 
         self.searchButton.clicked.connect(self.display)
         self.checkFilterGUI.stateChanged.connect(self.display)
@@ -124,6 +156,7 @@ class ColorizedLogger(QWidget):
 
         return (True if keyword.lower() in item.text.lower() else False)
 
+    @pyqtSlot(str, int, int)
     def logData(self, text, priority, type=0):
         """Log the data in a dictionary"""
         priority = clamp(priority, 0, (len(self.colorForPriority)-1))

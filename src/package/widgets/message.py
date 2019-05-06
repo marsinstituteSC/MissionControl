@@ -1,8 +1,11 @@
+import os
+import math
+import json
 from PyQt5.QtWidgets import QWidget, QPushButton
 from PyQt5.uic import loadUi
-import sys, random, time, os, math, json
 from configparser import ConfigParser
 from communications import udp_conn as UDP
+from widgets import logger as log
 
 class CustomMessageWidget(QWidget):
     def __init__(self):
@@ -135,6 +138,7 @@ class CustomMessageWidget(QWidget):
                 with open("messages.ini", "w") as configfile:
                     self.config.write(configfile)
         except Exception as e:
+            log.LOGGER_EVENTS.dispatchDirectLogEvent(e, log.LOGGER_PRIORITY_ERROR)
             print(e)
     
     def updateMessageFile(self):
@@ -145,4 +149,5 @@ class CustomMessageWidget(QWidget):
             with open("messages.ini", "w") as configfile:
                 self.config.write(configfile)
         except Exception as e:
+            log.LOGGER_EVENTS.dispatchDirectLogEvent(e, log.LOGGER_PRIORITY_ERROR)
             print(e)

@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 
 from communications import database
 from widgets.logger import getNameForRoverDataType, getPriorityText
+from widgets import logger as log
 
 EVENTLOG = None
 
@@ -24,6 +25,8 @@ class EventLogWindow(QMainWindow):
 
         data = database.Event.findAll(True)
         if data:
+            if len(data) <= 0:
+                log.LOGGER_EVENTS.dispatchDirectLogEvent("No entries found in the DB!", log.LOGGER_PRIORITY_NOTIFICATION)
             for row in data:
                 idx = self.sensorTable.rowCount()
                 self.sensorTable.insertRow(idx)
@@ -35,6 +38,8 @@ class EventLogWindow(QMainWindow):
                 self.sensorTable.setItem(idx, 2, QTableWidgetItem(getPriorityText(row.severity)))
                 self.sensorTable.setItem(
                     idx, 3, QTableWidgetItem(str(row.time)))
+        else:
+            log.LOGGER_EVENTS.dispatchDirectLogEvent("Unable to connect and read from the DB!", log.LOGGER_PRIORITY_ERROR)
 
     def delSelRowFromSensor(self):
         row = self.sensorTable.currentRow()
