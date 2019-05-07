@@ -198,6 +198,13 @@ def deleteDataFromDatabase():
             if s:
                 s.close()
 
+def createTables():
+    """
+    Create all the necessary tables for the DB.
+    """
+    global engine, Base
+    Base.metadata.create_all(engine, tables=[Event.__table__])
+
 def createDatabase(db):
     """
     Create a fully functional MySQL or PostgreSQL DB + table(s).
@@ -222,7 +229,7 @@ def createDatabase(db):
 
         # Connect to the new DB + create new tables.      
         engine = create_engine("{}{}:{}@{}:{}/{}".format("mysql+pymysql://" if USEMYSQL else "postgresql://", USERNAME, PASSWD, ADDRESS, PORT, db))
-        Base.metadata.create_all(engine, tables=[Event.__table__])
+        createTables()
         time.sleep(1)
         engine.dispose()
 
